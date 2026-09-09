@@ -642,9 +642,7 @@ if (!empty($filters['locality'])) {
 
 			$project->project_status = clean($project->project_status);
 
-			$project->logo_image = $project->logo_image
-				? url('storage/' . $project->logo_image)
-				: url('uploads/project/default.png');
+			$project->logo_image = storageUrl($project->hero_images ?: $project->logo_image);
 
 			return $project;
 		});
@@ -2010,12 +2008,7 @@ public function SearchProjects(Request $req)
 	private function transformListedProjects($projects): void
 	{
 		$projects->getCollection()->transform(function ($project) {
-			$logo = (string) $project->logo_image;
-			if ($logo === '') {
-				$project->logo_image = url('uploads/project/default.png');
-			} elseif (!str_starts_with($logo, 'http://') && !str_starts_with($logo, 'https://')) {
-				$project->logo_image = url('storage/' . ltrim($logo, '/'));
-			}
+			$project->logo_image = storageUrl($project->hero_images ?: $project->logo_image);
 
 			return $project;
 		});

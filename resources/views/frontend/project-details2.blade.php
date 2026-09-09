@@ -1,6 +1,6 @@
 @extends('frontend.layouts.app')
 @section('usesSweetAlert', true)
-@section('og_image', url('storage/' . $projects->logo_image))
+@section('og_image', storageUrl($projects->logo_image))
 @section('title', $projects->seo_data['title'])
 @section('keywords', $projects->seo_data['primary_keyword'].' '.$projects->seo_data['secondary_keyword'])
 @section('description', $projects->seo_data['meta_description'])
@@ -27,7 +27,7 @@
 
     "datePosted" => optional($projects->created_at)->format('Y-m-d'),
 
-    "image" => url('storage/' . $projects->hero_images),
+    "image" => storageUrl($projects->hero_images),
 
     "offers" => [
         "@type" => "AggregateOffer",
@@ -185,25 +185,25 @@
   </div>
   <div class="row hero-section" id="hero">
     <div class="col-md-6 d-none d-md-block">
-      <img class="w-100 h-100 object-fit-cover rounded-start-3" src="{{url('storage/'.$projects->hero_images)}}"
+      <img class="w-100 h-100 object-fit-cover rounded-start-3" src="{{storageUrl($projects->hero_images)}}"
         alt="{{$projects->project_name}}" />
     </div>
     <div class="col-md-6">
       <div class="row h-100">
         <div class="col-6 mb-3 aspect2-1 d-none d-md-block">
-          <img class="w-100 h-100" src="{{url('storage/'.$projects->amenities_images)}}"
+          <img class="w-100 h-100" src="{{storageUrl($projects->amenities_images)}}"
             alt="{{$projects->project_name}} amenity image" />
         </div>
         <div class="col-6 mb-3 aspect2-1 d-none d-md-block">
           <img class="w-100 h-100 rounded-3 rounded-start-0 rounded-bottom-0"
-            src="{{url('storage/'.$projects->feature_image)}}" alt="{{$projects->project_name}} feature image" />
+            src="{{storageUrl($projects->feature_image)}}" alt="{{$projects->project_name}} feature image" />
         </div>
         <div class="col-6 aspect2-1 d-none d-md-block">
-          <img class="w-100 h-100" src="{{url('storage/'.$projects->logo_image)}}" alt="{{$projects->project_name}} logo image" />
+          <img class="w-100 h-100" src="{{storageUrl($projects->logo_image)}}" alt="{{$projects->project_name}} logo image" />
         </div>
         <div class="col-6 aspect2-1 d-none d-md-block">
           <img class="w-100 h-100 rounded-3 rounded-start-0 rounded-top-0"
-            src="{{url('storage/'.$projects->developer_background_image)}}" alt="{{$projects->project_name}}" />
+            src="{{storageUrl($projects->developer_background_image)}}" alt="{{$projects->project_name}}" />
         </div>
       </div>
     </div>
@@ -212,23 +212,23 @@
       <div id="mobileProjectSlider" class="carousel slide" data-bs-ride="carousel">
         <div class="carousel-inner">
           <div class="carousel-item active">
-            <img class="d-block w-100" src="{{url('storage/'.$projects->hero_images)}}"
+            <img class="d-block w-100" src="{{storageUrl($projects->hero_images)}}"
               alt="{{$projects->project_name}}">
           </div>
           <div class="carousel-item">
-            <img class="d-block w-100" src="{{url('storage/'.$projects->amenities_images)}}"
+            <img class="d-block w-100" src="{{storageUrl($projects->amenities_images)}}"
               alt="{{$projects->project_name}} amenity image">
           </div>
           <div class="carousel-item">
-            <img class="d-block w-100" src="{{url('storage/'.$projects->feature_image)}}"
+            <img class="d-block w-100" src="{{storageUrl($projects->feature_image)}}"
               alt="{{$projects->project_name}} feature image">
           </div>
           <div class="carousel-item">
-            <img class="d-block w-100" src="{{url('storage/'.$projects->logo_image)}}"
+            <img class="d-block w-100" src="{{storageUrl($projects->logo_image)}}"
               alt="{{$projects->project_name}} logo image">
           </div>
           <div class="carousel-item">
-            <img class="d-block w-100" src="{{url('storage/'.$projects->developer_background_image)}}"
+            <img class="d-block w-100" src="{{storageUrl($projects->developer_background_image)}}"
               alt="{{$projects->project_name}}">
           </div>
         </div>
@@ -322,7 +322,7 @@
 
                      @if(!empty($rera['qr_image']))
 					  <div class="rera-right">
-						<img src="{{ url('storage/' . $rera['qr_image']) }}" alt="RERA QR Code">
+						<img src="{{ storageUrl($rera['qr_image']) }}" alt="RERA QR Code">
 					  </div>
 					 @endif
                     </div>
@@ -457,7 +457,7 @@
         <div class="section project-section" id="location">
           <h2 class="h4 my-4 text-primary fw-bold">{{ $projects->project_name }} Location</h2>
           @if(!empty($projects->location_video))
-          <video src="{{ url('storage/' . $projects->location_video) }}" class="w-100" autoplay muted controls></video>
+          <video src="{{ storageUrl($projects->location_video) }}" class="w-100" autoplay muted controls></video>
           @endif
           <p class="my-3">{!!@$projects->location_description !!}
           <p>
@@ -472,7 +472,7 @@
 					<div class="siteplan-card shadow-sm">
 						<div class="siteplan-img-wrapper">
 							<img class="img-fluid siteplan-image d-block w-100"
-								 src="{{ url('storage/'.$projects->site_plans_images) }}"
+								 src="{{ storageUrl($projects->site_plans_images) }}"
 								 alt="{{ $projects->project_name }} Site Plan">
 						</div>
 					</div>
@@ -538,7 +538,7 @@
                 @foreach($floorPlans as $index => $floorPlan)
                 <div class="swiper-slide flex-column">
                   <img class="col-12 col-md-10 mx-auto" alt="{{$projects->project_name}} floor plan"
-                    src="{{ url('storage/' . $floorPlan['image']) }}" />
+                    src="{{ storageUrl($floorPlan['image']) }}" />
                   <div class="row m-0 w-100 align-items-center">
                     @if(@$floorPlan['super_area'] != 0)
                     <div class="col-md-3 col-6">
@@ -646,7 +646,7 @@
             @if(!empty($projects->amenitiesDetails) && count($projects->amenitiesDetails)>0)
             @foreach($projects->amenitiesDetails as $index => $amenity)
             <div class="icon col-md-2 col-4">
-              <img src="{{url('storage/'.$amenity->image)}}" alt="{{'360_propguide'.$amenity->name}}" />
+              <img src="{{storageUrl($amenity->image)}}" alt="{{'360_propguide'.$amenity->name}}" />
               <span>{{$amenity->name}}</span>
             </div>
             @endforeach
@@ -669,7 +669,7 @@
             @if (!empty($projects->developerDetails))
             @foreach ($projects->developerDetails as $developer)
             <div class="col-12 col-md-3">
-              <img src="{{url('storage/'.$developer->developer_logo)}}" class="col-6 mx-auto col-md-12 d-block"
+              <img src="{{storageUrl($developer->developer_logo)}}" class="col-6 mx-auto col-md-12 d-block"
                 alt="{{$projects->project_name}}" />
             </div>
             <div class="col-4 col-md-3">
@@ -946,7 +946,7 @@
               <div class="col-5 col-md-5 img-container position-relative">
                 <img alt="{{$recommended->project_name }}" loading="lazy" decoding="async" data-nimg="fill"
                   class="h-100 object-fit-cover rounded-start-1" sizes="100vw"
-                  src="{{ url('storage/' . $recommended->logo_image) }}" style="
+                  src="{{ storageUrl($recommended->logo_image) }}" style="
                     position: absolute;
                     height: 100%;
                     width: 100%;

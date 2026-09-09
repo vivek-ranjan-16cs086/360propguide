@@ -9,8 +9,28 @@
         }
     }
 
+    if (!function_exists('storageUrl')) {
+        function storageUrl(?string $path, string $fallback = 'uploads/project/default.png'): string
+        {
+            $path = trim(str_replace('\\', '/', (string) $path));
+            if ($path === '') {
+                return url($fallback);
+            }
+            if (preg_match('#^https?://#i', $path)) {
+                return $path;
+            }
+            $path = ltrim($path, '/');
+            if (str_starts_with($path, 'storage/')) {
+                $path = substr($path, 8);
+            }
+            $path = preg_replace('#/+#', '/', $path);
+            $encoded = implode('/', array_map('rawurlencode', explode('/', $path)));
 
-	// for file uploading
+            return url('storage/' . $encoded);
+        }
+    }
+
+    // for file uploading
     if(!function_exists('uploadFile')){
 		function uploadFile($file, $location, $prefix = '360_prop_guide')
 		{
