@@ -87,62 +87,51 @@ jobs:
 
       - name: Deploy via FTP
         if: steps.ftp.outputs.configured == 'true'
-        env:
-          FTP_SERVER: ${{ secrets.FTP_SERVER || vars.FTP_SERVER }}
-          FTP_USERNAME: ${{ secrets.FTP_USERNAME || vars.FTP_USERNAME }}
-          LFTP_PASSWORD: ${{ secrets.FTP_PASSWORD || vars.FTP_PASSWORD }}
-          FTP_PORT: ${{ secrets.FTP_PORT || vars.FTP_PORT || '21' }}
-          REMOTE_DIR: ${{ secrets.FTP_SERVER_DIR || vars.FTP_SERVER_DIR || '/' }}
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y lftp
-
-          PORT="${FTP_PORT:-21}"
-          if [ -z "$REMOTE_DIR" ] || [ "$REMOTE_DIR" = "/" ]; then
-            REMOTE="."
-          else
-            REMOTE="${REMOTE_DIR#/}"
-            REMOTE="${REMOTE%/}"
-          fi
-
-          echo "Deploying to ${FTP_SERVER}:${PORT} as ${FTP_USERNAME} → ${REMOTE}"
-
-          lftp -c "
-            set ssl:verify-certificate no
-            set ftp:ssl-allow no
-            set ftp:ssl-force no
-            set ftp:passive-mode true
-            set ftp:prefer-epsv false
-            set net:max-retries 8
-            set net:reconnect-interval-base 5
-            set net:timeout 30
-            open -u ${FTP_USERNAME}, ftp://${FTP_SERVER}:${PORT}
-            mirror -R --verbose --parallel=1 --only-newer --no-perms --no-umask \
-              -x '^\\.git/' \
-              -x '^\\.github/' \
-              -x '^vendor/' \
-              -x '^node_modules/' \
-              -x '^tests/' \
-              -x '^package.json$' \
-              -x '^package-lock.json$' \
-              -x '^vite.config.js$' \
-              -x '^storage/logs/' \
-              -x '^storage/debugbar/' \
-              -x '^storage/framework/cache/data/' \
-              -x '^storage/framework/sessions/' \
-              -x '^storage/framework/views/' \
-              -x '^storage/app/public/' \
-              -x '^storage/app/firebase/' \
-              -x '^public/plugins/' \
-              -x '^public/dist/' \
-              -x '^public/storage/' \
-              -x '^public/frontend/libraries/' \
-              -x '\\.env$' \
-              -x '\\.mp4$' \
-              -x '\\.mmdb$' \
-              ./ ${REMOTE}
-            bye
-          "
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER || vars.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME || vars.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD || vars.FTP_PASSWORD }}
+          protocol: ftp
+          port: 21
+          local-dir: ./
+          server-dir: ./
+          timeout: 120000
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/.github/**
+            **/.github*/**
+            **/.gitignore
+            **/.gitattributes
+            **/.editorconfig
+            **/.styleci.yml
+            **/.env
+            **/.env.*
+            **/node_modules/**
+            **/vendor/**
+            **/tests/**
+            **/package.json
+            **/package-lock.json
+            **/vite.config.js
+            **/error_log
+            **/.ftp-deploy-sync-state.json
+            **/storage/logs/**
+            **/storage/debugbar/**
+            **/storage/framework/cache/data/**
+            **/storage/framework/sessions/**
+            **/storage/framework/views/**
+            **/storage/app/firebase/**
+            **/storage/app/public/**
+            **/public/storage/**
+            **/public/plugins/**
+            **/public/dist/**
+            **/public/frontend/libraries/**
+            **/*.mmdb
+            **/*.mp4
+            **/.idea/**
+            **/.vscode/**
+            **/.cursor/**
 
       - name: Install PHP packages on live
         if: steps.ftp.outputs.configured == 'true' && steps.ssh.outputs.configured == 'true'
