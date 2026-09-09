@@ -31,7 +31,7 @@ In the GitHub repo go to **Settings → Secrets and variables → Actions → Se
 | `FTP_USERNAME` | Hostinger FTP username |
 | `FTP_PASSWORD` | Hostinger FTP password |
 | `FTP_PORT` | `21` |
-| `FTP_SERVER_DIR` | `/` (FTP account home; Hostinger usually opens already inside the site folder) |
+| `FTP_SERVER_DIR` | Do not set this to `public_html`. The FTP user already opens inside `public_html`, so the workflow uploads to `/`. |
 | `SSH_HOST` | Optional. Only if you enable SSH in hPanel → **Advanced → SSH Access**. Needed to auto-run `composer install` on live. |
 
 The workflow also reads these names from **Variables** if Secrets are empty. Prefer **Secrets** for the password so it is not visible in the settings UI.
