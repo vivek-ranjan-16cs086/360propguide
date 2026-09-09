@@ -19,21 +19,20 @@ Do not commit `.env`. Production secrets stay on the Hostinger server.
 
 ## GitHub Actions CI/CD
 
-Every push to `main` runs PHP tests, uploads code to Hostinger over SFTP, then runs `composer install --no-dev --optimize-autoloader` on the server so new PHP packages are installed on live. Node/npm is not used.
+Every push to `main` runs PHP tests, then uploads code to Hostinger over FTP on port 21. Node/npm is not used.
 
 ### Required GitHub secrets
 
 In the GitHub repo go to **Settings → Secrets and variables → Actions → Secrets** (not the Variables tab) and add:
 
-| Secret | Where to find it |
+| Secret | Value |
 | --- | --- |
-| `FTP_SERVER` | Hostinger hPanel → **Files → FTP Accounts** (hostname, often `ftp.360propguide.com`) |
-| `FTP_USERNAME` | Same FTP account username |
-| `FTP_PASSWORD` | Same FTP account password |
-| `FTP_SERVER_DIR` | Optional. Defaults to `/public_html/` |
-| `SSH_HOST` | Optional. Defaults to `FTP_SERVER`. Enable SSH in Hostinger hPanel → **Advanced → SSH Access** |
-| `SSH_PORT` | Optional. Defaults to `65002` (Hostinger) |
-| `SSH_USERNAME` / `SSH_PASSWORD` | Optional. Defaults to the FTP username and password |
+| `FTP_SERVER` | `ftp.360propguide.com` |
+| `FTP_USERNAME` | Hostinger FTP username |
+| `FTP_PASSWORD` | Hostinger FTP password |
+| `FTP_PORT` | `21` |
+| `FTP_SERVER_DIR` | `/` (FTP account home; Hostinger usually opens already inside the site folder) |
+| `SSH_HOST` | Optional. Only if you enable SSH in hPanel → **Advanced → SSH Access**. Needed to auto-run `composer install` on live. |
 
 The workflow also reads these names from **Variables** if Secrets are empty. Prefer **Secrets** for the password so it is not visible in the settings UI.
 
