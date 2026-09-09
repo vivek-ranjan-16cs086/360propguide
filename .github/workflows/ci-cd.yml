@@ -74,6 +74,17 @@ jobs:
           echo "FTP host: $FTP_SERVER"
           echo "FTP user: $FTP_USERNAME"
 
+      - name: Check SSH credentials
+        id: ssh
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST || vars.SSH_HOST }}
+        run: |
+          if [ -n "$SSH_HOST" ]; then
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Deploy via FTP
         if: steps.ftp.outputs.configured == 'true'
         env:
@@ -134,7 +145,7 @@ jobs:
           "
 
       - name: Install PHP packages on live
-        if: ${{ steps.ftp.outputs.configured == 'true' && (secrets.SSH_HOST != '' || vars.SSH_HOST != '') }}
+        if: steps.ftp.outputs.configured == 'true' && steps.ssh.outputs.configured == 'true'
         uses: appleboy/ssh-action@v1.2.2
         with:
           host: ${{ secrets.SSH_HOST || vars.SSH_HOST || secrets.FTP_SERVER || vars.FTP_SERVER }}
