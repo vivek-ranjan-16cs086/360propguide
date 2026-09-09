@@ -25,7 +25,7 @@
                         <form action="{{ route('subscribe') }}" method="post" class="footer-newsletter-form">
                             <input type="hidden" name="_token" value="{{ csrf_token() }}">
                             <p class="newsletter-title mb-2">
-                                <i class="fa-solid fa-bell text-coral me-1"></i> Stay Ahead of NCR Property Trends2
+                                <i class="fa-solid fa-bell text-coral me-1"></i> Stay Ahead of NCR Property Trends
                             </p>
                             <div class="input-group newsletter-input-group">
                                 <input type="email" name="email" class="form-control newsletter-input" placeholder="Enter Your Email Address" required>
