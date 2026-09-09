@@ -9,7 +9,7 @@
         <article class="projects-grid__item">
             <a href="{{ $projectUrl }}" class="project-card" aria-label="View {{ $project->project_name }}">
                 <div class="project-card__media">
-                    <img src="{{ $project->logo_image }}"
+                    <img src="{{ storageUrl($project->logo_image) }}"
                          alt="{{ $project->project_name }} - 360 PropGuide"
                          loading="lazy">
                     <div class="project-card__badges">

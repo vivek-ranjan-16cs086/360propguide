@@ -19,14 +19,48 @@
             if (preg_match('#^https?://#i', $path)) {
                 return $path;
             }
+
             $path = ltrim($path, '/');
             if (str_starts_with($path, 'storage/')) {
                 $path = substr($path, 8);
             }
+            if (str_starts_with($path, 'app/public/')) {
+                $path = substr($path, 11);
+            }
+            if (str_starts_with($path, 'public/')) {
+                $path = substr($path, 7);
+            }
             $path = preg_replace('#/+#', '/', $path);
+
             $encoded = implode('/', array_map('rawurlencode', explode('/', $path)));
 
             return url('storage/' . $encoded);
+        }
+    }
+
+    if (!function_exists('storageFileCandidates')) {
+        function storageFileCandidates(string $path): array
+        {
+            $path = ltrim(str_replace('\\', '/', urldecode($path)), '/');
+            $path = preg_replace('#/+#', '/', $path);
+            if ($path === '' || str_contains($path, '..')) {
+                return [];
+            }
+
+            $withoutPublic = str_starts_with($path, 'public/') ? substr($path, 7) : $path;
+            $withPublic = str_starts_with($path, 'public/') ? $path : 'public/' . $path;
+
+            return array_values(array_unique([
+                storage_path('app/public/' . $withoutPublic),
+                storage_path('app/public/' . $path),
+                storage_path('public/' . $withoutPublic),
+                storage_path('public/' . $path),
+                public_path('storage/' . $withoutPublic),
+                public_path('storage/' . $path),
+                public_path('storage/' . $withPublic),
+                storage_path('app/' . $withPublic),
+                storage_path('app/' . $path),
+            ]));
         }
     }
 

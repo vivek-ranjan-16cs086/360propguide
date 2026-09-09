@@ -13,8 +13,18 @@
     RewriteCond %{THE_REQUEST} ^[A-Z]{3,}\s/public(/[^\s]*)?\sHTTP
     RewriteRule ^public(/.*)?$ /%1 [R=301,L]
 
-    # Serve Laravel uploads from storage/app/public (Hostinger, no symlink needed)
+    # Serve Laravel uploads without a symlink (Hostinger)
+    RewriteCond %{DOCUMENT_ROOT}/storage/app/public/$1 -f
     RewriteRule ^storage/(.*)$ storage/app/public/$1 [L]
+
+    RewriteCond %{DOCUMENT_ROOT}/storage/public/$1 -f
+    RewriteRule ^storage/(.*)$ storage/public/$1 [L]
+
+    RewriteCond %{DOCUMENT_ROOT}/public/storage/$1 -f
+    RewriteRule ^storage/(.*)$ public/storage/$1 [L]
+
+    RewriteCond %{DOCUMENT_ROOT}/public/storage/public/$1 -f
+    RewriteRule ^storage/(.*)$ public/storage/public/$1 [L]
 
     # ✅ Route all other requests through /public
     RewriteCond %{REQUEST_URI} !^/public/

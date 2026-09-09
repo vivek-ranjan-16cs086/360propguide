@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 //frontend
 use App\Http\Controllers\frontend\FrontendPageController;
+use App\Http\Controllers\frontend\StorageFileController;
 use App\Http\Controllers\frontend\SubscriptionController;
 use App\Http\Controllers\frontend\MailController;
 use App\Http\Controllers\frontend\PropertyController;
@@ -365,6 +366,9 @@ Route::get('budget', function () {
 })->name('budget-get');
 
 Route::get('/api/load-more-links', [CustomLinkController::class, 'loadMore']);
+
+Route::get('/storage/{path}', [StorageFileController::class, 'show'])
+    ->where('path', '.*');
 
 //Route::GET('/{slug}', [FrontendPageController::class, 'showFilteredProjects']);
 Route::get('/{slug}', [FrontendPageController::class, 'showFilteredProjects'])

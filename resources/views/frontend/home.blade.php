@@ -301,7 +301,7 @@
                                                 {{ clean($project->project_status) }}
                                             </div>
                                             <div class="project-card__image-wrap">
-                                                <img src="{{ storageUrl($project->hero_images ?: $project->logo_image) }}"
+                                                <img src="{{ storageUrl($project->logo_image) }}"
                                                     alt="{{ $project->project_name }}" loading="lazy" decoding="async">
                                             </div>
                                             <div class="projectDescp">

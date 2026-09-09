@@ -642,7 +642,7 @@ if (!empty($filters['locality'])) {
 
 			$project->project_status = clean($project->project_status);
 
-			$project->logo_image = storageUrl($project->hero_images ?: $project->logo_image);
+			$project->logo_image = storageUrl($project->logo_image);
 
 			return $project;
 		});
@@ -2008,7 +2008,7 @@ public function SearchProjects(Request $req)
 	private function transformListedProjects($projects): void
 	{
 		$projects->getCollection()->transform(function ($project) {
-			$project->logo_image = storageUrl($project->hero_images ?: $project->logo_image);
+			$project->logo_image = storageUrl($project->logo_image);
 
 			return $project;
 		});
