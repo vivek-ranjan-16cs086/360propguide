@@ -58,12 +58,20 @@ jobs:
           npm ci
           npm run build
 
+      - name: Upload built assets
+        uses: actions/upload-artifact@v4
+        with:
+          name: vite-build
+          path: public/build
+          retention-days: 1
+          if-no-files-found: ignore
+
   deploy:
     name: Deploy to Hostinger
     needs: test
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 20
 
     steps:
       - name: Checkout
@@ -85,31 +93,13 @@ jobs:
           echo "FTP host: $FTP_SERVER"
           echo "FTP user: $FTP_USERNAME"
 
-      - name: Setup PHP
+      - name: Download built assets
         if: steps.ftp.outputs.configured == 'true'
-        uses: shivammathur/setup-php@v2
+        uses: actions/download-artifact@v4
         with:
-          php-version: "8.2"
-          extensions: mbstring, xml, ctype, json, bcmath, gd, fileinfo, zip
-          coverage: none
-          tools: composer:v2
-
-      - name: Install production PHP dependencies
-        if: steps.ftp.outputs.configured == 'true'
-        run: composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
-
-      - name: Setup Node
-        if: steps.ftp.outputs.configured == 'true'
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: npm
-
-      - name: Build frontend assets
-        if: steps.ftp.outputs.configured == 'true'
-        run: |
-          npm ci
-          npm run build
+          name: vite-build
+          path: public/build
+        continue-on-error: true
 
       - name: Deploy via FTPS
         if: steps.ftp.outputs.configured == 'true'
@@ -123,7 +113,7 @@ jobs:
           security: loose
           local-dir: ./
           server-dir: ${{ secrets.FTP_SERVER_DIR || vars.FTP_SERVER_DIR || '/public_html/' }}
-          timeout: 60000
+          timeout: 120000
           exclude: |
             **/.git*
             **/.git*/**
@@ -136,6 +126,7 @@ jobs:
             **/.env
             **/.env.*
             **/node_modules/**
+            **/vendor/**
             **/tests/**
             **/error_log
             **/.ftp-deploy-sync-state.json
@@ -147,6 +138,9 @@ jobs:
             **/storage/app/firebase/**
             **/storage/app/public/**
             **/public/storage/**
+            **/public/plugins/**
+            **/*.mmdb
+            **/*.mp4
             **/.idea/**
             **/.vscode/**
             **/.cursor/**
