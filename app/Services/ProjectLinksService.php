@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\admin\CustomLink;
+use App\Models\Location;
 use App\Models\Project;
 use Illuminate\Support\Str;
 
@@ -10,16 +11,14 @@ class ProjectLinksService
 {
     public function getCities(): array
     {
-        $cities = Project::whereNotNull('cities')
-            ->pluck('cities')
-            ->flatMap(fn($item) => explode(',', $item))
-            ->map(fn($c) => strtolower(trim($c)))
+        $cities = Location::parentCityNames()
+            ->map(fn ($city) => strtolower(trim($city)))
             ->filter()
             ->unique()
             ->values()
             ->toArray();
 
-        usort($cities, fn($a, $b) => strlen($b) - strlen($a));
+        usort($cities, fn ($a, $b) => strlen($b) - strlen($a));
 
         return $cities;
     }
@@ -39,6 +38,39 @@ class ProjectLinksService
             ])
             ->unique(fn($link) => $link['url'])
             ->toArray();
+    }
+
+    public function getFooterCustomLinks(?string $currentPath = null): array
+    {
+        $path = strtolower(trim((string) $currentPath, '/'));
+        $typeOrder = [
+            'location' => 1,
+            'sublocation' => 2,
+            'possession' => 3,
+            'developer' => 4,
+        ];
+
+        return CustomLink::query()
+            ->where('is_active', 1)
+            ->whereIn('type', ['location', 'sublocation', 'possession', 'developer'])
+            ->get(['name', 'title', 'slug', 'type'])
+            ->map(fn ($link) => [
+                'text' => $link->name ?: $link->title,
+                'title' => $link->title,
+                'url' => trim(strtolower((string) $link->slug), '/'),
+                'type' => $link->type,
+            ])
+            ->filter(function ($link) use ($path) {
+                return $link['url'] !== '' && $link['url'] !== $path;
+            })
+            ->unique('url')
+            ->sortBy(function ($link) use ($typeOrder) {
+                $order = $typeOrder[$link['type']] ?? 9;
+
+                return sprintf('%d-%s', $order, strtolower((string) $link['text']));
+            })
+            ->values()
+            ->all();
     }
 
     public function getPropertyLinks(): array

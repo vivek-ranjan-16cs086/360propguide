@@ -427,3 +427,36 @@
     font-weight: 400;
     text-transform: capitalize;
 }
+
+.filters-sidebar {
+    width: 100%;
+}
+
+#mobileFilter .offcanvas-header {
+    border-bottom: 1px solid #e2e8f0;
+}
+
+#mobileFilter .offcanvas-title {
+    font-size: 0.95rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #0b1a28;
+}
+
+#mobileFilter .offcanvas-body {
+    padding: 0;
+}
+
+#mobileFilter .filter-box {
+    border: 0;
+    box-shadow: none;
+    border-radius: 0;
+}
+
+#mobileFilter .offcanvas-footer .btn {
+    background: #0b1a28;
+    color: #ffffff;
+    font-weight: 700;
+    padding: 0.55rem 1.1rem;
+}

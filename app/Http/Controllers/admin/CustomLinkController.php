@@ -1058,13 +1058,14 @@ class CustomLinkController extends Controller
         $type    = $request->query('type');
         $page    = (int) $request->query('page', 1);
         $path    = strtolower($request->query('path', ''));
-        $perPage = 10;
+        $perPage = ($type === 'property') ? 16 : 32;
 
         if ($type === 'property') {
             $links = $service->getPropertyLinks();
+        } elseif (in_array($type, ['footer', 'general'], true)) {
+            $links = $service->getFooterCustomLinks($path);
         } else {
-            $grouped = $service->getGroupedLinksForPath($path);
-            $links = $grouped[$type] ?? [];
+            $links = [];
         }
 
         // URL ko absolute bana do

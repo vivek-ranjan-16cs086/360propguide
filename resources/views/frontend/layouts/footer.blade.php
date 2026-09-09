@@ -30,7 +30,7 @@
                             <div class="input-group newsletter-input-group">
                                 <input type="email" name="email" class="form-control newsletter-input" placeholder="Enter Your Email Address" required>
                                 <button type="submit" class="btn btn-theme-primary newsletter-btn">
-                                    <span>Subscribe2</span>
+                                    <span>Subscribe</span>
                                     <i class="fa-solid fa-paper-plane"></i>
                                 </button>
                             </div>

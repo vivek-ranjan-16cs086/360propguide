@@ -29,6 +29,7 @@
             <li><a href="{{route('custom-links.index')}}"><i class="fa fa-cog yellow_color"></i> <span>Custom Links</span></a></li>
             <!--<li><a href="{{route('settings.index')}}"><i class="fa fa-cog yellow_color"></i> <span>Settings</span></a></li> -->
 			<li><a href="{{ route('developers.index') }}"><i class="fa fa-code yellow_color"></i><span>Developers</span></a></li>
+			<li><a href="{{ route('locations.index') }}"><i class="fa-solid fa-location-dot yellow_color"></i><span>Locations</span></a></li>
         </ul>
     </div>
 </nav>

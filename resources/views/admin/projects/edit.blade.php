@@ -102,17 +102,32 @@
                                     </select>
                                 </div>
                                 <div class="col-sm-12 col-lg-6 mb-4">
-                                    <label for="location">Project Location</label>
-                                    <input class="form-control input @error('location') is-invalid @enderror "
-                                        type="text" placeholder="Enter Project Location"
-                                        value="{{old('location') ? old('location') : @$projects->location}}"
-                                        name="location">
+                                    <label for="location_id">City</label>
+                                    <select name="location_id" id="location_id" class="form-control input select2">
+                                        <option value="">Select City</option>
+                                        @foreach (($parentLocations ?? []) as $parentLocation)
+                                            <option value="{{ $parentLocation->id }}"
+                                                data-name="{{ $parentLocation->city }}"
+                                                {{ (string) old('location_id', $projects->location_id) === (string) $parentLocation->id ? 'selected' : '' }}>
+                                                {{ $parentLocation->city }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <input type="hidden" name="cities" id="cities" value="{{ old('cities', $projects->cities) }}">
                                 </div>
                                 <div class="col-sm-12 col-lg-6 mb-4">
-                                    <label for="location">City</label>
-                                    <input class="form-control input @error('cities') is-invalid @enderror " type="text"
-                                        placeholder="Enter Project City"
-                                        value="{{old('cities') ? old('cities') : @$projects->cities}}" name="cities">
+                                    <label for="sublocation_id">Project Location (Sublocation)</label>
+                                    <select name="sublocation_id" id="sublocation_id" class="form-control input select2">
+                                        <option value="">Select Sublocation</option>
+                                        @foreach (($sublocations ?? []) as $sublocation)
+                                            <option value="{{ $sublocation->id }}"
+                                                data-name="{{ $sublocation->city }}"
+                                                {{ (string) old('sublocation_id', $projects->sublocation_id) === (string) $sublocation->id ? 'selected' : '' }}>
+                                                {{ $sublocation->city }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <input type="hidden" name="location" id="location" value="{{ old('location', $projects->location) }}">
                                 </div>
                                 <div class="col-sm-12 col-lg-6 mb-4">
                                     <label for="price">Minimum Price</label>
@@ -896,6 +911,36 @@
 
 @section('customJs')
 <script>
+    function syncLocationHiddenFields() {
+        const cityOption = $('#location_id option:selected');
+        const subOption = $('#sublocation_id option:selected');
+        $('#cities').val(cityOption.data('name') || '');
+        $('#location').val(subOption.data('name') || cityOption.data('name') || '');
+    }
+
+    function loadSublocations(parentId, selectedId) {
+        const $sub = $('#sublocation_id');
+        $sub.find('option:not(:first)').remove();
+        if (!parentId) {
+            syncLocationHiddenFields();
+            return;
+        }
+        $.get("{{ url('7439/locations/children') }}/" + parentId, function (items) {
+            items.forEach(function (item) {
+                const selected = String(selectedId) === String(item.id) ? 'selected' : '';
+                $sub.append('<option value="' + item.id + '" data-name="' + item.city + '" ' + selected + '>' + item.city + '</option>');
+            });
+            syncLocationHiddenFields();
+        });
+    }
+
+    $(document).on('change select2:select', '#location_id', function () {
+        loadSublocations($(this).val(), null);
+        syncLocationHiddenFields();
+    });
+    $(document).on('change select2:select', '#sublocation_id', syncLocationHiddenFields);
+    $('form').on('submit', syncLocationHiddenFields);
+
     let selectedAreaType = $('#project_type').val();
 
     function generateFloorPlanFields(type, index) {

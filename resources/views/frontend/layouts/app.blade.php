@@ -357,10 +357,18 @@
           fetch(`/api/load-more-links?type=${type}&page=${nextPage}&path=${encodeURIComponent(path)}`)
             .then(res => res.json())
             .then(data => {
-              data.links.forEach(link => {
+              (data.links || []).forEach(link => {
                 const div = document.createElement('div');
                 div.className = `col-12 col-sm-6 col-md-4 col-lg-3 ${type}-item`;
-                div.innerHTML = `<a href="${link.url}" class="custom-link-item"><i class="fa-solid fa-location-arrow link-icon"></i><span class="link-text">${link.text}</span></a>`;
+                const a = document.createElement('a');
+                a.href = link.url;
+                a.className = 'custom-link-item';
+                a.innerHTML = '<i class="fa-solid fa-location-arrow link-icon"></i>';
+                const span = document.createElement('span');
+                span.className = 'link-text';
+                span.textContent = link.text || '';
+                a.appendChild(span);
+                div.appendChild(a);
                 container.appendChild(div);
               });
 
@@ -1010,26 +1018,51 @@
     });
     let searchDebounceTimer = null;
 
+    function escapeHtml(value) {
+      return String(value || '').replace(/[&<>"']/g, function (character) {
+        return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character];
+      });
+    }
+
+    function suggestionUrl(item) {
+      if (item.url) return item.url;
+      if (item.type === 'property') {
+        return '/properties/' + item.slug;
+      }
+      if (item.type === 'custom' || item.type === 'locality' || item.type === 'city') {
+        return item.slug && item.slug.charAt(0) === '/' ? item.slug : '/' + item.slug;
+      }
+      return '/projects/' + item.slug;
+    }
+
+    function suggestionMarkup(item) {
+      const label = item.label || (item.type === 'project' ? 'Project' : '');
+      return '<li><a href="' + escapeHtml(suggestionUrl(item)) + '"><span class="project-name">' + escapeHtml(item.name) + '</span>' +
+        (label ? '<span class="project-meta">' + escapeHtml(label) + '</span>' : '') + '</a></li>';
+    }
+
     // Show project results when the input field is focused
     $(document).on('focus', '.keyword', function () {
       const $parent = $(this).closest('.searchboxs');
       const $results = $parent.find('.project-results');
 
-      $results.show().html('<li>Searching Projects...</li>');
+      $results.show().html('<li>Searching...</li>');
 
       const location = $parent.find('select[name="location"]').val();
       const bhkType = $parent.find('select[name="bhkType"]').val();
 
       if (location) {
         $.ajax({
-          url: "{{ route('projects.search') }}",
-          method: "POST",
+          url: "{{ route('projects.search', [], false) }}",
+          method: "GET",
+          dataType: "json",
           data: { location, bhkType },
           success: function (data) {
-            if (data.data.length > 0) {
+            const items = (data && data.data) ? data.data : [];
+            if (items.length > 0) {
               let results = '';
-              $.each(data.data, function (index, project) {
-                results += `<li><a href="/projects/${project.slug}">${project.name}</a></li>`;
+              $.each(items, function (index, item) {
+                results += suggestionMarkup(item);
               });
               $results.html(results);
             } else {
@@ -1083,18 +1116,16 @@
 
       searchDebounceTimer = setTimeout(function () {
         $.ajax({
-          url: "{{ route('projects.search') }}",
-          method: "POST",
+          url: "{{ route('projects.search', [], false) }}",
+          method: "GET",
+          dataType: "json",
           data: { keyword, location, bhkType },
           success: function (data) {
-            if (data.data && data.data.length > 0) {
+            const items = (data && data.data) ? data.data : [];
+            if (items.length > 0) {
               let results = '';
-              $.each(data.data, function (index, project) {
-                let url = (project.type === 'custom')
-                  ? '/' + project.slug
-                  : '/projects/' + project.slug;
-
-                results += `<li><a href="${url}">${project.name}</a></li>`;
+              $.each(data.data, function (index, item) {
+                results += suggestionMarkup(item);
               });
               $results.html(results).show();
             } else {
@@ -1124,8 +1155,12 @@
       if (!location && keyword && !bhkType) slugParts.push("projects");
 
       const finalSlug = slugParts.join('-');
+      if (!finalSlug) {
+        window.location.href = keyword ? '/projects?q=' + encodeURIComponent(keyword) : '/projects';
+        return;
+      }
       if (keyword !== '') {
-        window.location.href = "/" + finalSlug + "?keyword=" + keyword;
+        window.location.href = "/" + finalSlug + "?keyword=" + encodeURIComponent(keyword);
       } else {
         window.location.href = "/" + finalSlug;
       }

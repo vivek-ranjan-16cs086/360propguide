@@ -56,71 +56,138 @@
     <section class="heroSection" id="heroSection">
 
         <div class="hero-video">
-
-            <!-- Responsive poster: this becomes the LCP image -->
             <picture id="heroPoster">
                 <source media="(max-width: 767px)" srcset="{{ url('frontend/360location-mobile-poster.webp') }}"
                     width="390" height="693">
-
                 <img src="{{ url('frontend/360location-desktop-poster.webp') }}" loading="eager" fetchpriority="high"
                     width="1280" height="720" alt="360 PropGuide properties in Delhi NCR"
                     style="width:100%;height:100%;object-fit:cover;display:block;">
             </picture>
-
-            <!-- Video will load after the main page -->
             <video id="myVideo" class="location-video" muted autoplay loop playsinline preload="none"
                 data-mobile-src="{{ url('frontend/360location-mobile-web.mp4') }}"
                 data-desktop-src="{{ url('frontend/360location-desktop-web.mp4') }}"
                 aria-label="360 PropGuide property location video">
             </video>
-
         </div>
 
+        <div class="hero-atmosphere" aria-hidden="true">
+            <span class="hero-orb hero-orb--one"></span>
+            <span class="hero-orb hero-orb--two"></span>
+            <span class="hero-grid"></span>
+        </div>
 
-        <div class="searchbox searchboxs col-lg-6 col-md-8 col-sm-10 col-11 p-3 p-md-4">
-            <div class="input-group d-flex flex-nowrap">
-                <div class="col-3 d-none d-sm-block">
-                    <select class="form-select" name="location">
-                        <option value="" selected disabled>Location</option>
-                        @if(!empty($pageData['cities']) && count($pageData['cities']) > 0)
-                            @foreach($pageData['cities'] as $city)
-                                <option value="{{ $city }}">{{ $city }}</option>
-                            @endforeach
-                        @endif
-                    </select>
+        <div class="hero-content">
+            <div class="container">
+                @php
+                    $heroProjectCount = (int) ($pageData['projectCount'] ?? 0);
+                    $heroPropertyCount = (int) ($pageData['propertyCount'] ?? 0);
+                    $heroCountLabel = static function (int $count): string {
+                        if ($count >= 1000) {
+                            return rtrim(rtrim(number_format($count / 1000, 1, '.', ''), '0'), '.') . 'K+';
+                        }
+                        return $count . '+';
+                    };
+                @endphp
+                <h1 class="hero-title">New projects to buy in <em>Delhi NCR</em></h1>
+                <p class="hero-lead" id="heroLead"
+                    data-lead-projects="{{ $heroCountLabel($heroProjectCount) }} verified projects and 100% RERA checked listings"
+                    data-lead-properties="{{ $heroCountLabel($heroPropertyCount) }} listings added across Delhi NCR"
+                    data-lead-commercial="Shops and commercial spaces across Delhi NCR">{{ $heroCountLabel($heroProjectCount) }} verified projects and 100% RERA checked listings</p>
+
+                <div class="hero-search-panel">
+                    <div class="hero-tabs" role="tablist" aria-label="Search type">
+                        <button type="button" class="hero-tab is-active" role="tab" aria-selected="true" data-mode="projects">Projects</button>
+                        <button type="button" class="hero-tab" role="tab" aria-selected="false" data-mode="properties">Buy</button>
+                        <button type="button" class="hero-tab" role="tab" aria-selected="false" data-mode="commercial">Commercial</button>
+                    </div>
+
+                    <div class="hero-search searchboxs" data-search-mode="projects">
+                        <div class="hero-search__city" id="heroCityPicker">
+                            <button type="button" class="hero-city-trigger" id="heroCityTrigger"
+                                aria-haspopup="listbox" aria-expanded="false" aria-controls="heroCityMenu">
+                                <span class="hero-city-trigger__icon">
+                                    <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+                                </span>
+                                <span class="hero-city-trigger__copy">
+                                    <span class="hero-city-trigger__label">Buy in</span>
+                                    <span class="hero-city-trigger__value" id="heroCityValue">All cities</span>
+                                </span>
+                                <i class="fa-solid fa-chevron-down hero-city-trigger__chevron" aria-hidden="true"></i>
+                            </button>
+
+                            <div class="hero-city-menu" id="heroCityMenu" hidden>
+                                <p class="hero-city-menu__head">Select city</p>
+                                <ul class="hero-city-menu__list" role="listbox" aria-label="Cities">
+                                    <li>
+                                        <button type="button" class="hero-city-option is-selected" data-value="">
+                                            <i class="fa-solid fa-globe" aria-hidden="true"></i>
+                                            <span>All cities</span>
+                                            <i class="fa-solid fa-check hero-city-option__check" aria-hidden="true"></i>
+                                        </button>
+                                    </li>
+                                    @if(!empty($pageData['cities']) && count($pageData['cities']) > 0)
+                                        @foreach($pageData['cities'] as $city)
+                                            <li>
+                                                <button type="button" class="hero-city-option" data-value="{{ $city }}">
+                                                    <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+                                                    <span>{{ $city }}</span>
+                                                    <i class="fa-solid fa-check hero-city-option__check" aria-hidden="true"></i>
+                                                </button>
+                                            </li>
+                                        @endforeach
+                                    @endif
+                                </ul>
+                            </div>
+
+                            <select class="hero-search__native" name="location" id="heroLocation" tabindex="-1" aria-hidden="true">
+                                <option value="">All cities</option>
+                                @if(!empty($pageData['cities']) && count($pageData['cities']) > 0)
+                                    @foreach($pageData['cities'] as $city)
+                                        <option value="{{ $city }}">{{ $city }}</option>
+                                    @endforeach
+                                @endif
+                            </select>
+                        </div>
+
+                        <div class="hero-search__query">
+                            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                            <input type="text" id="keyword" name="keyword"
+                                class="form-control keyword"
+                                placeholder="Search for locality, landmark, project or builder"
+                                autocomplete="off">
+                            <ul class="project-results"></ul>
+                        </div>
+
+                        <select class="hero-search__native" name="bhkType" id="heroBhk" tabindex="-1" aria-hidden="true">
+                            <option value=""></option>
+                            <option value="Shops">Shops</option>
+                        </select>
+
+                        <button class="btn searchBtn hero-search__submit" type="button" id="keybutton">
+                            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                            <span>Search</span>
+                        </button>
+                    </div>
                 </div>
-                <div class="col-3 d-none d-sm-block">
-                    <select class="form-select" name="bhkType">
-                        <option value="" selected disabled>BHK Type</option>
-                        <option value="1 BHK">1 BHK</option>
-                        <option value="2 BHK">2 BHK</option>
-                        <option value="3 BHK">3 BHK</option>
-                        <option value="4 BHK">4 BHK</option>
-                        <option value="5 BHK">5 BHK</option>
-                        <option value="6 BHK">6 BHK</option>
-                        <option value="Shops">Shops</option>
-                        <option value="studio">Studio Apartments</option>
-                    </select>
-                </div>
-                <input type="hidden" id="BHKselectedValue" name="bhkType">
-                <div class="w-100 position-relative">
-                    <input type="text" id="keyword" name="keyword" placeholder="Enter your search term"
-                        class="form-control keyword">
-                    <ul class="project-results">
-                    </ul>
-                </div>
-                <div class="">
-                    <button class="btn customBtn rounded-pill px-3 searchBtn" type="button"
-                        id="keybutton">Search</button>
-                </div>
+
+                @php
+                    $heroCities = !empty($pageData['cities']) ? collect($pageData['cities'])->take(6) : collect();
+                @endphp
+                @if($heroCities->isNotEmpty())
+                    <div class="hero-cities">
+                        <span class="hero-cities__label"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Popular Cities</span>
+                        @foreach($heroCities as $city)
+                            <a class="hero-city-pill" href="{{ route('projects', ['location' => [$city]]) }}" data-city="{{ $city }}">{{ $city }} <i class="fa-solid fa-chevron-right" aria-hidden="true"></i></a>
+                        @endforeach
+                    </div>
+                @endif
             </div>
         </div>
-        <div class="scrolls">
-            <div class="scroll-container" id="scrollDownBtn">
-                <div class="scroller"></div>
-            </div>
-            <h1 class="h3">How We are The Best?</h1>
-        </div>
+
+        <button type="button" class="hero-scroll" id="scrollDownBtn" aria-label="Scroll to next section">
+            <span>Explore</span>
+            <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+        </button>
     </section>
    
 
@@ -825,7 +892,8 @@
                                             class="social-img-link">
                                             <div class="social-feed-img-wrap">
                                                 <img src="{{ $feed['full_picture'] }}" alt="360 PropGuide Social Update"
-                                                    loading="lazy" decoding="async">
+                                                    loading="lazy" decoding="async" width="640" height="480"
+                                                    onerror="this.onerror=null;this.src='{{ url('frontend/360logo.webp') }}';this.classList.add('is-fallback');">
                                             </div>
                                         </a>
                                     @endif

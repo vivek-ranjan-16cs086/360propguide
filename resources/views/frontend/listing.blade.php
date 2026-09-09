@@ -1,750 +1,290 @@
-
-
 @extends('frontend.layouts.app')
 
 @push('schema')
     {!! @$schema !!}
 @endpush
 
+@section('title', isset($title) && $title ? $title : '360 PropGuide | Explore Top Real Estate Projects in NCR')
 
-@section('title', isset($title) && $title ? $title  : '360 PropGuide | Explore Top Real Estate Projects in NCR')
-
-@section('description', isset($description) && $description ? $description : 'Browse 360 PropGuide projects in Noida, Greater Noida & Delhi NCR. Get details on price, design, amenities & availability for your dream property.')
+@section('description', isset($description) && $description ? $description : 'Browse 360 PropGuide projects in Noida, Greater Noida & Delhi NCR. Get details on price, design, amenities & availability for your dream property.')
 
 @section('keywords', (isset($keywords) && $keywords) ? $keywords : 'real estate projects, property listings, property pricing')
 
 @section('canonical', isset($canonical) && $canonical ? $canonical : url()->current())
 
 @section('customCSS')
+<link rel="stylesheet" href="{{ asset('frontend/css/listing.css') }}?v={{ @filemtime(public_path('frontend/css/listing.css')) ?: time() }}">
+@endsection
 
-<link rel="stylesheet" href="{{url('frontend/libraries/nouislider.min.css')}}">
-<link rel="stylesheet" href="{{asset('frontend/css/listing.css')}}">
-<link rel="stylesheet" href="{{asset('frontend/css/listing2.css')}}">
- <link rel="preload"
-          href="https://code.jquery.com/ui/1.14.1/themes/base/jquery-ui.css"
-          as="style"
-          onload="this.onload=null;this.rel='stylesheet'">
-
-@endSection
 @section('content')
+@php
+    $selected = $selected ?? ['location' => [], 'locality' => [], 'type' => [], 'possession' => [], 'developer' => [], 'q' => '', 'sort' => 'newest', 'min_price' => null, 'max_price' => null];
+    $hasActiveFilters = !empty($selected['location']) || !empty($selected['locality']) || !empty($selected['type']) || !empty($selected['possession']) || !empty($selected['developer']) || $selected['q'] !== '' || $selected['min_price'] !== null || $selected['max_price'] !== null;
+    $queryBase = [
+        'location' => $selected['location'],
+        'locality' => $selected['locality'],
+        'type' => $selected['type'],
+        'possession' => $selected['possession'],
+        'developer' => $selected['developer'],
+    ];
+    if ($selected['q'] !== '') {
+        $queryBase['q'] = $selected['q'];
+    }
+    if (($selected['sort'] ?? 'newest') !== 'newest') {
+        $queryBase['sort'] = $selected['sort'];
+    }
+    if ($selected['min_price'] !== null) {
+        $queryBase['min_price'] = $selected['min_price'];
+    }
+    if ($selected['max_price'] !== null) {
+        $queryBase['max_price'] = $selected['max_price'];
+    }
+    $removeFilterUrl = function ($key, $value = null) use ($queryBase) {
+        $query = $queryBase;
+        if ($value === null) {
+            unset($query[$key]);
+        } else {
+            $query[$key] = array_values(array_filter($query[$key] ?? [], fn ($item) => (string) $item !== (string) $value));
+            if (empty($query[$key])) {
+                unset($query[$key]);
+            }
+        }
+        return route('projects', $query);
+    };
+    $pageHeading = $dynamicTitle ?? ($name ?? 'Projects in Delhi NCR');
+    $resultCount = isset($projects) ? $projects->total() : 0;
+@endphp
 
-<section>
-    <div class="container my-4 border-bottom pb-2">
-        <div class="row">
-            <div class="col-sm-12">
-                <div class="row align-items-center justify-content-between">
-                    <div class="d-flex w-fit">
-                        <h2 class="text-decoration-none text-dark customFont me-2 fw-medium h5 d-none d-md-block">Sort By:</h2>
-
-                        <!-- Dropdown for smaller screens -->
-                        <div class="d-md-none h-100">
-                            <div id="sort-form">
-                                @csrf
-                                <input type="hidden" name="sort" value="sort" />
-                                <select name="filters[sorting]" id="filter" class="form-select shadow-none">
-									<option value="">Sort</option>
-									<option value="LowToHigh">Price -- Low to High</option>
-									<option value="HighToLow">Price -- High to Low</option>
-									<option value="NewestFirst">Newest First</option>
-								</select>
-                            </div>
-
-                        </div>
-
-                        <!-- Links for larger screens -->
-                        <ul class="d-md-flex gap-3 d-none list-unstyled">
-                            <li class="sort-link text-decoration-none text-muted" data-filter="LowToHigh">
-                                <span class="customFont">Price -- Low to High</span>
-                            </li>
-                            <li class="sort-link text-decoration-none  text-muted" data-filter="HighToLow">
-                                <span class="customFont">Price -- High to Low</span>
-                            </li>
-                            <li class="sort-link text-decoration-none  text-muted" data-filter="NewestFirst">
-                                <span class="customFont">Newest First</span>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <div class="input-group w-fit d-flex align-items-center mb-3">
-                        <div id="search-form" class="d-flex w-100 d-none d-md-block">
-
-                            <input type="text" id="search-input" name="search" placeholder="Search Here"
-                                class="form-control shadow-none" />
-
-                        </div>
-                    </div>
-					<div class="d-flex w-fit d-lg-none d-sm-block">
-					<button class="iconFilter" id="filterToggle"> <i class="fa fa-filter"></i></button>
-                    </div>
+<section class="projects-page">
+    <form method="GET" action="{{ route('projects') }}" id="projectsFilterForm" class="container">
+        <header class="projects-header">
+            <div class="projects-header__top">
+                <div class="projects-header__title-group">
+                    <h1>{{ $pageHeading }}</h1>
+                    <p class="projects-header__count">
+                        {{ $resultCount }} {{ \Illuminate\Support\Str::plural('project', $resultCount) }} found
+                    </p>
                 </div>
-
-            </div>
-        </div>
-    </div>
-</section>
-<section>
-    <div class="container">
-        <div class="row">
-
-            <!-- Sidebar Filters (visible only on desktop) -->
-            <div class="col-lg-3 mb-5 d-none d-lg-block">
-			  <div id="desktopFilterContent">
-
-                <div class="filter-box recommended h-fit" id="filter-form">
-                    @csrf
-                    <input type="hidden" name="filters" value="filters" />
-
-                    <div class="filter-header">
-                        <span>Filters</span>
-                        <a id="resetFilters">Reset All</a>
+                <div class="projects-header__actions">
+                    <div class="project-search">
+                        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                        <input type="search" name="q" value="{{ $selected['q'] }}" class="form-control" placeholder="Search projects" autocomplete="off">
+                        @if($selected['q'] !== '')
+                            <a href="{{ $removeFilterUrl('q') }}" class="project-search__clear" aria-label="Clear search"><i class="fa-solid fa-xmark"></i></a>
+                        @endif
                     </div>
-
-                    <div id="resetAmount">
-                        <div class="d-flex justify-content-between" id="amount"></div>
-                        <div id="slider-range"></div>
-                    </div>
-
-                    <!-- Possession -->
-                    <div class="Possession py-3" id="resetPossession">
-                        <div class="filter-section-title mb-3">Possession</div>
-                        <div class="filter-checkbox">
-                            <input onchange="updatePossession()" type="checkbox" class="possession-filter"
-                                name="possession[1]" value="New Launch" id="new-launch"
-                                {{ (isset($filters['project_status']) && $filters['project_status']=='new_launch') ? 'checked' : '' }}>
-                            <label for="new-launch">New Launch</label>
-                        </div>
-                        <div class="filter-checkbox">
-                            <input onchange="updatePossession()" type="checkbox" class="possession-filter"
-                                name="possession[2]" value="Under Construction" id="under-construction"
-                                {{ (isset($filters['project_status']) && $filters['project_status']=='under_construction') ? 'checked' : '' }}>
-                            <label for="under-construction">Under Construction</label> 
-                        </div>
-                        <div class="filter-checkbox">
-                            <input onchange="updatePossession()" type="checkbox" class="possession-filter"
-                                name="possession[3]" value="Ready to Move" id="ready-move"
-                                {{ (isset($filters['project_status']) && $filters['project_status']=='ready_to_move') ? 'checked' : '' }}>
-                            <label for="ready-move">Ready To Move</label>
-                        </div>
-                        <div class="filter-checkbox">
-                            <input onchange="updatePossession()" type="checkbox" class="possession-filter"
-                                name="possession[4]" value="within_a_year" id="within-year">
-                            <label for="within-year">Possession Within A Year</label>
-                        </div>
-                    </div>
-
-                    <!-- Property Type -->
-                    <div class="property-type bhk py-3" id="resetProperty">
-                        <div class="filter-section-title mb-3"> Property Type</div>
-                        <input onchange="updatePropertyType()" type="checkbox" class="property-filter" id="1bhk"
-                            value="1 BHK" name="propertyType[1]"
-                            {{ (isset($filters['typologyToRender']) && $filters['typologyToRender']=='1 BHK') ? 'checked' : '' }}>
-                        <label for="1bhk" class="property-btn">1 BHK</label>
-
-                        <input onchange="updatePropertyType()" type="checkbox" class="property-filter" id="2bhk"
-                            value="2 BHK" name="propertyType[2]"
-                            {{ (isset($filters['typologyToRender']) && $filters['typologyToRender']=='2 BHK') ? 'checked' : '' }}>
-                        <label for="2bhk" class="property-btn">2 BHK</label>
-
-                        <input onchange="updatePropertyType()" type="checkbox" class="property-filter" id="3bhk"
-                            value="3 BHK" name="propertyType[3]"
-                            {{ (isset($filters['typologyToRender']) && $filters['typologyToRender']=='3 BHK') ? 'checked' : '' }}>
-                        <label for="3bhk" class="property-btn">3 BHK</label>
-
-                        <input onchange="updatePropertyType()" type="checkbox" class="property-filter" id="4bhk"
-                            value="4 BHK" name="propertyType[4]"
-                            {{ (isset($filters['typologyToRender']) && $filters['typologyToRender']=='4 BHK') ? 'checked' : '' }}>
-                        <label for="4bhk" class="property-btn">4 BHK</label>
-
-                        <input onchange="updatePropertyType()" type="checkbox" class="property-filter" id="5bhk"
-                            value="5 BHK" name="propertyType[5]"
-                            {{ (isset($filters['typologyToRender']) && $filters['typologyToRender']=='5 BHK') ? 'checked' : '' }}>
-                        <label for="5bhk" class="property-btn">5 BHK</label>
-						<input onchange="updatePropertyType()" type="checkbox" class="property-filter" id="6bhk"
-                            value="6 BHK" name="propertyType[9]"
-                            {{ (isset($filters['typologyToRender']) && $filters['typologyToRender']=='6 BHK') ? 'checked' : '' }}>
-                        <label for="6bhk" class="property-btn">6 BHK</label>
-
-                        <input onchange="updatePropertyType()" type="checkbox" class="property-filter" id="plots"
-                            value="Plots" name="propertyType[6]"
-                            {{ (isset($filters['typologyToRender']) && $filters['typologyToRender']=='Plots') ? 'checked' : '' }}>
-                        <label for="plots" class="property-btn mt-2">Plots</label>
-						<input onchange="updatePropertyType()" type="checkbox" class="property-filter" id="shops"
-                            value="Shops" name="propertyType[7]"
-                            {{ (isset($filters['typologyToRender']) && $filters['typologyToRender']=='Shops') ? 'checked' : '' }}>
-                        <label for="shops" class="property-btn mt-2">Shops</label>
-						<input onchange="updatePropertyType()" type="checkbox" class="property-filter" id="studio"
-                            value="Studio Apartments" name="propertyType[8]"
-                            {{ (isset($filters['typologyToRender']) && $filters['typologyToRender']=='Studio Apartments') ? 'checked' : '' }}>
-                        <label for="studio" class="property-btn mt-2">Studio Apartments</label>
-                    </div>
-
-                    <!-- Location -->
-                    <div class="location py-3 property-type location" id="resetLocation">
-                        <div class="filter-section-title mb-3">Location</div>
-                        @foreach ($locations as $index => $location)
-                            @php
-                                $isChecked = isset($filters['location']) && in_array($location, (array) $filters['location']);
-                                if (!$isChecked && isset($filters['city'])) {
-                                    $isChecked = strtolower($filters['city']) === strtolower($location);
-                                }
-                            @endphp
-                            <input onchange="updateLocation(); handleCityChange()" type="checkbox" class="property-filter"
-                                id="location-{{ $index }}" value="{{ $location }}" name="location[{{ $index }}]"
-                                {{ $isChecked ? 'checked' : '' }}>
-                            <label for="location-{{ $index }}" class="property-btn mt-2">{{ $location }}</label>
-                        @endforeach
-                    </div>
-
-					<!-- Locality -->
-                    <div class="py-3 property-type locality" id="resetLocality">
-						<div class="filter-section-title mb-3">Localities</div>
-
-						@foreach ($locality as $index => $localities)
-							@php
-								$isChecked = isset($filters['locality']) && in_array($localities, (array) $filters['locality']);
-							@endphp
-
-							<input type="checkbox"
-							   onchange="updateLocality()"
-							   class="property-filter locality-item {{ $index >= 5 ? 'd-none extra-location' : '' }}"
-							   id="localities-{{ $index }}"
-							   value="{{ $localities }}"
-							   name="locality[{{ $index }}]"
-							   data-city="{{ $localityCityMap[$localities] ?? '' }}"
-							   data-index="{{ $index }}"
-							   {{ $isChecked ? 'checked' : '' }}>
-
-							<label for="localities-{{ $index }}"
-							       class="property-btn mt-2 {{ $index >= 5 ? 'd-none extra-location' : '' }}">
-								{{ $localities }}
-							</label>
-						@endforeach
-
-						@if(count($locality) > 5)
-							<button type="button" class="btn btn-link p-0 mt-2" id="toggleLocality">Show More</button>
-						@endif
-					</div>
-
-					<div class="developer py-3 property-type developer" id="resetDeveloper">
-						<div class="filter-section-title mb-3">Developers</div>
-
-						@foreach ($developers as $index => $developer)
-							@php
-								$isChecked = isset($filters['developer']) && in_array($developer, (array) $filters['developer']);
-							@endphp
-
-							<input onchange="updateDeveloper()"
-							   type="checkbox"
-							   class="property-filter {{ $index >= 5 ? 'd-none extra-developer' : '' }}"
-							   id="developer-{{ $index }}"
-							   value="{{ $developer->id }}"
-							   name="developer[{{ $index }}]"
-							   {{ $isChecked ? 'checked' : '' }}>
-
-						<label for="developer-{{ $index }}"
-							   class="property-btn mt-2 {{ $index >= 5 ? 'd-none extra-developer' : '' }}">
-							   {{ $developer->developer_name }}
-						</label>
-
-						@endforeach
-
-						@if(count($developers) > 5)
-							<button type="button" class="btn btn-link p-0 mt-2" id="toggleDevelopers">Show More</button>
-						@endif
-					</div>
-
+                    <button type="button" class="project-filter-trigger d-lg-none" data-open-filters aria-controls="projectFilters">
+                        <i class="fa-solid fa-filter" aria-hidden="true"></i> Filters
+                    </button>
+                    <label class="project-sort">
+                        <span>Sort</span>
+                        <select name="sort" class="form-select" aria-label="Sort projects">
+                            <option value="newest" {{ ($selected['sort'] ?? 'newest') === 'newest' ? 'selected' : '' }}>Newest</option>
+                            <option value="price_asc" {{ ($selected['sort'] ?? '') === 'price_asc' ? 'selected' : '' }}>Price: Low to High</option>
+                            <option value="price_desc" {{ ($selected['sort'] ?? '') === 'price_desc' ? 'selected' : '' }}>Price: High to Low</option>
+                        </select>
+                    </label>
                 </div>
-				</div>
             </div>
+        </header>
 
-            <!-- Projects List -->
-            <div class="col-lg-9 projects-results">
-                    @if (isset($projects) && isset($projects['message']))
-                    <div class="mb-5 fw-bold text-center">
-                        {{ $projects['message'] }}
-                    </div>
-                @else
-                    <?php if (!empty($dynamicTitle)) : ?>
-						<div style="display:flex; align-items:center; gap:10px;">
-							<p class="results-count fs-6 mb-0 fw-bold" >
-								<?php echo $totalResultsText; ?>
-							</p>
-							<h1 class="fs-6 fw-bold" id="resultsHeading" style="margin:0;">
-								<?php echo $dynamicTitle; ?>
-							</h1>
-						</div>
-					<?php endif; ?>
+        <div class="projects-content__layout">
+            <aside class="filters-sidebar" id="projectFilters">
+                <div class="filters-sidebar__mobile-head d-lg-none">
+                    <h2 id="projectFiltersLabel">Filters</h2>
+                    <button type="button" class="filters-sidebar__close" data-close-filters aria-label="Close filters">&times;</button>
+                </div>
+                @include('frontend.partials._project-filters')
+            </aside>
 
-                    <div class="collapseContainer mt-3">
-                        <div class="collapseWrapper" id="collapseWrapper">
-                            <span class="collapseText description-preview" id="collapseText">
-                                @if(!empty($links_description))
-                                    <p>{!! $links_description !!}</p>
+            <div class="projects-results">
+                @if($hasActiveFilters)
+                    <div class="projects-active-filters">
+                        <span class="projects-active-filters__label">Active</span>
+                        <div class="projects-active-filters__list">
+                            @foreach ($selected['location'] as $item)
+                                <a class="active-filter-chip" href="{{ $removeFilterUrl('location', $item) }}">{{ $item }} <i class="fa-solid fa-xmark remove-active-tag"></i></a>
+                            @endforeach
+                            @foreach ($selected['locality'] as $item)
+                                <a class="active-filter-chip" href="{{ $removeFilterUrl('locality', $item) }}">{{ $item }} <i class="fa-solid fa-xmark remove-active-tag"></i></a>
+                            @endforeach
+                            @foreach ($selected['type'] as $item)
+                                <a class="active-filter-chip" href="{{ $removeFilterUrl('type', $item) }}">{{ $item }} <i class="fa-solid fa-xmark remove-active-tag"></i></a>
+                            @endforeach
+                            @foreach ($selected['possession'] as $item)
+                                <a class="active-filter-chip" href="{{ $removeFilterUrl('possession', $item) }}">{{ ucwords(str_replace('_', ' ', $item)) }} <i class="fa-solid fa-xmark remove-active-tag"></i></a>
+                            @endforeach
+                            @foreach ($developers as $developer)
+                                @if(in_array((string) $developer->id, array_map('strval', $selected['developer']), true))
+                                    <a class="active-filter-chip" href="{{ $removeFilterUrl('developer', $developer->id) }}">{{ $developer->developer_name }} <i class="fa-solid fa-xmark remove-active-tag"></i></a>
                                 @endif
-                            </span>
-                            <span class="hideicon description-toggle" role="button" tabindex="0" aria-label="Read more">
-                                <i class="fa-solid fa-angle-down icon"></i>
-                            </span>
-                            <span class="showicon description-toggle" role="button" tabindex="0" aria-label="Read less" style="display:none;">
-                                <i class="fa-solid fa-angle-up icon"></i>
-                            </span>
+                            @endforeach
+                            @if($selected['q'] !== '')
+                                <a class="active-filter-chip" href="{{ $removeFilterUrl('q') }}">“{{ $selected['q'] }}” <i class="fa-solid fa-xmark remove-active-tag"></i></a>
+                            @endif
+                            @if($selected['min_price'] !== null || $selected['max_price'] !== null)
+                                @php
+                                    $budgetQuery = $queryBase;
+                                    unset($budgetQuery['min_price'], $budgetQuery['max_price']);
+                                @endphp
+                                <a class="active-filter-chip" href="{{ route('projects', $budgetQuery) }}">
+                                    Budget
+                                    @if($selected['min_price'] !== null) ₹{{ formatPrice($selected['min_price']) }} @endif
+                                    @if($selected['max_price'] !== null) – ₹{{ formatPrice($selected['max_price']) }} @endif
+                                    <i class="fa-solid fa-xmark remove-active-tag"></i>
+                                </a>
+                            @endif
                         </div>
-                    </div>
-
-                    <div class="projects-grid" id="project-list">
-                        @include('frontend.partials._project-list', ['projects' => $projects])
+                        <a class="projects-active-filters__clear" href="{{ route('projects') }}">Clear all</a>
                     </div>
                 @endif
 
-                <div id="pagination-links">
-                    <ul class="pagination">
-                        @if(isset($projects) && $projects->lastPage() > 1)
-                            @php
-                                $currentPage = $projects->currentPage();
-                                $lastPage = $projects->lastPage();
-                                $startPage = max(1, $currentPage - 1);
-                                $endPage = min($lastPage, $currentPage + 1);
-                            @endphp
-                            <li class="page-item {{ $projects->onFirstPage() ? 'disabled' : '' }}"><a class="page-link">Previous</a></li>
+                @if(!empty($links_description))
+                    <details class="projects-description">
+                        <summary>About these projects</summary>
+                        <div class="projects-description__body">{!! $links_description !!}</div>
+                    </details>
+                @endif
 
-                            @if($lastPage <= 5)
-                                @for($page = 1; $page <= $lastPage; $page++)
-                                    <li class="page-item {{ $currentPage === $page ? 'active' : '' }}"><a class="page-link" data-page="{{ $page }}">{{ $page }}</a></li>
-                                @endfor
-                            @else
-                                @if($currentPage > 3)
-                                    <li class="page-item"><a class="page-link" data-page="1">1</a></li>
-                                    @if($currentPage > 4)
-                                        <li class="page-item disabled"><span class="page-link">...</span></li>
-                                    @endif
-                                @endif
-
-                                @for($page = $startPage; $page <= $endPage; $page++)
-                                    <li class="page-item {{ $currentPage === $page ? 'active' : '' }}"><a class="page-link" data-page="{{ $page }}">{{ $page }}</a></li>
-                                @endfor
-
-                                @if($currentPage < $lastPage - 2)
-                                    @if($currentPage < $lastPage - 3)
-                                        <li class="page-item disabled"><span class="page-link">...</span></li>
-                                    @endif
-                                    <li class="page-item"><a class="page-link" data-page="{{ $lastPage }}">{{ $lastPage }}</a></li>
-                                @endif
-                            @endif
-
-                            <li class="page-item {{ $currentPage === $lastPage ? 'disabled' : '' }}"><a class="page-link">Next</a></li>
-                        @endif
-                    </ul>
+                <div class="projects-grid">
+                    @include('frontend.partials._project-list', ['projects' => $projects])
                 </div>
+
+                @if(isset($projects) && $projects->lastPage() > 1)
+                    <nav id="pagination-links" aria-label="Projects pagination">
+                        <ul class="pagination">
+                            <li class="page-item {{ $projects->onFirstPage() ? 'disabled' : '' }}">
+                                @if($projects->onFirstPage())
+                                    <span class="page-link">Previous</span>
+                                @else
+                                    <a class="page-link" href="{{ $projects->previousPageUrl() }}">Previous</a>
+                                @endif
+                            </li>
+                            @foreach ($projects->getUrlRange(max(1, $projects->currentPage() - 2), min($projects->lastPage(), $projects->currentPage() + 2)) as $page => $url)
+                                <li class="page-item {{ $projects->currentPage() === $page ? 'active' : '' }}">
+                                    <a class="page-link" href="{{ $url }}">{{ $page }}</a>
+                                </li>
+                            @endforeach
+                            <li class="page-item {{ $projects->currentPage() === $projects->lastPage() ? 'disabled' : '' }}">
+                                @if($projects->currentPage() === $projects->lastPage())
+                                    <span class="page-link">Next</span>
+                                @else
+                                    <a class="page-link" href="{{ $projects->nextPageUrl() }}">Next</a>
+                                @endif
+                            </li>
+                        </ul>
+                    </nav>
+                @endif
             </div>
         </div>
-    </div>
+    </form>
 </section>
-
-
-<!-- Offcanvas -->
-<div class="offcanvas offcanvas-start" tabindex="-1" id="mobileFilter">
-  <div class="offcanvas-header d-flex justify-content-between align-items-center">
-    <h5 class="offcanvas-title">Filters</h5>
-    <button type="button" class="btn p-0 border-0 bg-transparent fw-medium" data-bs-dismiss="offcanvas">
-	  Cancel
-	</button>
-  </div>
-  <div class="offcanvas-body" id="mobileFilterContent">
-    <!-- filter form will go here dynamically -->
-  </div>
-  <!-- Offcanvas Footer -->
-	<div class="offcanvas-footer border-top p-3 d-flex justify-content-end">
-	  <button type="button" class="btn p-2 rounded border-0 orange text-white fw-medium" data-bs-dismiss="offcanvas">
-	  Show All Projects
-	</button>
-	</div>
-</div>
-
-@endSection
-@section('customJS')
-<script src="https://code.jquery.com/ui/1.14.1/jquery-ui.js"></script>
-<script>
-    $(document).ready(function () {
-            updatePossession(false)
-            updatePropertyType(false)
-            updateLocation(false)
-            updateDeveloper(false)
-            updateLocality(false)
-
-    // Apply luxury filter on load
-    if (isLuxury) {
-        applyFilters(filtersData);
-    }
-	})
-
-    let filtersData = {};
-    const filterRoute = "{{ route('filters') }}";
-    const urlPath = window.location.pathname.toLowerCase();
-    const isLuxury = urlPath.includes('luxury');
-
-    // default values from blade
-    let defaultMin = {{ $minPrice }};
-    let defaultMax = {{ $maxPrice }};
-
-    // override if luxury
-    if (isLuxury) {
-        defaultMin = 30000000; // 3 Cr
-        filtersData.budget = { min: defaultMin, max: defaultMax };
-    }
-
-    function getCheckedValues(selector) {
-        return Array.from(document.querySelectorAll(selector + ':checked')).map((checkbox) => checkbox.value);
-    }
-
-    function updateFilter(key, selector, apply = true) {
-        filtersData[key] = getCheckedValues(selector);
-        filtersData.pageId = 1;
-        if (apply) {
-            applyFilters(filtersData);
-        }
-    }
-
-    function updatePossession(apply = true) {
-        updateFilter('possession', '.Possession .possession-filter', apply);
-    }
-
-    function updateLocality(apply = true) {
-        updateFilter('locality', '#resetLocality .property-filter', apply);
-    }
-
-    function updatePropertyType(apply = true) {
-        updateFilter('propertyType', '.bhk .property-filter', apply);
-    }
-
-    function updateLocation(apply = true) {
-        updateFilter('location', '#resetLocation .property-filter', apply);
-    }
-
-    function updateDeveloper(apply = true) {
-        updateFilter('developer', '.developer .property-filter', apply);
-    }
-
-    $("#slider-range").slider({
-        range: true,
-        min: {{ $minPrice }},
-        max: {{ $maxPrice }},
-        values: [defaultMin, defaultMax],
-        slide: function (event, ui) {
-            $("#amount").html(
-                "<div class='my-3'>" + formatPrice(ui.values[0]) + "</div> <div class='my-3'>-</div> <div class='m-3'>" + formatPrice(ui.values[1]) + "</div>"
-            );
-            filtersData['budget'] = { 'min': ui.values[0], 'max': ui.values[1] };
-        },
-        stop: function (event, ui) {
-            filtersData['budget'] = { 'min': ui.values[0], 'max': ui.values[1] };
-            filtersData['pageId'] = 1; // Reset page to 1
-            applyFilters(filtersData);
-        }
-    });
-
-    $("#amount").html("<div class='my-3'>" + formatPrice(defaultMin) + "</div> <div class='my-3'>-</div><div class='my-3'>" + formatPrice(defaultMax) + "</div>");
-
-    $('.sort-link').on('click', function () {
-        $('.sort-link').removeClass('fw-bold').addClass('text-muted');
-        $(this).addClass('fw-bold').removeClass('text-muted');
-        filtersData['sorting'] = $(this).attr('data-filter');
-        filtersData['pageId'] = 1; // Reset page to 1
-        applyFilters(filtersData);
-    })
-
-    $(document).on('click', '.page-link', function () {
-        filtersData['pageId'] = $(this).text();
-        var currentPage = $(".page-item.active");
-        var currentPageId = parseInt(currentPage.find('a').data('page'));
-        if ($(this).text() === 'Next') {
-            var nextPageId = currentPageId + 1;
-            filtersData['pageId'] = nextPageId;
-        } else if ($(this).text() === 'Previous') {
-            var PrevPageId = currentPageId - 1;
-            filtersData['pageId'] = PrevPageId;
-        }
-        applyFilters(filtersData);
-    })
-
-    $("#search-input").on("keyup change keydown ", function () {
-        const searchValue = $(this).val().trim().replace(/[^a-zA-Z0-9\s]/g, '');
-        filtersData['pageId'] = 1; //  Reset page to 1
-        searchValue !== ''
-            ? (filtersData['search_params'] = searchValue, applyFilters(filtersData))
-            : applyFilters();
-    });
-
-    // AJAX HIT FOR THE Filters
-    function applyFilters(filtersData) {
-        const pageNumber = filtersData?.pageId ?? 1;
-        $('#project-list').html('<div class="defaultSpace text-center"><h4>Loading....</h4></div>');
-
-        setTimeout(function () {
-            const queryParams = window.location.search ? '&' + window.location.search.substr(1) : '';
-            $.ajax({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                url: `${filterRoute}?page=${pageNumber}${queryParams}`,
-                method: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify({
-                    filters: filtersData,
-                    html: true
-                }),
-                success: function (response) {
-                    if (!response.status) {
-                        return;
-                    }
-
-                    if (response.dynamicTitle) {
-                        $('.results-count').text(response.totalResultsText + ' |');
-                        $('#resultsHeading').text(response.dynamicTitle);
-                    }
-
-                    if (response.html) {
-                        $('#project-list').html(response.html);
-                    } else if (response.data && response.data.data) {
-                        let html = '';
-                        response.data.data.forEach(function (project) {
-                            let typologyText = '';
-                            if (Array.isArray(project.typology)) {
-                                typologyText = project.typology.join(', ');
-                            } else if (project.typology) {
-                                try {
-                                    const decoded = JSON.parse(project.typology);
-                                    typologyText = Array.isArray(decoded) ? decoded.join(', ') : String(decoded);
-                                } catch (e) {
-                                    typologyText = String(project.typology);
-                                }
-                            }
-                            typologyText = typologyText || 'N/A';
-
-                            html += `<div class="col-sm-6 col-md-4 col-lg-4  pb-4">` +
-                                `<a href="{{url('projects')}}/${project.slug}" style="text-decoration:none;">` +
-                                `<div class="pb-4 customborder position-relative projectCard border">` +
-                                `<div class="badgeWrapper">` +
-									`<div class="statusIcon text-capitalize">${project.project_status}</div>` +
-									`${
-										project.rera_no
-										? `<div class="reraApprovedBadge">
-												<i class="fa-solid fa-circle-check"></i>
-												RERA
-										   </div>`
-										: ''
-									}` +
-								`</div>` +
-                                `<div><img src="${project.logo_image}" class="w-100" alt="${project.project_name} 360 PropGuide"></div>` +
-                                `<h3 class="ms-3 mt-3 h5">${project.project_name}</h3>` +
-                                `<div class="ms-3 customFontColour"><i class="fa-solid fa-house"></i><div><p class="m-0"> ${typologyText}</p></div></div>` +
-                                `<div class="ms-3 customFontColour"><i class="fa-solid fa-location-dot"></i><div class="limit1"><p class="m-0">${project.location}</p></div></div>` +
-                                `<h5 class="ms-3"><i class="fa-solid fa-indian-rupee-sign"></i> ${formatPrice(project.price)}${project.max_price ? ` - ${formatPrice(project.max_price)}` : ''}</h5>` +
-                                `</div></a></div>`;
-                        });
-                        $('#project-list').html(html);
-                    }
-
-                    const pagination = [];
-                    const lastPage = response.pagination.last_page;
-                    const currentPage = response.pagination.current_page;
-
-                    const prevClass = currentPage > 1 ? '' : 'disabled';
-                    pagination.push(`<li class="page-item ${prevClass}"><a class="page-link">Previous</a></li>`);
-
-                    if (lastPage <= 5) {
-                        for (let i = 1; i <= lastPage; i++) {
-                            const activeClass = i === currentPage ? 'active' : '';
-                            pagination.push(`<li class="page-item ${activeClass}"><a class="page-link" data-page="${i}">${i}</a></li>`);
-                        }
-                    } else {
-                        if (currentPage > 3) {
-                            pagination.push(`<li class="page-item"><a class="page-link" data-page="1">1</a></li>`);
-                            if (currentPage > 4) {
-                                pagination.push(`<li class="page-item disabled"><span class="page-link">...</span></li>`);
-                            }
-                        }
-
-                        const start = Math.max(1, currentPage - 1);
-                        const end = Math.min(lastPage, currentPage + 1);
-                        for (let i = start; i <= end; i++) {
-                            const activeClass = i === currentPage ? 'active' : '';
-                            pagination.push(`<li class="page-item ${activeClass}"><a class="page-link" data-page="${i}">${i}</a></li>`);
-                        }
-
-                        if (currentPage < lastPage - 2) {
-                            if (currentPage < lastPage - 3) {
-                                pagination.push(`<li class="page-item disabled"><span class="page-link">...</span></li>`);
-                            }
-                            pagination.push(`<li class="page-item"><a class="page-link" data-page="${lastPage}">${lastPage}</a></li>`);
-                        }
-                    }
-
-                    const nextClass = currentPage < lastPage ? '' : 'disabled';
-                    pagination.push(`<li class="page-item ${nextClass}"><a class="page-link">Next</a></li>`);
-                    $('.pagination').html(response.pagination && response.pagination.total > 0 ? pagination.join('') : '');
-                },
-                error: function () {
-                    // handle error silently
-                }
-            });
-        }, 500);
-    }
-
-    $(document).on('change', '#filter', function () {
-        const selectedValue = $(this).val();
-        if (selectedValue && selectedValue !== 'Sort') {
-            filtersData.sorting = selectedValue;
-            filtersData.pageId = 1;
-            applyFilters(filtersData);
-        }
-    });
-</script>
-<script>
-$('#resetFilters').on('click', function () {
-    // 1. Uncheck all filter checkboxes
-    $('.possession-filter').prop('checked', false);
-    $('.property-filter').prop('checked', false);
-
-    // 2. Clear search input
-    $('#search-input').val('');
-
-    // 3. Reset price slider to default min-max
-    $("#slider-range").slider("values", [{{ $minPrice }}, {{ $maxPrice }}]);
-    $("#amount").html("<div class='my-3'>" + formatPrice({{ $minPrice }}) + "</div> <div class='my-3'>-</div><div class='my-3'>" + formatPrice({{ $maxPrice }}) + "</div>");
-
-    // 4. Reset filtersData and page
-    filtersData = {};
-    filtersData['pageId'] = 1;
-
-    // 5. Apply filters (empty means show all)
-    applyFilters(filtersData);
-});
-
-
-</script>
-<script>
-        const toggleBox = document.querySelector('.hideicon');
-        const wrapper = document.getElementById('collapseWrapper');
-
-        toggleBox.addEventListener('click', () => {
-            document.querySelector(".hideicon").style.display = "none"
-			document.querySelector(".showicon").style.display = "inline"
-            wrapper.classList.add('expanded');
-
-        });
-        document.querySelector(".showicon").addEventListener("click", function () {
-            wrapper.classList.remove('expanded');
-            document.querySelector(".hideicon").style.display = "block"
-			document.querySelector(".showicon").style.display = "none"
-        });
-</script>
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    const filterForm = document.querySelector("#filter-form");
-    const mobileContainer = document.querySelector("#mobileFilterContent");
-    const desktopContainer = document.querySelector("#desktopFilterContent");
-
-    function moveFilters() {
-        if (window.innerWidth < 768) {
-            // move into offcanvas for mobile
-            if (!mobileContainer.contains(filterForm)) {
-                mobileContainer.appendChild(filterForm);
-            }
-        } else {
-            // move back to desktop for larger screens
-            if (!desktopContainer.contains(filterForm)) {
-                desktopContainer.appendChild(filterForm);
-            }
-        }
-    }
-
-    // run once on load
-    moveFilters();
-
-    // run on resize
-    window.addEventListener("resize", moveFilters);
-
-    // show offcanvas when filter button clicked
-    document.getElementById("filterToggle").addEventListener("click", function () {
-        let filterOffcanvas = new bootstrap.Offcanvas(document.getElementById("mobileFilter"));
-        filterOffcanvas.show();
-    });
-});
-</script>
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    const toggleBtn = document.getElementById("toggleDevelopers");
-    if (toggleBtn) {
-        toggleBtn.addEventListener("click", function () {
-            const hiddenItems = document.querySelectorAll(".extra-developer");
-            hiddenItems.forEach(item => item.classList.toggle("d-none"));
-
-            toggleBtn.innerText = toggleBtn.innerText === "Show More" ? "Show Less" : "Show More";
-        });
-    }
-});
-</script>
-<script>
-let localityLimit = 5;
-
-function handleCityChange() {
-    localityLimit = 5;
-    applyLocalityFilter();
-}
-
-function applyLocalityFilter(showAll = false) {
-    const selectedCities = Array.from(
-        document.querySelectorAll('input[name^="location"]:checked')
-    ).map(el => el.value.toLowerCase());
-
-    const allLocalities = document.querySelectorAll('.locality-item');
-    let visibleCount = 0;
-
-    allLocalities.forEach(item => {
-        const localityCity = item.dataset.city?.toLowerCase();
-        const matchCity =
-            selectedCities.length === 0 || selectedCities.includes(localityCity);
-
-        if (matchCity && (showAll || visibleCount < localityLimit)) {
-            item.classList.remove('d-none');
-            item.nextElementSibling?.classList.remove('d-none');
-            visibleCount++;
-        } else if (matchCity && showAll) {
-            item.classList.remove('d-none');
-            item.nextElementSibling?.classList.remove('d-none');
-        } else {
-            item.classList.add('d-none');
-            item.nextElementSibling?.classList.add('d-none');
-            if (!item.checked) {
-                item.checked = false;
-            }
-        }
-    });
-
-    const totalMatched = Array.from(allLocalities).filter(item => {
-        const city = item.dataset.city?.toLowerCase();
-        return selectedCities.length === 0 || selectedCities.includes(city);
-    }).length;
-
-    const toggleBtn = document.getElementById('toggleLocality');
-    if (toggleBtn) {
-        toggleBtn.style.display = totalMatched > localityLimit ? 'inline-block' : 'none';
-        toggleBtn.innerText = showAll ? 'Show Less' : 'Show More';
-        toggleBtn.onclick = () => applyLocalityFilter(!showAll);
-    }
-}
-</script>
-
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-
-    // Directly run filter (no pre-selection from URL)
-    if (typeof updateLocality === 'function') {
-        updateLocality();
-    }
-
-    applyLocalityFilter();
-});
-</script>
 @endsection
 
+@section('customJS')
+<script>
+(function () {
+    var form = document.getElementById('projectsFilterForm');
+    if (!form) return;
+
+    function selectedCities() {
+        return Array.prototype.map.call(form.querySelectorAll('input[name="location[]"]:checked'), function (input) {
+            return input.value.toLowerCase();
+        });
+    }
+
+    function syncLocalities() {
+        var cities = selectedCities();
+        form.querySelectorAll('#localityList [data-city]').forEach(function (row) {
+            var city = (row.getAttribute('data-city') || '').toLowerCase();
+            var matchesCity = !cities.length || !city || cities.indexOf(city) !== -1;
+            if (!matchesCity) {
+                row.hidden = true;
+                var checkbox = row.querySelector('input[type="checkbox"]');
+                if (checkbox) checkbox.checked = false;
+            } else if (!row.hasAttribute('data-search-hidden')) {
+                row.hidden = false;
+            }
+        });
+    }
+
+    form.addEventListener('change', function (event) {
+        if (event.target.matches('input[name="location[]"]')) {
+            syncLocalities();
+        }
+        if (event.target.matches('input[type="checkbox"], select[name="sort"]')) {
+            form.requestSubmit();
+        }
+    });
+
+    form.addEventListener('submit', function () {
+        form.querySelectorAll('input[name="q"], input[name="min_price"], input[name="max_price"]').forEach(function (input) {
+            if (!input.value) input.disabled = true;
+        });
+        form.querySelectorAll('#localityList [data-city]').forEach(function (row) {
+            if (row.hidden) {
+                var checkbox = row.querySelector('input');
+                if (checkbox) checkbox.disabled = true;
+            }
+        });
+    });
+
+    form.querySelectorAll('[data-filter-search]').forEach(function (input) {
+        input.addEventListener('input', function () {
+            var query = input.value.trim().toLowerCase();
+            var list = document.getElementById(input.getAttribute('data-filter-search'));
+            if (!list) return;
+            list.querySelectorAll('[data-filter-label]').forEach(function (row) {
+                var label = row.getAttribute('data-filter-label') || '';
+                var matchesQuery = !query || label.indexOf(query) !== -1;
+                if (matchesQuery) {
+                    row.removeAttribute('data-search-hidden');
+                } else {
+                    row.setAttribute('data-search-hidden', '1');
+                }
+                if (list.id === 'localityList') {
+                    var cities = selectedCities();
+                    var city = (row.getAttribute('data-city') || '').toLowerCase();
+                    var matchesCity = !cities.length || !city || cities.indexOf(city) !== -1;
+                    row.hidden = !matchesCity || !matchesQuery;
+                } else {
+                    row.hidden = !matchesQuery;
+                }
+            });
+        });
+    });
+
+    form.querySelectorAll('[data-toggle-more]').forEach(function (button) {
+        button.addEventListener('click', function () {
+            var list = document.getElementById(button.getAttribute('data-toggle-more'));
+            if (!list) return;
+            list.classList.toggle('is-expanded');
+            button.textContent = list.classList.contains('is-expanded') ? 'Show less' : 'Show more';
+        });
+    });
+
+    syncLocalities();
+
+    var openFilters = form.querySelector('[data-open-filters]');
+    var closeFilters = form.querySelector('[data-close-filters]');
+    function setFiltersOpen(open) {
+        document.body.classList.toggle('project-filters-open', open);
+        document.body.style.overflow = open ? 'hidden' : '';
+    }
+    if (openFilters) {
+        openFilters.addEventListener('click', function () { setFiltersOpen(true); });
+    }
+    if (closeFilters) {
+        closeFilters.addEventListener('click', function () { setFiltersOpen(false); });
+    }
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') setFiltersOpen(false);
+    });
+    document.addEventListener('click', function (event) {
+        if (!document.body.classList.contains('project-filters-open')) return;
+        if (event.target.closest('#projectFilters') || event.target.closest('[data-open-filters]')) return;
+        setFiltersOpen(false);
+    });
+})();
+</script>
+@endsection

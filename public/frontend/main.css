@@ -32,7 +32,7 @@
     --coral-500: #f05736;
     --coral-600: #d94524;
     --coral-700: #be371a;
-    --coral-50: #fff4f1;
+    --coral-50: #f2f6fa;
 
     --emerald-500: #10b981;
     --emerald-600: #059669;
@@ -766,6 +766,7 @@ body {
     border: 1px solid #e2e8f0;
     border-radius: 8px;
     padding: 1.25rem;
+    min-height: 490px;
     box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
 }
 
@@ -775,7 +776,7 @@ body {
 }
 
 .scroll-box {
-    max-height: 220px;
+    max-height: 450px;
     overflow-y: auto;
     padding-right: 6px;
     scrollbar-width: thin;
@@ -868,8 +869,12 @@ body {
 }
 
 @media (max-width: 768px) {
+    .custom-links-card {
+        min-height: 375px;
+    }
+
     .scroll-box {
-        max-height: 200px;
+        max-height: 325px;
     }
 
     .custom-link-item {
@@ -992,7 +997,7 @@ body {
     font-size: 0.85rem !important;
     font-weight: 700 !important;
     white-space: nowrap;
-    box-shadow: 0 4px 12px rgba(240, 87, 54, 0.3) !important;
+    box-shadow: 0 4px 12px rgba(15, 38, 61, 0.18) !important;
 }
 
 /* Footer Body & Widgets */
@@ -1017,7 +1022,7 @@ body {
     left: 0;
     width: 32px;
     height: 3px;
-    background: var(--coral-500, #f05736);
+    background: var(--navy-800, #1b3f63);
     border-radius: 3px;
 }
 
@@ -1060,10 +1065,10 @@ body {
 
 .social-icon-btn:hover {
     transform: translateY(-4px);
-    background: var(--coral-500, #f05736);
-    border-color: var(--coral-500, #f05736);
-    color: #ffffff !important;
-    box-shadow: 0 6px 16px rgba(240, 87, 54, 0.35);
+    background: #ffffff;
+    border-color: #ffffff;
+    color: var(--navy-900) !important;
+    box-shadow: 0 6px 16px rgba(15, 38, 61, 0.2);
 }
 
 /* Footer Menu Lists */
@@ -1198,7 +1203,7 @@ body {
     border: none;
     border-radius: var(--radius-md);
     padding: 0.6rem 1.3rem;
-    box-shadow: 0 2px 8px rgba(240, 87, 54, 0.25);
+    box-shadow: 0 1px 4px rgba(15, 38, 61, 0.12);
     transition: background var(--transition-fast), box-shadow var(--transition-fast);
     display: inline-flex;
     align-items: center;

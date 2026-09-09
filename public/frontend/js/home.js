@@ -59,8 +59,159 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // Keyword Search on Enter Key
+    const heroSearch = document.querySelector(".hero-search.searchboxs");
+    const heroTabs = document.querySelectorAll(".hero-tab");
+    const heroTitle = document.querySelector(".hero-title");
     const keywordInput = document.getElementById("keyword");
+    const bhkSelect = document.getElementById("heroBhk");
+    const searchBtn = document.getElementById("keybutton");
+    const heroLead = document.getElementById("heroLead");
+    const cityLinks = document.querySelectorAll(".hero-cities a");
+    const cityPicker = document.getElementById("heroCityPicker");
+    const cityTrigger = document.getElementById("heroCityTrigger");
+    const cityMenu = document.getElementById("heroCityMenu");
+    const cityValue = document.getElementById("heroCityValue");
+    const citySelect = document.getElementById("heroLocation");
+    const cityLabel = document.querySelector(".hero-city-trigger__label");
+
+    function currentCityLabel() {
+        const value = citySelect?.value?.trim();
+        return value || "Delhi NCR";
+    }
+
+    function titleForMode(mode, city) {
+        if (mode === "properties") {
+            return "Properties to buy in <em>" + city + "</em>";
+        }
+        if (mode === "commercial") {
+            return "Commercial properties in <em>" + city + "</em>";
+        }
+        return "New projects to buy in <em>" + city + "</em>";
+    }
+
+    function leadForMode(mode) {
+        if (!heroLead) {
+            return "";
+        }
+        if (mode === "properties") {
+            return heroLead.dataset.leadProperties || "";
+        }
+        if (mode === "commercial") {
+            return heroLead.dataset.leadCommercial || "";
+        }
+        return heroLead.dataset.leadProjects || "";
+    }
+
+    const tabCopy = {
+        projects: {
+            placeholder: "Search for locality, landmark, project or builder",
+        },
+        properties: {
+            placeholder: "Search for locality, landmark, society or builder",
+        },
+        commercial: {
+            placeholder: "Search for locality, landmark, project or builder",
+        },
+    };
+
+    function slugifyCity(value) {
+        return String(value || "")
+            .toLowerCase()
+            .trim()
+            .replace(/\s+/g, "-");
+    }
+
+    function applyHeroTab(mode) {
+        if (!heroSearch || !tabCopy[mode]) {
+            return;
+        }
+
+        heroTabs.forEach(function (tab) {
+            const active = tab.dataset.mode === mode;
+            tab.classList.toggle("is-active", active);
+            tab.setAttribute("aria-selected", active ? "true" : "false");
+        });
+
+        heroSearch.dataset.searchMode = mode;
+
+        const copy = tabCopy[mode];
+        if (heroTitle) {
+            heroTitle.innerHTML = titleForMode(mode, currentCityLabel());
+        }
+        if (heroLead) {
+            heroLead.textContent = leadForMode(mode);
+        }
+        if (keywordInput) {
+            keywordInput.placeholder = copy.placeholder;
+        }
+        if (cityLabel) {
+            cityLabel.textContent = mode === "commercial" ? "Look in" : "Buy in";
+        }
+        if (bhkSelect) {
+            bhkSelect.value = mode === "commercial" ? "Shops" : "";
+        }
+
+        cityLinks.forEach(function (link) {
+            const city = link.dataset.city || link.textContent.trim();
+            if (mode === "properties") {
+                link.href = "/properties?location=" + encodeURIComponent(city);
+            } else if (mode === "commercial") {
+                link.href = "/shops-projects-in-" + slugifyCity(city);
+            } else {
+                link.href = "/projects?location[]=" + encodeURIComponent(city);
+            }
+        });
+    }
+
+    heroTabs.forEach(function (tab) {
+        tab.addEventListener("click", function () {
+            applyHeroTab(tab.dataset.mode);
+        });
+    });
+
+    if (searchBtn && heroSearch) {
+        searchBtn.addEventListener(
+            "click",
+            function (event) {
+                event.preventDefault();
+                event.stopImmediatePropagation();
+
+                const mode = heroSearch.dataset.searchMode || "projects";
+                const location = heroSearch.querySelector('select[name="location"]')?.value || "";
+                const keyword = heroSearch.querySelector(".keyword")?.value.trim() || "";
+
+                if (mode === "properties") {
+                    const params = new URLSearchParams();
+                    if (location) {
+                        params.set("location", location);
+                    }
+                    if (keyword) {
+                        params.set("keyword", keyword);
+                    }
+                    const query = params.toString();
+                    window.location.href = "/properties" + (query ? "?" + query : "");
+                    return;
+                }
+
+                const params = new URLSearchParams();
+                if (location) {
+                    params.append("location[]", location);
+                }
+                if (keyword) {
+                    params.set("q", keyword);
+                    params.set("keyword", keyword);
+                }
+                if (mode === "commercial") {
+                    params.append("type[]", "Shops");
+                }
+
+                const query = params.toString();
+                window.location.href = "/projects" + (query ? "?" + query : "");
+            },
+            true,
+        );
+    }
+
     if (keywordInput) {
         keywordInput.addEventListener("keydown", function (event) {
             if (event.key === "Enter") {
@@ -69,6 +220,72 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     }
+
+    function closeCityMenu() {
+        if (!cityPicker || !cityTrigger || !cityMenu) {
+            return;
+        }
+        cityPicker.classList.remove("is-open");
+        cityPicker.closest(".hero-search-panel")?.classList.remove("is-city-open");
+        cityTrigger.setAttribute("aria-expanded", "false");
+        cityMenu.hidden = true;
+    }
+
+    function openCityMenu() {
+        if (!cityPicker || !cityTrigger || !cityMenu) {
+            return;
+        }
+        cityPicker.classList.add("is-open");
+        cityPicker.closest(".hero-search-panel")?.classList.add("is-city-open");
+        cityTrigger.setAttribute("aria-expanded", "true");
+        cityMenu.hidden = false;
+    }
+
+    if (cityTrigger && cityPicker) {
+        cityTrigger.addEventListener("click", function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+            if (cityPicker.classList.contains("is-open")) {
+                closeCityMenu();
+            } else {
+                openCityMenu();
+            }
+        });
+
+        cityPicker.querySelectorAll(".hero-city-option").forEach(function (option) {
+            option.addEventListener("click", function () {
+                const value = option.getAttribute("data-value") || "";
+                const label = option.querySelector("span")?.textContent.trim() || "All cities";
+
+                if (citySelect) {
+                    citySelect.value = value;
+                    citySelect.dispatchEvent(new Event("change", { bubbles: true }));
+                }
+                if (cityValue) {
+                    cityValue.textContent = label;
+                }
+
+                cityPicker.querySelectorAll(".hero-city-option").forEach(function (item) {
+                    item.classList.toggle("is-selected", item === option);
+                });
+                const activeTab = document.querySelector(".hero-tab.is-active");
+                applyHeroTab(activeTab?.dataset.mode || "projects");
+                closeCityMenu();
+            });
+        });
+    }
+
+    document.addEventListener("click", function (event) {
+        if (cityPicker && !cityPicker.contains(event.target)) {
+            closeCityMenu();
+        }
+    });
+
+    document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") {
+            closeCityMenu();
+        }
+    });
 
     // Swiper 2: Popular Projects
     document.querySelectorAll(".mySwiper2").forEach(function (container) {
@@ -230,7 +447,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // Swiper Feeds: Social Updates
     document.querySelectorAll(".mySwiperFeeds").forEach(function (container) {
         new Swiper(container, {
-            slidesPerView: 1.2,
+            slidesPerView: 1.15,
             spaceBetween: 16,
             pagination: {
                 el: container.querySelector(".swiper-pagination"),
@@ -241,10 +458,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 prevEl: container.querySelector(".swiper-button-prev"),
             },
             breakpoints: {
-                576: { slidesPerView: 2, spaceBetween: 14 },
-                768: { slidesPerView: 2.5, spaceBetween: 16 },
-                992: { slidesPerView: 4, spaceBetween: 16 },
-                1200: { slidesPerView: 4, spaceBetween: 18 },
+                576: { slidesPerView: 1.6, spaceBetween: 16 },
+                768: { slidesPerView: 2, spaceBetween: 18 },
+                992: { slidesPerView: 3, spaceBetween: 20 },
+                1200: { slidesPerView: 3, spaceBetween: 22 },
             },
         });
     });

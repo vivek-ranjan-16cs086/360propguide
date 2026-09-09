@@ -123,6 +123,7 @@ jobs:
             **/storage/framework/views/**
             **/storage/app/firebase/**
             **/storage/app/public/**
+            **/public/storage
             **/public/storage/**
             **/public/plugins/**
             **/public/dist/**

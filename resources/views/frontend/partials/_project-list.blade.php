@@ -60,7 +60,7 @@
             <span class="project-empty-state__icon"><i class="fa-solid fa-house-circle-xmark" aria-hidden="true"></i></span>
             <h3>No projects found</h3>
             <p>Try adjusting your search or filters to discover more properties.</p>
-            <button type="button" class="project-empty-state__reset" id="emptyResetFilters">Reset filters</button>
+            <a href="{{ route('projects') }}" class="project-empty-state__reset">Reset filters</a>
         </div>
     </div>
 @endif

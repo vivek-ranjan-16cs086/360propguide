@@ -108,7 +108,7 @@
   width: 60px;
   height: 4px;
   border-radius: 2px;
-  background-color: var(--accent-orange);
+  background-color: var(--primary-blue);
 }
 
 .lead-text {
@@ -134,7 +134,7 @@
   left: 0;
   width: 4px;
   height: 0;
-  background-color: var(--accent-orange);
+  background-color: var(--primary-blue);
   transition: all 0.4s ease;
   z-index: -1;
 }
@@ -193,7 +193,7 @@
 .dots-pattern {
   width: 140px;
   height: 140px;
-  background-image: radial-gradient(var(--accent-orange) 20%, transparent 20%);
+  background-image: radial-gradient(var(--primary-blue) 20%, transparent 20%);
   background-size: 18px 18px;
   opacity: 0.3;
 }

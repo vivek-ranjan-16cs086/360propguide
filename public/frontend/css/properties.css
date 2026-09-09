@@ -319,9 +319,9 @@ input::-webkit-inner-spin-button {
     width: 24px;
 }
 .btn-check:checked + .radio-btn {
-    background-color: #f05736;
+    background-color: #1b3f63;
     color: #fff;
-    border-color: #f05736;
+    border-color: #1b3f63;
 }
 @media screen and (min-width: 768px) {
     .amenityImg {

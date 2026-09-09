@@ -10,10 +10,9 @@
 
 @section('customCSS')
 <link rel="stylesheet" href="{{url('frontend/libraries/nouislider.min.css')}}">
-<link rel="stylesheet" href="{{url('frontend/css/properties-listing.css')}}">
-<link rel="stylesheet" href="{{url('frontend/css/listing.css')}}">
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.14.1/themes/base/jquery-ui.css">
-
+<link rel="stylesheet" href="{{ asset('frontend/css/listing.css') }}?v={{ @filemtime(public_path('frontend/css/listing.css')) ?: time() }}">
+<link rel="stylesheet" href="{{url('frontend/css/properties-listing.css')}}">
 @endSection
 
 @section('content')
@@ -55,7 +54,7 @@
                     </div>
 
                     <div class="input-group w-fit d-flex align-items-center mb-3">
-                        <div id="search-form" class="d-flex w-100 d-none d-md-block">
+                        <div id="search-form" class="d-flex w-100">
                             <input type="text" id="search-input" name="search" placeholder="Search Here"
                                 class="form-control shadow-none" />
                         </div>
@@ -73,110 +72,11 @@
     <div class="row">
         <!-- Filters Section -->
         <div class="col-lg-3 mb-5 d-none d-lg-block">
-            <div id="desktopFilterContent">
-                <div class="filter-box recommended h-fit" id="filter-form">
-                    @csrf
-                    <input type="hidden" name="filters" value="filters" />
-                    <div class="filter-header">
-                        <span>Filters</span>
-                        <a id="resetFilters">Reset All</a>
-                    </div>
-                    <div id="resetAmount">
-                        <div class="d-flex justify-content-between mb-2">
-                            <span id="amount-min"></span>
-                            <span id="amount-max"></span>
-                        </div>
-                        <div id="slider-range"></div>
-                    </div>
-
-                    <!-- Hidden inputs to send values in form -->
-                    <input type="hidden" id="min_price" name="min_price">
-                    <input type="hidden" id="max_price" name="max_price">
-
-                    <!-- Listing Type -->
-                    <div class="property-type bhk py-3" id="listingTypeFilter">
-                        <div class="filter-section-title mb-3">Listing Type</div>
-
-                        <input onchange="updateListingType()" type="checkbox" class="property-filter" id="sale"
-                            value="Sale">
-                        <label for="sale" class="property-btn">Sale</label>
-
-                        <input onchange="updateListingType()" type="checkbox" class="property-filter" id="rent"
-                            value="Rent">
-                        <label for="rent" class="property-btn mt-2">Rent</label>
-                    </div>
-
-                    <!-- Property Type -->
-                    <div class="property-type bhk py-3" id="propertyTypeFilter">
-                        <div class="filter-section-title mb-3">Property Type</div>
-
-                        <input onchange="updatePropertyType()" type="checkbox" class="property-filter" id="apartment"
-                            value="apartment">
-                        <label for="apartment" class="property-btn">Apartments</label>
-
-                        <input onchange="updatePropertyType()" type="checkbox" class="property-filter" id="plot"
-                            value="Plot">
-                        <label for="plot" class="property-btn mt-2">Plots</label>
-                    </div>
-                    <!-- Construction Status -->
-					<div class="property-type py-3" id="constructionStatusFilter">
-						<div class="filter-section-title mb-3">Construction Status</div>
-
-						@foreach($constructionStatuses as $index => $status)
-							<input onchange="updateConstructionStatus()"
-								   type="checkbox"
-								   class="property-filter construction-status-filter"
-								   id="status-{{ $index }}"
-								   value="{{ $status }}">
-
-							<label for="status-{{ $index }}" class="property-btn mt-2">
-								{{ str_replace('_', ' ', ucwords($status)) }}
-							</label>
-						@endforeach
-					</div>
-
-					<!-- Furnishing Type -->
-					<div class="property-type py-3" id="furnishingTypeFilter">
-						<div class="filter-section-title mb-3">Furnishing Type</div>
-
-						@foreach($furnishingTypes as $index => $type)
-							<input onchange="updateFurnishingType()"
-								   type="checkbox"
-								   class="property-filter furnishing-type-filter"
-								   id="furnishing-{{ $index }}"
-								   value="{{ $type }}">
-
-							<label for="furnishing-{{ $index }}" class="property-btn mt-2">
-								{{ str_replace('_', ' ', ucwords($type)) }}
-							</label>
-						@endforeach
-					</div>
-                    <!-- Configuration / BHK -->
-                    <div class="property-type bhk py-3" id="configurationFilter">
-                        <div class="filter-section-title mb-3">Configuration</div>
-
-                        @foreach ($configurations as $index => $configuration)
-                            <input onchange="updateConfiguration()" type="checkbox"
-                                class="property-filter configuration-filter" id="configuration-{{ $index }}"
-                                value="{{ $configuration }}">
-                            <label for="configuration-{{ $index }}"
-                                class="property-btn mt-2">{{ str_replace('_', ' ', strtoupper($configuration)) }}</label>
-                        @endforeach
-                    </div>
-
-                    <!-- Location -->
-                    <div class="property-type py-3" id="locationFilter">
-                        <div class="filter-section-title mb-3">Locations</div>
-
-                        @foreach ($locations as $index => $location)
-                            <input onchange="updateLocation()" type="checkbox" class="property-filter location-filter"
-                                id="location-{{ $index }}" value="{{ $location }}">
-                            <label for="location-{{ $index }}" class="property-btn mt-2">{{ $location }}</label>
-                        @endforeach
-                    </div>
-
+            <aside class="filters-sidebar" id="propertyFilters">
+                <div id="desktopFilterContent">
+                    @include('frontend.partials._property-filters')
                 </div>
-            </div>
+            </aside>
         </div>
 
         <!-- Property Listings Section -->
@@ -373,7 +273,7 @@
     </div>
     <!-- Offcanvas Footer -->
     <div class="offcanvas-footer border-top p-3 d-flex justify-content-end">
-        <button type="button" class="btn p-2 rounded border-0 orange text-white fw-medium" data-bs-dismiss="offcanvas">
+        <button type="button" class="btn p-2 rounded border-0 fw-medium" data-bs-dismiss="offcanvas">
             Show All Results
         </button>
     </div>
@@ -389,16 +289,18 @@
             const desktopContainer = document.querySelector("#desktopFilterContent");
 
             function moveFilters() {
-                if (window.innerWidth < 768) {
-                    // move into offcanvas for mobile
+                if (!filterForm || !mobileContainer || !desktopContainer) {
+                    return;
+                }
+                if (window.innerWidth < 992) {
                     if (!mobileContainer.contains(filterForm)) {
                         mobileContainer.appendChild(filterForm);
                     }
-                } else {
-                    // move back to desktop for larger screens
-                    if (!desktopContainer.contains(filterForm)) {
-                        desktopContainer.appendChild(filterForm);
-                    }
+                } else if (!desktopContainer.contains(filterForm)) {
+                    desktopContainer.appendChild(filterForm);
+                }
+                if (window.jQuery && $("#slider-range").data("ui-slider")) {
+                    $("#slider-range").slider("refresh");
                 }
             }
 
@@ -409,7 +311,7 @@
             window.addEventListener("resize", moveFilters);
 
             // show offcanvas when filter button clicked
-            document.getElementById("filterToggle").addEventListener("click", function () {
+            document.getElementById("filterToggle")?.addEventListener("click", function () {
                 let filterOffcanvas = new bootstrap.Offcanvas(document.getElementById("mobileFilter"));
                 filterOffcanvas.show();
             });
@@ -561,12 +463,17 @@
                 filtersData['configuration'] = confs;
             }
 
-            // location
-            if (params.has('location')) {
-                const loc = params.get('location');
-                const locs = loc.includes(',') ? loc.split(',') : [loc];
+            // location (supports location, location[], and comma-separated values)
+            const locs = params.getAll('location[]')
+                .concat(params.getAll('location'))
+                .flatMap(function (value) { return String(value).split(','); })
+                .map(function (value) { return value.trim(); })
+                .filter(Boolean);
+            if (locs.length > 0) {
                 locs.forEach(function (l) {
-                    $(".location-filter[value='" + l + "']").prop('checked', true);
+                    $(".location-filter").filter(function () {
+                        return $(this).val().toLowerCase().trim() === l.toLowerCase().trim();
+                    }).prop('checked', true);
                 });
                 filtersData['location'] = locs;
             }
@@ -582,6 +489,14 @@
                 const pt = params.get('propertyType');
                 $(".property-filter[value='" + pt + "']").prop('checked', true);
                 filtersData['propertyType'] = [pt];
+            }
+
+            if (params.has('keyword') || params.has('q') || params.has('search')) {
+                const kw = (params.get('keyword') || params.get('q') || params.get('search') || '').trim();
+                if (kw) {
+                    $("#search-input").val(kw);
+                    filtersData['search'] = kw;
+                }
             }
 
             // if any filters were set from query, apply them
@@ -601,14 +516,20 @@
             return "₹" + value.toLocaleString("en-IN");
         }
 
+        var sliderMin = {{ (int) ($minPrice ?? 0) }};
+        var sliderMax = {{ (int) ($maxPrice ?? 0) }};
+        if (sliderMax <= sliderMin) {
+            sliderMax = sliderMin + 100000;
+        }
+
         $("#slider-range").slider({
             range: true,
-            min: {{ $minPrice }},
-            max: {{ $maxPrice }},
-            values: [{{ $minPrice }}, {{ $maxPrice }}],
+            min: sliderMin,
+            max: sliderMax,
+            values: [sliderMin, sliderMax],
             slide: function (event, ui) {
-                $("#amount-min").text(formatPriceIndian(ui.values[0]));
-                $("#amount-max").text(formatPriceIndian(ui.values[1]));
+                $("#amount-min").text(formatPrice(ui.values[0]));
+                $("#amount-max").text(formatPrice(ui.values[1]));
                 filtersData['budget'] = { 'min': ui.values[0], 'max': ui.values[1] };
             },
             stop: function (event, ui) {
@@ -644,16 +565,57 @@
             applyFilters(filtersData);
         });
 
-        // Search
+        $(document).on('input', '[data-filter-search]', function () {
+            const query = $(this).val().trim().toLowerCase();
+            const list = document.getElementById($(this).attr('data-filter-search'));
+            if (!list) {
+                return;
+            }
+            list.querySelectorAll('[data-filter-label]').forEach(function (row) {
+                const label = row.getAttribute('data-filter-label') || '';
+                row.hidden = query !== '' && label.indexOf(query) === -1;
+            });
+        });
+
+        $(document).on('click', '[data-toggle-more]', function () {
+            const list = document.getElementById($(this).attr('data-toggle-more'));
+            if (!list) {
+                return;
+            }
+            list.classList.toggle('is-expanded');
+            $(this).text(list.classList.contains('is-expanded') ? 'Show less' : 'Show more');
+        });
+
+        $(document).on('click', '#resetFilters', function (e) {
+            e.preventDefault();
+            $('#filter-form input[type="checkbox"]').prop('checked', false);
+            if ($("#slider-range").data("ui-slider")) {
+                const min = $("#slider-range").slider("option", "min");
+                const max = $("#slider-range").slider("option", "max");
+                $("#slider-range").slider("values", [min, max]);
+                $("#amount-min").text(formatPrice(min));
+                $("#amount-max").text(formatPrice(max));
+            }
+            filtersData = { pageId: 1 };
+            applyFilters(filtersData);
+            if (window.history && window.history.replaceState) {
+                window.history.replaceState({}, '', '{{ url("properties") }}');
+            }
+        });
+
+        var propertySearchTimer = null;
         $("#search-input").on("keyup change", function () {
-            const searchValue = $(this).val().trim().replace(/[^a-zA-Z0-9\s]/g, '');
+            const searchValue = $(this).val().trim();
             filtersData['pageId'] = 1;
             if (searchValue !== '') {
                 filtersData['search'] = searchValue;
             } else {
                 delete filtersData['search'];
             }
-            applyFilters(filtersData);
+            clearTimeout(propertySearchTimer);
+            propertySearchTimer = setTimeout(function () {
+                applyFilters(filtersData);
+            }, 400);
         });
 
 
@@ -668,22 +630,33 @@
                     'Content-Type': 'application/json',
                     'Accept': 'application/json'
                 },
-                url: "{{ route('property.filters') }}?page=" + pageNumber,
+                url: "{{ route('property.filters', [], false) }}?page=" + pageNumber,
                 method: "POST",
                 data: JSON.stringify({ 'filters': filtersData }),
                 success: function (response) {
-                    if (response.status) {
-                        $('#property-list').html('');
-                        $('.pagination').html('');
+                    $('#property-list').html('');
+                    $('.pagination').html('');
 
-                        let html = '';
-                        response.data.data.forEach(function (property) {
+                    const items = (response && response.data && Array.isArray(response.data.data))
+                        ? response.data.data
+                        : [];
+
+                    if (!response || response.status === false || items.length === 0) {
+                        $('#property-list').html('<h4 class="text-center">No properties found</h4>');
+                        $('#results-count').text('0 Results');
+                        $('#results-title').text((response && response.dynamicTitle) ? response.dynamicTitle : 'All Properties');
+                        return;
+                    }
+
+                    let html = '';
+                    items.forEach(function (property) {
+                            const galleries = Array.isArray(property.galleries) ? property.galleries : [];
                             html += `
     <div class="property-card mb-3"
-         data-type="${property.property_type}"
-         data-bhk="${property.configuration}"
-         data-price="${property.total_price}"
-         data-location="${property.city}">
+         data-type="${property.property_type || ''}"
+         data-bhk="${property.configuration || ''}"
+         data-price="${property.total_price || ''}"
+         data-location="${property.city || ''}">
 
         <!-- Property Images -->
     <div class="property-image">
@@ -694,10 +667,10 @@
                  data-bs-interval="2000">
 
                 <div class="carousel-inner">
-                    ${property.galleries && property.galleries.length > 0
-                                    ? property.galleries.map((gallery, key) => `
+                    ${galleries.length > 0
+                                    ? galleries.map((gallery, key) => `
                             <div class="carousel-item slide ${key === 0 ? 'active' : ''}">
-                                <img src="/storage/${gallery}" alt="${property.title}">
+                                <img src="/storage/${gallery}" alt="${property.title || 'Property'}">
                             </div>
                         `).join('')
                                     : `
@@ -773,13 +746,13 @@
 
 
                         // Results count
-                        $('#results-count').text(response.totalResults + ' Results');
-                        $('#results-title').text(response.dynamicTitle);
+                        $('#results-count').text((response.totalResults || items.length) + ' Results');
+                        $('#results-title').text(response.dynamicTitle || 'All Properties');
 
 
                         // ===== Pagination =====
-                        let lastPage = response.pagination.last_page;
-                        let currentPage = response.pagination.current_page;
+                        let lastPage = (response.pagination && response.pagination.last_page) ? response.pagination.last_page : 1;
+                        let currentPage = (response.pagination && response.pagination.current_page) ? response.pagination.current_page : 1;
                         let pagination = '';
 
                         // Previous Button
@@ -834,13 +807,12 @@
                                    </li>`;
 
                         $('.pagination').html(pagination);
-
-                    } else {
-                        $('#property-list').html('<h4 class="text-center">No properties found</h4>');
-						$('#results-count').text('0 Results');
-						$('#results-title').text('All Properties');
-                        $('.pagination').html('');
-                    }
+                },
+                error: function () {
+                    $('#property-list').html('<h4 class="text-center">No properties found</h4>');
+                    $('#results-count').text('0 Results');
+                    $('#results-title').text('All Properties');
+                    $('.pagination').html('');
                 }
             });
         }

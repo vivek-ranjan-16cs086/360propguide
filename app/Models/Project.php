@@ -10,6 +10,16 @@ class Project extends Model
 {
     use HasFactory;
 	use SoftDeletes;
+
+	public function cityLocation()
+	{
+		return $this->belongsTo(Location::class, 'location_id');
+	}
+
+	public function sublocation()
+	{
+		return $this->belongsTo(Location::class, 'sublocation_id');
+	}
 	
 	public function getTypologyTextAttribute()
     {

@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Models\AminityList;
+use App\Models\Location;
 use App\Http\Controllers\admin\CustomLinkController;
 use App\Models\FcmToken;
 use App\Services\FirebaseNotificationService; 
@@ -177,7 +178,8 @@ class ProjectController extends Controller
             $aminityLists = AminityList::get();
             $developerDetails = Developer::get();
             $projects = Project::where('status', false)->get();
-            return view('admin.projects.add', compact('title', 'breadcrumbHtml', 'aminityLists', 'developerDetails', 'projects'));
+            $parentLocations = Location::parents()->active()->orderBy('city')->get();
+            return view('admin.projects.add', compact('title', 'breadcrumbHtml', 'aminityLists', 'developerDetails', 'projects', 'parentLocations'));
         } catch (\Exception $e) {
             Log::error('Error fetching: ' . $e->getMessage());
             return response()->json([
@@ -194,6 +196,8 @@ class ProjectController extends Controller
             'floor_plans' => 'required',
             'location' => 'required',
             'cities' => 'required',
+            'location_id' => 'nullable|exists:locations,id',
+            'sublocation_id' => 'nullable|exists:locations,id',
             'rera_no' => 'required',
 			'price' => 'required|numeric',
 			
@@ -273,8 +277,7 @@ class ProjectController extends Controller
             $project->property_size = $request->property_size;
             $project->typology = $availableBhkTypes;
 			$project->project_status = $request->project_status;
-            $project->location = $request->location;
-            $project->cities = $request->cities;
+            $this->syncProjectLocation($project, $request);
             $project->project_type = $request->project_type;
 			
 			//sqft price
@@ -425,8 +428,11 @@ class ProjectController extends Controller
 			//$projects->sqft_price = json_decode($projects->sqft_price, true);
             $aminityLists = AminityList::get();
             $developerDetails = Developer::get();
-            //dd (json_decode($projects->floor_plans_description));
-            return view('admin.projects.edit', compact('title', 'projects', 'breadcrumbHtml', 'aminityLists', 'developerDetails'));
+            $parentLocations = Location::parents()->active()->orderBy('city')->get();
+            $sublocations = $projects->location_id
+                ? Location::where('parent_id', $projects->location_id)->active()->orderBy('city')->get()
+                : collect();
+            return view('admin.projects.edit', compact('title', 'projects', 'breadcrumbHtml', 'aminityLists', 'developerDetails', 'parentLocations', 'sublocations'));
         } catch (ModelNotFoundException $e) {
             Log::error('Model not found: ' . $e->getMessage());
             return response()->json([
@@ -457,9 +463,8 @@ class ProjectController extends Controller
             $project->property_size = $request->property_size;
             $project->typology = json_encode($request->typology ?? []);;
             $project->project_status = $request->project_status;
-            $project->location = $request->location;
-            $project->cities = $request->cities;
-			
+            $this->syncProjectLocation($project, $request);
+
 			//sqft price
             $project->sqft_price = json_encode($request->sqft_price);
             $project->price = $request->price;
@@ -840,6 +845,21 @@ class ProjectController extends Controller
                 'status' => false
             ], 500);
         }
+    }
+
+    private function syncProjectLocation(Project $project, Request $request): void
+    {
+        $parent = $request->location_id
+            ? Location::find($request->location_id)
+            : null;
+        $child = $request->sublocation_id
+            ? Location::find($request->sublocation_id)
+            : null;
+
+        $project->location_id = $parent?->id;
+        $project->sublocation_id = $child?->id;
+        $project->cities = $parent?->city ?: $request->cities;
+        $project->location = $child?->city ?: ($request->location ?: $parent?->city);
     }
 
 }

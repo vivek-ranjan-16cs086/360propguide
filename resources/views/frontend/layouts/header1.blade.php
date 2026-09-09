@@ -115,7 +115,7 @@
     <button type="button"
         class="btn customBtn w-100 rounded-3 download-btn"
         onclick="window.location.href='tel:+919643020020'"
-        style="background-color:#F05736; color:#fff; border:1px solid #F05736;">
+        style="background-color:#1b3f63; color:#fff; border:1px solid #1b3f63;">
         <i class="fa-solid fa-phone p-2"></i>Call
     </button>
 </div>

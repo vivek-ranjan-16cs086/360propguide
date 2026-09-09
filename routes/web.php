@@ -20,6 +20,7 @@ use App\Http\Controllers\admin\BlogsController;
 use App\Http\Controllers\admin\ProjectController;
 use App\Http\Controllers\admin\AminityController;
 use App\Http\Controllers\admin\DeveloperController;
+use App\Http\Controllers\admin\LocationController;
 use App\Http\Controllers\admin\SettingsController;
 use App\Http\Controllers\admin\QueryController;
 use App\Http\Controllers\admin\CustomLinkController; 
@@ -107,20 +108,16 @@ Route::GET('about-us', [FrontendPageController::class, 'getAboutUsPageData'])->n
  // properties
  Route::group(['prefix' => 'properties'], function () {
     Route::get('/', [FrontendPageController::class, 'getPropertyListings']);
+	Route::post('filters', [FrontendPageController::class, 'filterProperties'])->name('property.filters');
 	Route::get('/{slug}', [FrontendPageController::class, 'getPropertyDetails'])->name('property.details');
-	Route::post('filters', [FrontendPageController::class, 'filterProperties'])->name('property.filters'); 
 });
  
 Route::group(['prefix' => 'projects'], function () {
-	
     Route::get('/', [FrontendPageController::class, 'getListingsPageData'])->name('projects');
-    Route::get('{slug}', [FrontendPageController::class, 'getProjectDetails'])->name('projects.details');
-
-    // POST routes
-    Route::post('search', [FrontendPageController::class, 'SearchProjects'])->name('projects.search');
-	Route::get('/listing', [FrontendPageController::class, 'filter'])->name('projects.listing'); 
+    Route::match(['GET', 'POST'], 'search', [FrontendPageController::class, 'SearchProjects'])->name('projects.search');
     Route::post('filters', [FrontendPageController::class, 'applyFilters'])->name('filters');
-	
+    Route::get('/listing', [FrontendPageController::class, 'getListingsPageData'])->name('projects.listing');
+    Route::get('{slug}', [FrontendPageController::class, 'getProjectDetails'])->name('projects.details');
 });
 
 //blogs
@@ -194,6 +191,17 @@ Route::group(["prefix" => "7439", "middleware" => ["auth", "admin:1", "session.v
         //POST
         Route::POST('store', [DeveloperController::class, 'store'])->name('developers.store');
         Route::PUT('update', [DeveloperController::class, 'update'])->name('developers.update');
+    });
+
+    Route::group(['prefix' => 'locations'], function () {
+        Route::GET('/', [LocationController::class, 'index'])->name('locations.index');
+        Route::GET('add', [LocationController::class, 'add'])->name('locations.add');
+        Route::GET('ajax-list', [LocationController::class, 'ajaxList'])->name('locations.ajax-list');
+        Route::GET('children/{id}', [LocationController::class, 'children'])->name('locations.children');
+        Route::GET('edit/{id}', [LocationController::class, 'edit'])->name('locations.edit');
+        Route::GET('delete/{id}', [LocationController::class, 'moveToBin'])->name('locations.delete');
+        Route::POST('store', [LocationController::class, 'store'])->name('locations.store');
+        Route::PUT('update', [LocationController::class, 'update'])->name('locations.update');
     });
 	
     Route::group(['prefix' => 'blogs'], function () {
