@@ -13,7 +13,7 @@ concurrency:
 
 jobs:
   test:
-    name: Test & build
+    name: Test
     runs-on: ubuntu-latest
 
     steps:
@@ -47,31 +47,12 @@ jobs:
       - name: Run unit tests
         run: php artisan test --testsuite=Unit
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: npm
-
-      - name: Install JS dependencies and build assets
-        run: |
-          npm ci
-          npm run build
-
-      - name: Upload built assets
-        uses: actions/upload-artifact@v4
-        with:
-          name: vite-build
-          path: public/build
-          retention-days: 1
-          if-no-files-found: ignore
-
   deploy:
     name: Deploy to Hostinger
     needs: test
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
 
     steps:
       - name: Checkout
@@ -93,54 +74,78 @@ jobs:
           echo "FTP host: $FTP_SERVER"
           echo "FTP user: $FTP_USERNAME"
 
-      - name: Download built assets
+      - name: Deploy via SFTP
         if: steps.ftp.outputs.configured == 'true'
-        uses: actions/download-artifact@v4
-        with:
-          name: vite-build
-          path: public/build
-        continue-on-error: true
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER || vars.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME || vars.FTP_USERNAME }}
+          LFTP_PASSWORD: ${{ secrets.FTP_PASSWORD || vars.FTP_PASSWORD }}
+          SSH_HOST: ${{ secrets.SSH_HOST || vars.SSH_HOST }}
+          SSH_PORT: ${{ secrets.SSH_PORT || vars.SSH_PORT || '65002' }}
+          REMOTE_DIR: ${{ secrets.FTP_SERVER_DIR || vars.FTP_SERVER_DIR || 'public_html' }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y lftp
 
-      - name: Deploy via FTPS
+          HOST="${SSH_HOST:-$FTP_SERVER}"
+          PORT="${SSH_PORT:-65002}"
+          REMOTE="${REMOTE_DIR#/}"
+          REMOTE="${REMOTE%/}"
+
+          echo "Deploying to ${HOST}:${PORT} as ${FTP_USERNAME} → ${REMOTE}/"
+
+          lftp -c "
+            set sftp:auto-confirm yes
+            set net:max-retries 8
+            set net:reconnect-interval-base 5
+            set net:timeout 30
+            open -u ${FTP_USERNAME}, sftp://${HOST}:${PORT}
+            mirror -R --verbose --parallel=3 --only-newer --no-perms --no-umask \
+              -x '^\\.git/' \
+              -x '^\\.github/' \
+              -x '^vendor/' \
+              -x '^node_modules/' \
+              -x '^tests/' \
+              -x '^package.json$' \
+              -x '^package-lock.json$' \
+              -x '^vite.config.js$' \
+              -x '^storage/logs/' \
+              -x '^storage/debugbar/' \
+              -x '^storage/framework/cache/data/' \
+              -x '^storage/framework/sessions/' \
+              -x '^storage/framework/views/' \
+              -x '^storage/app/public/' \
+              -x '^storage/app/firebase/' \
+              -x '^public/plugins/' \
+              -x '^public/dist/' \
+              -x '^public/storage/' \
+              -x '^public/frontend/libraries/' \
+              -x '\\.env$' \
+              -x '\\.mp4$' \
+              -x '\\.mmdb$' \
+              ./ ${REMOTE}/
+            bye
+          "
+
+      - name: Install PHP packages on live
         if: steps.ftp.outputs.configured == 'true'
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        uses: appleboy/ssh-action@v1.2.2
         with:
-          server: ${{ secrets.FTP_SERVER || vars.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME || vars.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD || vars.FTP_PASSWORD }}
-          protocol: ftps
-          port: 21
-          security: loose
-          local-dir: ./
-          server-dir: ${{ secrets.FTP_SERVER_DIR || vars.FTP_SERVER_DIR || '/public_html/' }}
-          timeout: 120000
-          exclude: |
-            **/.git*
-            **/.git*/**
-            **/.github/**
-            **/.github*/**
-            **/.gitignore
-            **/.gitattributes
-            **/.editorconfig
-            **/.styleci.yml
-            **/.env
-            **/.env.*
-            **/node_modules/**
-            **/vendor/**
-            **/tests/**
-            **/error_log
-            **/.ftp-deploy-sync-state.json
-            **/storage/logs/**
-            **/storage/debugbar/**
-            **/storage/framework/cache/data/**
-            **/storage/framework/sessions/**
-            **/storage/framework/views/**
-            **/storage/app/firebase/**
-            **/storage/app/public/**
-            **/public/storage/**
-            **/public/plugins/**
-            **/*.mmdb
-            **/*.mp4
-            **/.idea/**
-            **/.vscode/**
-            **/.cursor/**
+          host: ${{ secrets.SSH_HOST || vars.SSH_HOST || secrets.FTP_SERVER || vars.FTP_SERVER }}
+          username: ${{ secrets.SSH_USERNAME || vars.SSH_USERNAME || secrets.FTP_USERNAME || vars.FTP_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD || vars.SSH_PASSWORD || secrets.FTP_PASSWORD || vars.FTP_PASSWORD }}
+          port: ${{ secrets.SSH_PORT || vars.SSH_PORT || 65002 }}
+          command_timeout: 15m
+          script_stop: true
+          script: |
+            set -e
+            if [ -d "$HOME/public_html" ]; then
+              cd "$HOME/public_html"
+            elif [ -d "$HOME/domains/360propguide.com/public_html" ]; then
+              cd "$HOME/domains/360propguide.com/public_html"
+            else
+              echo "Could not find Laravel public_html directory"
+              exit 1
+            fi
+            composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+            php artisan package:discover --ansi

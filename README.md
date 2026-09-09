@@ -9,10 +9,8 @@ Laravel 10 property portal for [360propguide.com](https://www.360propguide.com/)
 
 ```bash
 composer install
-npm install
 php artisan key:generate
 php artisan migrate
-npm run dev
 ```
 
 3. Serve the app with `php artisan serve`.
@@ -21,7 +19,7 @@ Do not commit `.env`. Production secrets stay on the Hostinger server.
 
 ## GitHub Actions CI/CD
 
-Every push to `main` runs tests and a frontend build, then deploys to Hostinger over FTPS so [www.360propguide.com](https://www.360propguide.com/) stays up to date.
+Every push to `main` runs PHP tests, uploads code to Hostinger over SFTP, then runs `composer install --no-dev --optimize-autoloader` on the server so new PHP packages are installed on live. Node/npm is not used.
 
 ### Required GitHub secrets
 
@@ -33,6 +31,9 @@ In the GitHub repo go to **Settings → Secrets and variables → Actions → Se
 | `FTP_USERNAME` | Same FTP account username |
 | `FTP_PASSWORD` | Same FTP account password |
 | `FTP_SERVER_DIR` | Optional. Defaults to `/public_html/` |
+| `SSH_HOST` | Optional. Defaults to `FTP_SERVER`. Enable SSH in Hostinger hPanel → **Advanced → SSH Access** |
+| `SSH_PORT` | Optional. Defaults to `65002` (Hostinger) |
+| `SSH_USERNAME` / `SSH_PASSWORD` | Optional. Defaults to the FTP username and password |
 
 The workflow also reads these names from **Variables** if Secrets are empty. Prefer **Secrets** for the password so it is not visible in the settings UI.
 
