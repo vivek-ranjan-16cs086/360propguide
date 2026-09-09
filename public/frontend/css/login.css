@@ -1,0 +1,112 @@
+.loginInput36o:focus {
+    box-shadow: none;
+    border-color: cadetblue;
+}
+ .backimgof360Login {
+        background-image: none;
+        background-color: transparent;
+    }
+ .endcol {
+        display: none;
+    }
+
+.divimg {
+    background-image: url('https://thumbs.dreamstime.com/b/white-textured-wall-background-171419006.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    height: 20vh;
+    display: none;
+    margin-bottom: 40px;
+}
+
+@media screen and (min-width: 768px) {
+   
+    .backimgof360Login {
+    background-image: url('https://png.pngtree.com/background/20210711/original/pngtree-simple-atmospheric-gradient-urban-construction-enterprise-ppt-background-picture-image_1069360.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: bottom;	
+    height: calc(100vh - 80px);
+}
+ .endcol {
+        display: block;
+    }
+   
+}
+
+.LoginHeadTxt {
+    font-size: 20px;
+    font-weight: 500;
+}
+
+.LoginHeadTxt2 {
+    font-size: 10px;
+}
+
+.LoginFormText {
+    font-size: 20px;
+}
+
+.text-rotator {
+    position: relative;
+    height: 50px; 
+    overflow: hidden;
+    font-size: 14px;
+}
+
+.text-rotator .fortxt {
+    position: absolute;
+    width: 100%;
+    opacity: 0;
+    animation: rotateText 16s infinite ease-in-out;
+    transition: all 0.3s ease-in-out;
+}
+
+.text-rotator .fortxt:nth-child(1) { animation-delay: 0s; }
+.text-rotator .fortxt:nth-child(2) { animation-delay: 4s; }
+.text-rotator .fortxt:nth-child(3) { animation-delay: 8s; }
+.text-rotator .fortxt:nth-child(4) { animation-delay: 12s; }
+
+@keyframes rotateText {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    5% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    25% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    30% {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    100% {
+        opacity: 0;
+    }
+}
+@media (max-width: 768px) {
+    header, footer {
+        display: none !important;
+    }
+
+    .mobile-popup-wrapper {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: #fff;
+        z-index: 9999;
+        overflow-y: auto;
+        padding-top: 40px; 
+    }
+
+    body {
+        overflow: hidden;
+    }
+}

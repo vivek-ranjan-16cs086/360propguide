@@ -1,0 +1,7 @@
+.disclaimer-head {
+  background-image: url('frontend/privacyp.jpeg');
+  background-size: cover;        
+  background-position: center;   
+  background-repeat: no-repeat;  
+  height: 50vh;  
+} 

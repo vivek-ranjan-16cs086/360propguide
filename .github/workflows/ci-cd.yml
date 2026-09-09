@@ -1,0 +1,148 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Test & build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          extensions: mbstring, xml, ctype, json, bcmath, gd, fileinfo, zip, pcntl
+          coverage: none
+          tools: composer:v2
+
+      - name: Cache Composer packages
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Install PHP dependencies
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Prepare Laravel environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate --ansi
+
+      - name: Run unit tests
+        run: php artisan test --testsuite=Unit
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install JS dependencies and build assets
+        run: |
+          npm ci
+          npm run build
+
+  deploy:
+    name: Deploy to Hostinger
+    needs: test
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check FTP secrets
+        id: ftp
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+        run: |
+          if [ -z "$FTP_SERVER" ]; then
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::FTP secrets are not set. Add FTP_SERVER, FTP_USERNAME, and FTP_PASSWORD in GitHub Settings > Secrets and variables > Actions, then re-run this workflow to deploy https://www.360propguide.com"
+          else
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Setup PHP
+        if: steps.ftp.outputs.configured == 'true'
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          extensions: mbstring, xml, ctype, json, bcmath, gd, fileinfo, zip
+          coverage: none
+          tools: composer:v2
+
+      - name: Install production PHP dependencies
+        if: steps.ftp.outputs.configured == 'true'
+        run: composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Setup Node
+        if: steps.ftp.outputs.configured == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Build frontend assets
+        if: steps.ftp.outputs.configured == 'true'
+        run: |
+          npm ci
+          npm run build
+
+      - name: Deploy via FTPS
+        if: steps.ftp.outputs.configured == 'true'
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          port: 21
+          security: loose
+          local-dir: ./
+          server-dir: ${{ secrets.FTP_SERVER_DIR || '/public_html/' }}
+          timeout: 60000
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/.github/**
+            **/.github*/**
+            **/.gitignore
+            **/.gitattributes
+            **/.editorconfig
+            **/.styleci.yml
+            **/.env
+            **/.env.*
+            **/node_modules/**
+            **/tests/**
+            **/error_log
+            **/.ftp-deploy-sync-state.json
+            **/storage/logs/**
+            **/storage/debugbar/**
+            **/storage/framework/cache/data/**
+            **/storage/framework/sessions/**
+            **/storage/framework/views/**
+            **/storage/app/firebase/**
+            **/storage/app/public/**
+            **/public/storage/**
+            **/.idea/**
+            **/.vscode/**
+            **/.cursor/**

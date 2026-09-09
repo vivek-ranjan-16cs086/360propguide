@@ -1,0 +1,429 @@
+
+/* Results Info */
+.results-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding: 0 4px;
+}
+
+.results-count {
+    font-size: 16px;
+    color: #333;
+    font-weight: 500;
+}
+
+/* Property Listings */
+.property-listings {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 28px;
+}
+
+/* Individual Property Card */
+.property-card {
+    display: flex;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+.property-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+}
+
+/* Image Slider Section */
+.property-image {
+    position: relative;
+    flex: 0 0 280px;
+    overflow: hidden;
+}
+
+.slider-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.slider {
+    display: flex;
+    width: 500%;
+    height: 100%;
+    transition: transform 0.5s ease;
+}
+
+.slide {
+    width: 100%;
+    height: 100%;
+}
+
+.slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.photos {
+    top: 12px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.updated {
+    bottom: 12px;
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+/* Property Details */
+.property-details {
+    flex: 1;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.property-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1b3f63;
+    text-decoration: none;
+    line-height: 1.3;
+    transition: color 0.3s ease;
+}
+
+.property-title:hover {
+    color: #005bb5;
+}
+
+.location {
+    font-size: 14px;
+    color: #666;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.location .material-symbols-outlined {
+    font-size: 16px;
+    margin-right: 2px;
+}
+
+/* Info Blocks */
+.info-blocks {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    background: linear-gradient(135deg, #fafafa 0%, #f0f0f0 100%);
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #e8e8e8;
+    gap: 1px;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 8px;
+    font-size: 13px;
+    font-weight: 500;
+    background: #fafafa;
+    transition: all 0.3s ease;
+}
+
+.info-item:hover {
+    background: #f0f8ff;
+}
+
+.info-item .material-symbols-outlined {
+    font-size: 16px;
+    margin-right: 5px;
+    color: #1b3f63;
+}
+
+/* Location Details */
+.location-details {
+    padding: 14px;
+    background: linear-gradient(135deg, #f8f9ff 0%, #e8f0ff 100%);
+    border-radius: 10px;
+    border: 1px solid #e0e8ff;
+    font-size: 13px;
+    font-weight: 500;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.location-details .material-symbols-outlined {
+    font-size: 16px;
+    color: #1b3f63;
+}
+
+/* Price Section */
+.price-section {
+    background: linear-gradient(135deg, #e8f4fd 0%, #d1e7fd 100%);
+    padding: 24px;
+    min-width: 220px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    border-left: 1px solid rgba(0,118,209,0.1);
+}
+
+.price {
+    font-size: 26px;
+    font-weight: 700;
+    color: #1b3f63;
+}
+
+.price-details {
+    font-size: 12px;
+    color: #666;
+    margin-top: -4px;
+}
+
+.other-charges {
+    font-size: 12px;
+    color: #1b3f63;
+    text-decoration: underline;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.other-charges:hover {
+    color: #005bb5;
+}
+
+.button-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.contact-owner {
+    background: linear-gradient(135deg, #1b3f63 0%, #1b3f63 100%);
+    color: #fff;
+}
+
+.contact-owner:hover {
+    background: linear-gradient(135deg, #1b3f63 0%, #1b3f63 100%);
+}
+
+.check-availability {
+    background: linear-gradient(135deg, #1b3f63 0%, #1b3f63 100%);
+    color: #fff;
+}
+
+.check-availability:hover {
+    background: linear-gradient(135deg, #1b3f63 0%, #1b3f63 100%);
+}
+
+.btn .material-symbols-outlined {
+    font-size: 16px;
+    margin-right: 4px;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+ 
+    .results-info {
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 12px;
+        align-items: flex-start;
+    }
+
+    .results-count {
+        font-size: 13px;
+    }
+
+    .property-listings {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .property-card {
+        flex-direction: column;
+        border-radius: 8px;
+        margin-bottom: 0;
+    }
+
+    .property-image {
+        height: 120px;
+    }
+
+    .photos {
+        top: 6px;
+    }
+
+    .updated {
+        bottom: 6px;
+    }
+
+
+    .property-details {
+        padding: 10px;
+        gap: 6px;
+    }
+
+    .property-title {
+        font-size: 15px;
+    }
+
+    .location {
+        font-size: 12px;
+    }
+
+    .location .material-symbols-outlined {
+        font-size: 13px;
+    }
+
+    .info-blocks {
+        display: none;
+    }
+
+    .location-details {
+        display: none;
+    }
+
+    .price-section {
+        padding: 10px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 8px;
+        border-left: none;
+        border-top: 1px solid rgba(0,118,209,0.1);
+    }
+
+    .price-info {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .price {
+        font-size: 18px;
+    }
+
+    .price-details {
+        display: none;
+    }
+
+    .other-charges {
+        display: none;
+    }
+
+    .button-group {
+        display: flex;
+        flex-direction: row;
+        gap: 6px;
+    }
+
+
+    .btn .material-symbols-outlined {
+        font-size: 12px;
+        margin-right: 3px;
+    }
+}
+
+@media (max-width: 480px) {
+
+    .results-info {
+        margin-bottom: 10px;
+        gap: 6px;
+    }
+
+    .property-listings {
+        gap: 6px;
+    }
+
+    .property-image {
+        height: 110px;
+    }
+
+    .property-details {
+        padding: 8px;
+        gap: 5px;
+    }
+
+    .property-title {
+        font-size: 14px;
+    }
+
+    .location {
+        font-size: 11px;
+    }
+
+    .location-details {
+        display: none;
+    }
+
+    .price-section {
+        padding: 8px;
+        gap: 6px;
+    }
+
+    .price {
+        font-size: 16px;
+    }
+
+    .button-group {
+        gap: 4px;
+    }
+
+    .btn .material-symbols-outlined {
+        font-size: 11px;
+    }
+}
+
+/* Animation */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.property-card {
+    animation: fadeInUp 0.5s ease-out;
+}
+.results-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 0.5px solid #e0ddd6;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.results-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.results-count {
+    font-size: 15px;
+    font-weight: 500;
+    padding: 4px 12px;
+}
+.results-divider {
+    width: 1px;
+    height: 18px;
+    background: #ccc;
+}
+.results-title {
+    font-size: 16px;
+    
+    font-weight: 400;
+    text-transform: capitalize;
+}

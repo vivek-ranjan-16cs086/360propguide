@@ -1,0 +1,32 @@
+.hb-card {
+    padding: 18px;
+    border-radius: 12px;
+}
+
+.hb-range {
+    width: 100%;
+}
+
+.hb-value {
+    font-weight: 700;
+    color: #1b5577;
+}
+
+.hb-small {
+    color: #6c757d;
+    font-size: 13px;
+}
+
+.hb-result {
+    background: #fff;
+    border-radius: 10px;
+    padding: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
+}
+
+input:focus {
+    outline: none !important;
+    box-shadow: none !important;
+    border: 1px solid #ccc;
+}

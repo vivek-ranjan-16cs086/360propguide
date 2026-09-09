@@ -1,0 +1,16 @@
+.card {
+    border-radius: 0;
+    width: 100%;
+    box-shadow: 0px 8px 13px -3px rgba(0, 0, 0, 0.07);
+}
+
+.icon {
+    width: 45px;
+    border-radius: 21px;
+    padding: 10px 14px;
+    background-color: #Eff2f7;
+    color: blue;
+}
+.text{
+  color: rgb(20, 195, 136);  
+}

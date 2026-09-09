@@ -1,0 +1,18 @@
+User-agent: *
+
+# Allow site
+Disallow:
+
+# Block server folder
+Disallow: /cgi-bin/
+
+# Block REST API crawl waste
+Disallow: /wp-json/
+Disallow: /*?rest_route=
+
+# Optional (Real Estate Crawl Budget Optimization)
+Disallow: /*?filter=
+Disallow: /*?sort=
+
+# Sitemap
+Sitemap: https://www.360propguide.com/sitemap.xml

@@ -1,0 +1,34 @@
+.hero-bg {
+    background-image: url("https://cdn.prod.website-files.com/643b94c382e84463a9e52264/669668c00041adbcb9a41e9b_Bg_phone.webp");
+    background-position: 50%;
+    background-repeat: repeat-y;
+    background-size: cover;
+    height: 50vh;
+  }
+  .contact-form {
+    input:focus {
+      box-shadow: none;
+      outline: none;
+    }
+    textarea:focus {
+      outline: none;
+      box-shadow: none;
+    }
+  }
+
+  .orange {
+    background-color: #f05736;
+  }
+
+  .contact-form .btn:hover {
+    background-color: #ff0000 !important;
+  }
+
+  .contact-container {
+    margin-top: -30px;
+  }
+  @media only screen and (max-width: 768px) {
+    .form-group {
+      margin-bottom: 16px !important;
+    }
+  }

@@ -1,0 +1,140 @@
+.emi-us {
+    background: linear-gradient(135deg, #e6e6e6 0%, #ffffff 100%);
+    padding: 50px 0;
+    font-family: 'Poppins', sans-serif;
+}
+
+.header {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 20px;
+    background-color: white;
+}
+
+.emi .header h1 {
+    font-size: 26px;
+    font-weight: 700;
+    background: linear-gradient(90deg, #1b5577, #0e2f41);
+    -webkit-background-clip: text;
+    color: transparent;
+}
+
+.view {
+    background: #ffffff;
+    border-radius: 18px;
+    padding: 25px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+    transition: 0.3s ease;
+}
+
+
+
+.form-label {
+    font-weight: 600;
+    color: #1b5577;
+}
+
+.details input[type="number"] {
+    border-radius: 10px;
+    background: #fafafa;
+    border: 1px solid rgba(0, 0, 0, 0.25);
+    padding: 12px;
+    font-size: 15px;
+    transition: 0.2s;
+}
+
+.details input[type="number"]:focus {
+    border-color: #1b5577;
+    box-shadow: 0 0 0 3px rgba(27, 85, 119, 0.25);
+}
+
+
+input[type="range"] {
+    accent-color: #003964 !important;
+    height: 4px;
+    border-radius: 10px;
+}
+
+.details .d-flex span {
+    color: #1b5577;
+    opacity: 0.7;
+}
+
+#loan-amt-text,
+#loan-period-text,
+#interest-rate-text {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1b5577;
+}
+
+
+#price-container {
+    font-size: 30px;
+    font-weight: 300;
+    margin-top: 20px;
+    color: #0e2f41;
+}
+
+#price {
+    color: #1b5577;
+}
+
+canvas {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    border: 1px solid rgba(27, 85, 119, 0.12);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+}
+
+
+.summary-box {
+    background: #fff;
+    padding: 25px;
+    border: 1px solid rgba(27, 85, 119, 0.15);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 40px;
+
+}
+
+.summary-box .item {
+    text-align: center;
+    flex: 1;
+    /* equal width */
+}
+
+.summary-box .item p:first-child {
+    color: #1b5577;
+    opacity: 0.7;
+    font-weight: 500;
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.summary-box .item p:last-child {
+    font-size: 22px;
+    color: #0e2f41;
+    font-weight: 700;
+    margin: 0;
+}
+
+input:focus {
+    outline: none !important;
+    box-shadow: none !important;
+    border: 1px solid #ccc;
+}
+
+
+@media (max-width: 768px) {
+    .view {
+        margin-bottom: 30px;
+    }
+
+    canvas {
+        padding: 15px;
+    }
+}

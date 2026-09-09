@@ -1,0 +1,16 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+class Query extends Model
+{
+    use HasFactory;
+	protected $guarded = ['_token'];
+	use SoftDeletes;
+	protected $fillable = ['name', 'mobile', 'email', 'message', 'submittedVia'];
+
+}

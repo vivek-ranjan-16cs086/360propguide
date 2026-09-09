@@ -1,0 +1,107 @@
+
+
+.default-breadcrumb {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    list-style: none;
+    font-size: 14px;
+  }
+  .default-breadcrumb li.crumb {
+    position: relative;
+    margin-bottom: 0.5em;
+    padding: 0.25em;
+    background-color: var(--primaryColor);
+    color: #fff;
+  }
+  .default-breadcrumb li.crumb::after {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 100%;
+    height: 100%;
+    width: 1.5em;
+    background-color: var(--primaryColor);
+    clip-path: polygon(50% 50%, -50% -50%, 0 100%);
+  }
+  .default-breadcrumb li.crumb::before {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 1px;
+    height: 100%;
+    width: 1.5em;
+    background-color: var(--primaryColor);
+    clip-path: polygon(100% 0, 100% 100%, 0% 100%, 50% 50%, 0% 0%);
+    transform: translateX(-100%);
+  }
+  .default-breadcrumb li.crumb:not(:first-child) {
+    margin-left: 2em;
+  }
+  .default-breadcrumb li.crumb:first-child {
+    padding-left: 0.5em;
+    border-radius: 5px 0 0 5px;
+  }
+  .default-breadcrumb li.crumb:first-child::before {
+    display: none;
+  }
+  .default-breadcrumb li.crumb:last-child {
+    padding-right: 1em;
+    border-radius: 0 5px 5px 0;
+  }
+  .default-breadcrumb li.crumb:last-child::after {
+    display: none;
+  }
+  .default-breadcrumb li.crumb.active {
+    background-color: var(--secondaryColor);
+    color: #ffffff;
+  }
+  .default-breadcrumb li.crumb.active::before, .default-breadcrumb li.crumb.active::after {
+    background-color: var(--secondaryColor);
+  }
+  .default-breadcrumb li.crumb .link {
+    max-width: 250px;
+    padding:0.5rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .default-breadcrumb li.crumb a {
+    color: #fff;
+  }
+  .default-breadcrumb li.crumb a:hover {
+    color: #fff;
+  }
+
+  *[dir=rtl] .default-breadcrumb li.crumb {
+    text-align: right;
+    direction: rtl !important;
+  }
+  *[dir=rtl] .default-breadcrumb li.crumb::after {
+    right: 100% !important;
+    left: unset !important;
+    background-color: var(--primaryColor);
+    clip-path: polygon(50% 50%, 100% 100%, 100% 0);
+  }
+  *[dir=rtl] .default-breadcrumb li.crumb::before {
+    right: 1px !important;
+    left: unset !important;
+    clip-path: polygon(0 0, 0 100%, 100% 100%, 50% 50%, 100% 0);
+    transform: translateX(100%);
+  }
+  *[dir=rtl] .default-breadcrumb li.crumb:not(:first-child) {
+    margin-right: 2em;
+    margin-left: 0;
+  }
+  *[dir=rtl] .default-breadcrumb li.crumb:first-child {
+    padding-right: 0.5em;
+    padding-left: 0;
+    border-radius: 0 5px 5px 0;
+  }
+  *[dir=rtl] .default-breadcrumb li.crumb:last-child {
+    padding-right: 0;
+    padding-left: 1em;
+    border-radius: 5px 0 0 5px;
+  }

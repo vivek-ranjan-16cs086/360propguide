@@ -1,0 +1,78 @@
+.projects img{
+	width : 30%
+}
+.fileInput{
+	height: 100px;
+	align-content : center;
+	text-align: left;
+}
+.projects .selection{
+	width:100%
+}
+
+.projects .select2-selection{
+	height: 42px!important;
+	padding:5px!important;
+	background:#efeff5!important;
+}
+
+.projects .select2-selection__arrow{
+	top: 5px!important;
+}
+
+.plusBtn {
+    float: right;
+}
+.minusBtn {
+    float: right;
+    position: absolute;
+    top: 0;
+    right: 15px;
+    color: #fff;
+    padding: 6px;
+}
+.plusBtnFAQ,.minusBtnFAQ {
+    float: right;
+    position: relative;
+    top: -182px;
+    margin-top: 2px;
+    color: #fff;
+    padding: 6px;
+}
+.pdfloorPlans label{
+	font-size:15px;
+	font-weight:600
+}
+
+.fixed-right {
+    position: fixed;
+    bottom: 20px;
+    padding: 15px 25px;
+    height: 50px;
+    transform: rotate(270deg);
+    right: -52px;
+    top: 50vh;
+    z-index: 1050;
+}
+
+.fixed-right,.fixed-right:focus,.fixed-right:hover{
+	border:none!important;
+	background:var(--secondaryColor)!important;
+}
+.plusBtnRera, .minusBtnRera {
+    float: right;
+    position: relative;
+    top: -182px;
+    margin-top: 2px;
+    color: #fff;
+    padding: 6px;
+}
+.sqftPricePlusBtn, .sqftPriceMinusBtn{
+float: right;
+    position: relative;
+    top: -100px;
+    margin-top: 2px;
+    color: #fff;
+    padding: 6px;	
+	
+}

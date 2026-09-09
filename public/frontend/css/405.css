@@ -1,0 +1,15 @@
+.custom405Page{
+    height: 100vh;
+    background-color: #000000;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 2000 1500'%3E%3Cdefs%3E%3Cpath fill='none' stroke-width='59.4' id='a' d='M0.74-509.63l485.39 352.65l-185.4 570.61h-599.97l-185.4-570.61L0.74-509.63 M0.74-510.87l-486.56 353.51l185.85 571.99h601.42L487.3-157.36L0.74-510.87L0.74-510.87z'/%3E%3C/defs%3E%3Cg style='transform-origin:center'%3E%3Cg transform='rotate(72 0 0)' style='transform-origin:center'%3E%3Cg transform='rotate(-132.8 0 0)' style='transform-origin:center'%3E%3Cg transform='translate(1000 750)'%3E%3Cuse stroke='%23000' href='%23a' transform='rotate(8.3 0 0) scale(1.083)'/%3E%3Cuse stroke='%2300092b' href='%23a' transform='rotate(16.6 0 0) scale(1.166)'/%3E%3Cuse stroke='%23000f2f' href='%23a' transform='rotate(24.9 0 0) scale(1.249)'/%3E%3Cuse stroke='%23001333' href='%23a' transform='rotate(33.2 0 0) scale(1.332)'/%3E%3Cuse stroke='%23001736' href='%23a' transform='rotate(41.5 0 0) scale(1.415)'/%3E%3Cuse stroke='%23001b3a' href='%23a' transform='rotate(49.8 0 0) scale(1.498)'/%3E%3Cuse stroke='%23001e3e' href='%23a' transform='rotate(58.1 0 0) scale(1.581)'/%3E%3Cuse stroke='%23002242' href='%23a' transform='rotate(66.4 0 0) scale(1.664)'/%3E%3Cuse stroke='%23002546' href='%23a' transform='rotate(74.7 0 0) scale(1.747)'/%3E%3Cuse stroke='%2300294a' href='%23a' transform='rotate(83 0 0) scale(1.83)'/%3E%3Cuse stroke='%23002c4e' href='%23a' transform='rotate(91.3 0 0) scale(1.913)'/%3E%3Cuse stroke='%23023052' href='%23a' transform='rotate(99.6 0 0) scale(1.996)'/%3E%3Cuse stroke='%23093456' href='%23a' transform='rotate(107.9 0 0) scale(2.079)'/%3E%3Cuse stroke='%2310375b' href='%23a' transform='rotate(116.2 0 0) scale(2.162)'/%3E%3Cuse stroke='%23163b5f' href='%23a' transform='rotate(124.5 0 0) scale(2.245)'/%3E%3Cuse stroke='%231B3F63' href='%23a' transform='rotate(132.8 0 0) scale(2.328)'/%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    background-attachment: fixed;
+    background-size: cover;
+    background-position: center;
+    
+}
+.customText{
+    font-size: 50px;
+}
+.custom405Text{
+font-size: 80px;
+}

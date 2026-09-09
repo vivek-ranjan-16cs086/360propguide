@@ -1,0 +1,21 @@
+.services-head {
+    background-color: #ddf6ec;
+  }
+  .services-list li {
+    list-style: none;
+    position: relative;
+  }
+  .services-list li::before {
+    content: "? ";
+    line-height: 0;
+    position: absolute;
+    left: -32px;
+    top: 2px;
+    background: url("https://wpminds.com/wp-content/uploads/2024/03/green-tick.svg");
+    font-size: 0;
+    background-repeat: no-repeat;
+    background-size: 14px;
+    background-position: left;
+    width: 24px;
+    height: 21px;
+  }

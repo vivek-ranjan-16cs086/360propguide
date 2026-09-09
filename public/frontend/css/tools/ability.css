@@ -1,0 +1,20 @@
+    .ability {
+        background: #f7f7f7;
+        width: 100%;
+    }
+
+    .subline-text p {
+        line-height: 1.6;
+        font-size: 16px;
+    }
+
+    .bord {
+        border-radius: 10px;
+
+    }
+
+    @media (max-width: 576px) {
+        .subline-text p {
+            font-size: 14px;
+        }
+    }

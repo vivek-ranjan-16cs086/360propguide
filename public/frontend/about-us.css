@@ -1,0 +1,218 @@
+:root {
+    --font-h4: 14px;
+    --font-h5: 14px;
+}
+
+/* General styles */
+.about-section {
+    font-family: sans-serif;
+}
+
+.aboutBanner{
+    aspect-ratio:3/1 ;
+}
+
+.about-section h4 {
+    font-size: var(--font-h4);
+    font-weight: 600;
+    color: rgb(17, 24, 39);
+}
+
+/* About values card */
+.about-values-card {
+    border-radius: 32px;
+    background-color: #f9fafb;
+    padding: 32px;
+}
+
+/* Mission section */
+.about-mission,
+.about-vision,
+.about-traction,
+.about-values {
+    margin-top: 100px;
+}
+
+.about-investors {
+    margin-top: 50px;
+}
+
+.about-card-container {
+    margin-top: 50px;
+}
+
+.vision-img {
+    width: 100%;
+    border-radius: 1rem;
+}
+.about-descendents img {
+    width: 120px;
+}
+.about-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* Media Queries */
+
+@media (min-width: 576px) {
+    :root {      
+        --font-h4: 16px;
+        --font-h5: 20px;
+    }
+    .aboutBg{
+        background-image: url('about us.png');
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position: left;
+    }
+}
+@media (min-width: 768px) {
+    :root {
+        --font-h4: 18px;
+        --font-h5: 16px;
+    }
+}
+@media (min-width: 992px) {
+    :root {
+        --font-h4: 20px;
+        --font-h5: 18px;
+    }
+    .about-content {
+        padding-right: 40px;
+    }
+    .aboutBg{
+        background-position: right;
+    }
+    .aboutUsText{
+        font-size: 16px;
+    }
+}
+:root {
+  --primary-blue: #1b3f63;
+  --accent-orange: #f05736;
+}
+
+.section-title {
+  color: var(--primary-blue);
+  font-size: 2.2rem;
+  letter-spacing: -0.5px;
+}
+
+.section-title .highlight {
+  color: var(--accent-orange);
+}
+
+.title-underline {
+  width: 60px;
+  height: 4px;
+  border-radius: 2px;
+  background-color: var(--accent-orange);
+}
+
+.lead-text {
+  color: var(--primary-blue);
+  font-size: 1.15rem;
+  line-height: 1.6;
+}
+
+.feature-card {
+  border-radius: 12px;
+  border: 1px solid rgba(27, 63, 99, 0.05);
+  box-shadow: 0 8px 24px rgba(27, 63, 99, 0.12);
+  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.feature-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 0;
+  background-color: var(--accent-orange);
+  transition: all 0.4s ease;
+  z-index: -1;
+}
+
+.feature-card:hover {
+  transform: translateY(-8px);
+  border-color: transparent;
+  box-shadow: 0 15px 35px rgba(27, 63, 99, 0.18);
+}
+
+.feature-card:hover::before {
+  height: 100%;
+}
+
+.feature-no {
+  color: rgba(27, 63, 99, 0.18);
+  font-size: 2.2rem;
+  line-height: 1;
+  transition: color 0.4s ease;
+}
+
+.feature-card:hover .feature-no {
+  color: rgba(240, 87, 54, 0.3);
+}
+
+.feature-title {
+  color: var(--primary-blue);
+  font-size: 1.25rem;
+  position: relative;
+  z-index: 2;
+}
+
+.feature-text {
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+.check-icon {
+  color: var(--accent-orange);
+  font-size: 1.3rem;
+}
+
+.custom-list span {
+  font-size: 1.05rem;
+}
+
+.highlight-box {
+  border-left: 5px solid var(--accent-orange);
+  color: var(--primary-blue);
+}
+
+.main-img {
+  border: 8px solid white;
+}
+
+.dots-pattern {
+  width: 140px;
+  height: 140px;
+  background-image: radial-gradient(var(--accent-orange) 20%, transparent 20%);
+  background-size: 18px 18px;
+  opacity: 0.3;
+}
+
+.dots-top-right {
+  top: -30px;
+  right: -30px;
+}
+
+.dots-bottom-left {
+  bottom: -30px;
+  left: -30px;
+}
+
+@media (max-width: 991px) {
+  .section-title {
+    font-size: 1.8rem;
+  }
+  .dots-pattern {
+    display: none;
+  }
+}

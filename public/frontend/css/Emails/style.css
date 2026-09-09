@@ -1,0 +1,60 @@
+.customParentHeight{
+    padding-bottom: 50px !important;
+     /* border: 1px solid black; */
+     min-width: 30vw;
+     padding: 30px;
+     box-shadow: 1px 1px 10px 1px;
+     /* margin-top: 50px; */
+ }
+ *{
+     font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+ }
+ .customSection{
+     margin-top: 50px;
+     display: flex;
+ }
+ .customLogodiv{
+     display: flex; justify-content: space-between;
+ }
+ .customLink{
+     text-decoration: none; color: black; font-size: 10px;
+ }
+ .customMidsec{
+     border: 1px solid black;  margin-top: 10px; width: 30vw; padding-bottom: 30px; box-shadow: 1px 1px 10px 1px;
+ }
+ .customMidSecColour{
+     background-color: rgb(18, 185, 241); min-height: 15vh;
+ }
+ .customDisplayMidsec{
+     justify-content: center; align-items: center; display: flex; flex-direction: column;
+ }
+ .customFontMidsec{
+     font-weight: 100;
+ }
+ .customMidsecContent{
+     text-align: center; width: 25vw; font-size: 12px; line-height: 20px;
+ }
+ .customBtnMargin{
+     margin-top: 30px;
+ }
+ .customBtn{
+     padding-top: 8px; padding-right:30px; padding-left:30px ; padding-bottom:8px ; background-color: orange; color: white; border: none; border-radius: 3px;
+ }
+ .customBottmDisplay{
+     justify-content: center; align-items: center; display: flex; margin-top: 20px;
+ }
+ .customIcondiv{
+     justify-content: center; align-items: center; display: flex; margin-top: 20px; gap: 30px;
+ }
+ .customFacebook{
+     color: blue;
+ }
+ .customTwitter{
+     color: rgb(25, 181, 233);
+ }
+ .customInsta{
+     color: red;
+ }
+ .customLastText{
+     justify-content: center; align-items: center; display: flex; flex-direction: column; margin-top: 20px; font-size: 10px;
+ }

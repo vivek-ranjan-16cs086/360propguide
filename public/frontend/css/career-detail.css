@@ -1,0 +1,44 @@
+.top-section {
+    background-color: #f6f9fd;
+}
+.icons-container {
+    font-size: 30px;
+}
+.subhead {
+    color: var(--blueColor);
+}
+ul li {
+    position: relative;
+    margin-top: 20px;
+}
+ul {
+    list-style: none;
+}
+
+.career-detail ul li::after {
+    content: "";
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background-color: #0a73c0;
+    position: absolute;
+    left: -20px;
+    top: 10px;
+}
+.apply-form input {
+    padding: 10px 15px;
+    width: 75%;
+}
+.apply-form input:focus {
+    box-shadow: none;
+}
+@media screen and (max-width: 768px) {
+    
+    body {
+        font-size: 12px;
+    }
+    .apply-form input {
+        padding: 10px 15px;
+        width: 100%;
+    }
+}

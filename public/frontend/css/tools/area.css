@@ -1,0 +1,51 @@
+ .card {
+     border-radius: 12px;
+     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+ }
+
+ .loginBtn {
+     background: #1b5577;
+     color: #fff;
+     border-radius: 8px;
+ }
+
+ .loginBtn:hover {
+     background: #154654;
+ }
+
+ .result-card {
+     background: #fff;
+     border-radius: 10px;
+     padding: 12px;
+     border: 1px solid rgba(27, 85, 119, 0.05);
+     display: flex;
+     align-items: center;
+     justify-content: space-between;
+ }
+
+ .unit-label {
+     color: #1b5577;
+     font-weight: 600;
+ }
+
+ .value-num {
+     font-weight: 700;
+     font-size: 16px;
+ }
+
+ .copy-btn {
+     background: transparent;
+     border: 0;
+     color: #1b5577;
+ }
+
+ .small-muted {
+     color: #6c757d;
+     font-size: 13px;
+ }
+
+ @media (min-width:992px) {
+     #results-grid .col-md-6 {
+         display: block;
+     }
+ }

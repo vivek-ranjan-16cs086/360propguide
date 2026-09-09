@@ -1,0 +1,25 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # ✅ Redirect non-www to www
+    RewriteCond %{HTTP_HOST} ^360propguide\.com$ [NC]
+    RewriteRule ^(.*)$ https://www.360propguide.com/$1 [L,R=301]
+
+    # ✅ Redirect /public/index.php/... to clean URL
+    RewriteCond %{THE_REQUEST} ^[A-Z]{3,}\s/public/index\.php(/[^\s]*)?\sHTTP
+    RewriteRule ^public/index\.php(/.*)?$ /%1 [R=301,L]
+
+    # ✅ Redirect /public/... (like /public/projects) to clean path
+    RewriteCond %{THE_REQUEST} ^[A-Z]{3,}\s/public(/[^\s]*)?\sHTTP
+    RewriteRule ^public(/.*)?$ /%1 [R=301,L]
+
+    # ✅ Route all other requests through /public
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ public/$1 [L,QSA]
+
+    # ✅ Security headers
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+	
+	
+</IfModule>

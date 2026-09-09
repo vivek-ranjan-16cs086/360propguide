@@ -1,0 +1,32 @@
+.cant-find-section {
+    margin-top: 10vh !important;
+}
+
+.card-head {
+    color: var(--blueColor);
+}
+@media screen and (min-width: 768px) {
+    .cant-find-section {
+        margin-top: 20vh !important;
+    }
+}
+
+.card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+.card:hover {
+    transform: translateY(-10px); 
+    box-shadow: 0 12px 16px rgba(0, 0, 0, 0.2); 
+    border: 1px solid var(--blueColor);
+}
+.card i {
+    transition: transform 0.3s ease;
+    transition: transform 0.3s ease-out;
+}
+
+.card:hover i {
+    transform: translateX(5px); 
+    color: var(--blueColor);
+    transform: translateX(10px);
+}
