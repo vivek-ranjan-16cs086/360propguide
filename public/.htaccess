@@ -1,18 +1,9 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
-    # Serve Laravel uploads without a symlink
-    RewriteCond %{DOCUMENT_ROOT}/storage/$1 -f
-    RewriteRule ^storage/(.*)$ storage/$1 [L]
-
-    RewriteCond %{DOCUMENT_ROOT}/storage/public/$1 -f
-    RewriteRule ^storage/(.*)$ storage/public/$1 [L]
-
-    RewriteCond %{DOCUMENT_ROOT}/../storage/app/public/$1 -f
-    RewriteRule ^storage/(.*)$ ../storage/app/public/$1 [L]
-
-    RewriteCond %{DOCUMENT_ROOT}/../storage/public/$1 -f
-    RewriteRule ^storage/(.*)$ ../storage/public/$1 [L]
+    # Serve files from public/storage first
+    RewriteCond %{REQUEST_FILENAME} -f
+    RewriteRule ^ - [L]
 
     # Redirect /public/index.php/... to clean path
     RewriteCond %{THE_REQUEST} ^[A-Z]{3,}\s/public/index\.php(/[^\s]*)?\sHTTP

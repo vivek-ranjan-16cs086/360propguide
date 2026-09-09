@@ -17,24 +17,24 @@
                 return url($fallback);
             }
             if (preg_match('#^https?://#i', $path)) {
-                return $path;
+                $path = urldecode($path);
+                return preg_replace('#/storage/projects/#', '/storage/public/projects/', $path, 1);
             }
 
-            $path = ltrim($path, '/');
+            $path = ltrim(urldecode($path), '/');
             if (str_starts_with($path, 'storage/')) {
                 $path = substr($path, 8);
             }
             if (str_starts_with($path, 'app/public/')) {
                 $path = substr($path, 11);
             }
-            if (str_starts_with($path, 'public/')) {
-                $path = substr($path, 7);
-            }
             $path = preg_replace('#/+#', '/', $path);
 
-            $encoded = implode('/', array_map('rawurlencode', explode('/', $path)));
+            if (str_starts_with($path, 'projects/')) {
+                $path = 'public/' . $path;
+            }
 
-            return url('storage/' . $encoded);
+            return url('storage/' . $path);
         }
     }
 
