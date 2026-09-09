@@ -25,7 +25,7 @@ Every push to `main` runs tests and a frontend build, then deploys to Hostinger 
 
 ### Required GitHub secrets
 
-In the GitHub repo go to **Settings → Secrets and variables → Actions** and add:
+In the GitHub repo go to **Settings → Secrets and variables → Actions → Secrets** (not the Variables tab) and add:
 
 | Secret | Where to find it |
 | --- | --- |
@@ -33,6 +33,8 @@ In the GitHub repo go to **Settings → Secrets and variables → Actions** and 
 | `FTP_USERNAME` | Same FTP account username |
 | `FTP_PASSWORD` | Same FTP account password |
 | `FTP_SERVER_DIR` | Optional. Defaults to `/public_html/` |
+
+The workflow also reads these names from **Variables** if Secrets are empty. Prefer **Secrets** for the password so it is not visible in the settings UI.
 
 After the secrets are saved, run **Actions → CI/CD → Run workflow**, or push another commit to `main`.
 
