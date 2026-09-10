@@ -17,7 +17,7 @@ class FacebookWebhookController extends Controller
      * GET /api/facebook/webhook
      */
     public function verify(Request $request)
-    {
+    { 
         $mode = $request->query('hub_mode')
             ?? $request->query('hub.mode');
 

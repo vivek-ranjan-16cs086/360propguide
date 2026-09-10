@@ -21,6 +21,28 @@
     </div>
 
     <div class="filter-accordion">
+        <details class="filter-section">
+            <summary class="filter-section__trigger">
+                <span class="filter-section__title">Budget</span>
+                <i class="fa-solid fa-chevron-down filter-section__chevron" aria-hidden="true"></i>
+            </summary>
+            <div class="filter-section__body">
+                <div class="budget-fields">
+                    <label>
+                        <span>Min (₹)</span>
+                        <input type="number" name="min_price" min="0" step="100000"
+                               value="{{ $selected['min_price'] ?? '' }}" placeholder="{{ $minPrice }}">
+                    </label>
+                    <label>
+                        <span>Max (₹)</span>
+                        <input type="number" name="max_price" min="0" step="100000"
+                               value="{{ $selected['max_price'] ?? '' }}" placeholder="{{ $maxPrice }}">
+                    </label>
+                </div>
+                <button type="submit" class="filter-apply-btn">Apply budget</button>
+            </div>
+        </details>
+
         <details class="filter-section" open>
             <summary class="filter-section__trigger">
                 <span class="filter-section__title">Location</span>
@@ -107,28 +129,6 @@
                         </label>
                     @endforeach
                 </div>
-            </div>
-        </details>
-
-        <details class="filter-section">
-            <summary class="filter-section__trigger">
-                <span class="filter-section__title">Budget</span>
-                <i class="fa-solid fa-chevron-down filter-section__chevron" aria-hidden="true"></i>
-            </summary>
-            <div class="filter-section__body">
-                <div class="budget-fields">
-                    <label>
-                        <span>Min (₹)</span>
-                        <input type="number" name="min_price" min="0" step="100000"
-                               value="{{ $selected['min_price'] ?? '' }}" placeholder="{{ $minPrice }}">
-                    </label>
-                    <label>
-                        <span>Max (₹)</span>
-                        <input type="number" name="max_price" min="0" step="100000"
-                               value="{{ $selected['max_price'] ?? '' }}" placeholder="{{ $maxPrice }}">
-                    </label>
-                </div>
-                <button type="submit" class="filter-apply-btn">Apply budget</button>
             </div>
         </details>
 

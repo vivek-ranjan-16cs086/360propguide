@@ -30,9 +30,6 @@ use App\Http\Controllers\admin\PropertiesController;
 use App\Http\Controllers\NotificationController;
 
 // frontend page
-Route::get('max-estates-105', function () {
-    return redirect('/max-estate-105', 301);
-});
 Route::get('max-estate-105', function () {
     return view('frontend.static.max-estates');
 });
@@ -41,7 +38,7 @@ Route::get('experion-151', function () {
 });
 
 Route::get('contact', function () {
-    return view('frontend.contact');
+    return view('frontend.contact');               
 });
 Route::get('services', function () { 
     return view('frontend.services');
@@ -71,32 +68,6 @@ Route::get('thankyou', function () {
     return view('frontend.thankyou', compact('form')); 
 })->name('thankyou');
 
-Route::redirect(
-    '/projects/gaur-plume',
-    'https://www.360propguide.com/projects/gaur-alaris',
-    301
-);
-Route::redirect(
-    '/projects/ace-parkway-20',
-    'https://www.360propguide.com/projects/ace-arte',
-    301
-);
-Route::redirect(
-    '/projects/ace-parkway-2',
-    'https://www.360propguide.com/projects/ace-arte',
-    301
-);
-Route::redirect(
-    '/blogs/commercial-property-investment-noida',
-    'https://www.360propguide.com/blogs/why-businesses-are-choosing-noida-in-2026',
-    301
-);
-Route::redirect(
-    '/blogs/commercial-property-investment-noida-why-businesses-are-choosing-noida-in-2026',
-    'https://www.360propguide.com/blogs/why-businesses-are-choosing-noida-in-2026',
-    301
-);
-  
 //Frontend
 Route::GET('/', [FrontendPageController::class, 'getHomePageData']);
 
