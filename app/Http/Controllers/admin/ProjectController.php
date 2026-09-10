@@ -210,15 +210,19 @@ class ProjectController extends Controller
                 $processedPlan = [];
 
                 foreach ($currentFloorPlan as $key => $value) {
-                    // If the key is `feature_image`, handle file upload separately
                     if ($key === 'feature_image') {
-                        $processedPlan['image'] = uploadFile($value, 'projects/' . createSlug($request->name) . '/BHKPlans');
+                        if ($value instanceof \Illuminate\Http\UploadedFile && $value->isValid()) {
+                            $processedPlan['image'] = uploadFile(
+                                $value,
+                                'projects/' . createSlug($request->project_name ?? $request->name) . '/BHKPlans'
+                            );
+                        }
                     } else {
-                        // Store other values as they are
                         $processedPlan[$key] = $value;
                     }
                 }
 
+                $processedPlan['image'] = $processedPlan['image'] ?? null;
                 $floorPlans[] = $processedPlan;
             }
 
@@ -500,10 +504,15 @@ class ProjectController extends Controller
 
                 foreach ($floorPlan as $key => $value) {
                     if ($key === 'feature_image') {
-                        if (isset($oldFloorData[$index]['image']) && $oldFloorData[$index]['image'] != null) {
-                            removeFile($oldFloorData[$index]['image']);
+                        if ($value instanceof \Illuminate\Http\UploadedFile && $value->isValid()) {
+                            if (!empty($oldFloorData[$index]['image'])) {
+                                removeFile($oldFloorData[$index]['image']);
+                            }
+                            $tempPlan['image'] = uploadFile(
+                                $value,
+                                'projects/' . createSlug($request->project_name ?? $request->name) . '/BHKPlans'
+                            );
                         }
-                        $tempPlan['image'] = uploadFile($value, 'projects/' . createSlug($request->name) . '/BHKPlans');
                     } else {
                         $tempPlan[$key] = $value;
                     }
@@ -512,6 +521,8 @@ class ProjectController extends Controller
                 if (!isset($tempPlan['image']) && isset($oldFloorData[$index]['image'])) {
                     $tempPlan['image'] = $oldFloorData[$index]['image'];
                 }
+
+                $tempPlan['image'] = $tempPlan['image'] ?? null;
 
                 $newFloorData[] = $tempPlan;
             }

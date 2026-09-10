@@ -772,7 +772,7 @@
                                         @foreach($floorPlans as $index => $floorPlan)
                                             <div class="swiper-slide flex-column">
                                                 <img class="col-12 col-md-10 mx-auto" alt="{{$projects->project_name}}"
-                                                  src="{{storageUrl($floorPlan['image']) }}" />
+                                                  src="{{ storageUrl($floorPlan['image'] ?? $floorPlan['feature_image'] ?? null) }}" />
                                                 <div class="row m-0 w-100 align-items-center">
                                                     @if(@$floorPlan['super_area'] != 0)
                                                         <div class="col-md-3 col-6">
