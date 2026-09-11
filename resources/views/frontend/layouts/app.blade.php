@@ -1037,7 +1037,9 @@
 
     function suggestionMarkup(item) {
       const label = item.label || (item.type === 'project' ? 'Project' : '');
-      return '<li><a href="' + escapeHtml(suggestionUrl(item)) + '"><span class="project-name">' + escapeHtml(item.name) + '</span>' +
+      const city = item.subtitle || (label === 'City' ? item.name : '');
+      const cityAttribute = city ? ' data-city="' + escapeHtml(city) + '"' : '';
+      return '<li><a href="' + escapeHtml(suggestionUrl(item)) + '"' + cityAttribute + '><span class="project-name">' + escapeHtml(item.name) + '</span>' +
         (label ? '<span class="project-meta">' + escapeHtml(label) + '</span>' : '') + '</a></li>';
     }
 
