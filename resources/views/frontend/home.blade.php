@@ -177,7 +177,7 @@
                     <div class="hero-cities">
                         <span class="hero-cities__label"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Popular Cities</span>
                         @foreach($heroCities as $city)
-                            <a class="hero-city-pill" href="{{ route('projects', ['location' => [$city]]) }}" data-city="{{ $city }}">{{ $city }} <i class="fa-solid fa-chevron-right" aria-hidden="true"></i></a>
+                            <a class="hero-city-pill" href="{{ url('flats-in-' . \Illuminate\Support\Str::slug($city)) }}" data-city="{{ $city }}">{{ $city }} <i class="fa-solid fa-chevron-right" aria-hidden="true"></i></a>
                         @endforeach
                     </div>
                 @endif
