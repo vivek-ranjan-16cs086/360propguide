@@ -1,9 +1,9 @@
 @extends('frontend.layouts.app')
 @section('usesSweetAlert', true)
 @section('og_image', storageUrl($projects->logo_image))
-@section('title', $projects->seo_data['title'])
-@section('keywords', $projects->seo_data['primary_keyword'] . ' ' . $projects->seo_data['secondary_keyword'])
-@section('description', $projects->seo_data['meta_description'])
+@section('title', data_get($projects->seo_data, 'title', $projects->project_name))
+@section('keywords', trim(data_get($projects->seo_data, 'primary_keyword') . ' ' . data_get($projects->seo_data, 'secondary_keyword')))
+@section('description', data_get($projects->seo_data, 'meta_description'))
 @section('canonical', url()->current())
 @push('schema')
     @if (!empty($faqSchema))
@@ -842,7 +842,7 @@
                                                 <div class="swiper-slide">
                                                     <div class="floorSelect">
                                                         <div class="card text-center p-2 px-4 text-primary">
-                                                            {{ $floorPlan->title }}
+                                                            {{ $floorPlan->title ?? '' }}
                                                         </div>
                                                     </div>
                                                 </div>

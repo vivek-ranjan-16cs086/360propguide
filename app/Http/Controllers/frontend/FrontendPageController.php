@@ -983,7 +983,7 @@ if (!empty($projectCity)) {
     |--------------------------------------------------------------------------
     */
 
-    $projects->seo_data = json_decode($projects->seo_data, true);
+    $projects->seo_data = json_decode($projects->seo_data, true) ?? [];
 
     $faqsData = json_decode($projects->faqs_data, true);
 
