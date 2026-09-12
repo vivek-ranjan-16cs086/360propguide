@@ -271,6 +271,7 @@ class FrontendPageController extends Controller
 
 			$allowedFirstWords = [
 				'projects',
+				'flats',
 				'plots',
 				'shops',
 				'studio',
@@ -1231,8 +1232,8 @@ public function SearchProjects(Request $req)
             foreach ($cities as $cityName) {
                 $push([
                     'name' => $cityName,
-                    'slug' => ltrim(route('projects', ['location' => [$cityName]], false), '/'),
-                    'url' => route('projects', ['location' => [$cityName]]),
+					'slug' => 'flats-in-' . Str::slug($cityName),
+					'url' => url('/flats-in-' . Str::slug($cityName)),
                     'type' => 'custom',
                     'label' => 'City',
                 ]);
@@ -1247,20 +1248,20 @@ public function SearchProjects(Request $req)
                 ->limit(8)
                 ->get();
 
-            foreach ($localities as $locality) {
-                $params = ['locality' => [$locality->city]];
-                if ($locality->parent?->city) {
-                    $params['location'] = [$locality->parent->city];
-                }
-                $push([
-                    'name' => $locality->city,
-                    'slug' => ltrim(route('projects', $params, false), '/'),
-                    'url' => route('projects', $params),
-                    'type' => 'locality',
-                    'label' => 'Locality',
-                    'subtitle' => $locality->parent?->city,
-                ]);
-            }
+foreach ($localities as $locality) {
+
+    $localityCity = $locality->parent?->city;
+    $localitySlug = Str::slug($locality->city);
+
+    $push([
+        'name' => $locality->city,
+        'slug' => 'flats-in-' . $localitySlug,
+        'url' => url('/flats-in-' . $localitySlug),
+        'type' => 'locality',
+        'label' => 'Locality',
+        'subtitle' => $localityCity,
+    ]);
+}
 
             if ($hasLocationColumn) {
                 $projectLocalities = Project::query()
@@ -1278,21 +1279,20 @@ public function SearchProjects(Request $req)
                     })
                     ->take(8);
 
-                foreach ($projectLocalities as $row) {
-                    $localityName = trim((string) $row->location);
-                    $params = ['locality' => [$localityName], 'q' => $keyword];
-                    if (!empty($row->cities)) {
-                        $params['location'] = [$row->cities];
-                    }
-                    $push([
-                        'name' => $localityName,
-                        'slug' => ltrim(route('projects', $params, false), '/'),
-                        'url' => route('projects', $params),
-                        'type' => 'locality',
-                        'label' => 'Locality',
-                        'subtitle' => $row->cities,
-                    ]);
-                }
+               foreach ($projectLocalities as $row) {
+
+    $localityName = trim((string) $row->location);
+    $localitySlug = Str::slug($localityName);
+
+    $push([
+        'name' => $localityName,
+        'slug' => 'flats-in-' . $localitySlug,
+        'url' => url('/flats-in-' . $localitySlug),
+        'type' => 'locality',
+        'label' => 'Locality',
+        'subtitle' => $row->cities,
+    ]);
+}
             }
 
             $customLinks = CustomLink::query()
@@ -1369,6 +1369,7 @@ public function SearchProjects(Request $req)
                     'id' => $project->id,
                     'type' => 'project',
                     'label' => 'Project',
+					'subtitle' => $project->cities,
                     'url' => url('/projects/' . $slug),
                 ]);
             }
