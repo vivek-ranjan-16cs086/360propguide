@@ -220,29 +220,16 @@
                                                 Add New
                                             </div>
                                         </div>
-                                        <!--@if(!empty($aminityLists) && count($aminityLists) > 0)
-                                        @foreach($aminityLists as $aminity)
-                                        <div class="p-2 d-flex justify-content-between">
-                                            <span>
-                                                <input {{
-                                                    (in_array($aminity->id,json_decode($projects->amenities_description))
-                                                ? 'checked' : '') }}
-                                                    type="checkbox" name="aminities[{{$aminity->id}}]" id="">
-                                                {{$aminity->name}}
-                                            </span>
-                                            <span>
-                                                <img src="{{url('storage/' . $aminity->image)}}" style="width:40px" />
-                                            </span>
-                                        </div>
-                                        @endforeach
-                                        @endif-->
+                                    @php
+                                        $selectedAmenities = json_decode($projects->amenities_description ?? '[]', true);
+                                        $selectedAmenities = is_array($selectedAmenities) ? $selectedAmenities : [];
+                                    @endphp
 									
                                     <select id="amenities" name="amenities[]" class="form-control select2" multiple>
                                         @if(!empty($aminityLists) && count($aminityLists) > 0)
                                         @foreach($aminityLists as $amenity)
                                         <option value="{{ $amenity->id }}"
-                                            data-image="{{ url('storage/' . $amenity->image) }}" {{ in_array($amenity->
-                                            id, json_decode($projects->amenities_description)) ? 'selected' : '' }}>
+                                            data-image="{{ url('storage/' . $amenity->image) }}" {{ in_array($amenity->id, $selectedAmenities) ? 'selected' : '' }}>
                                             {{ $amenity->name }}
                                         </option>
                                         @endforeach
