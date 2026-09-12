@@ -1,8 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Illuminate\Http\Request;
-//frontend
+// Frontend controllers
 use App\Http\Controllers\frontend\FrontendPageController;
 use App\Http\Controllers\frontend\StorageFileController;
 use App\Http\Controllers\frontend\SubscriptionController;
@@ -12,7 +11,7 @@ use App\Http\Controllers\frontend\PropertyPostController;
 use App\Http\Controllers\frontend\OtpLoginController;
 use App\Http\Controllers\frontend\ProfileController;
 
-//Admin Backend
+// Admin controllers
 use App\Http\Controllers\admin\AuthController;
 use App\Http\Controllers\admin\DashboardController;  
 use App\Http\Controllers\admin\CareerController;
@@ -29,7 +28,13 @@ use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\admin\PropertiesController;
 use App\Http\Controllers\NotificationController;
 
-// frontend page
+/*
+|--------------------------------------------------------------------------
+| Frontend
+|--------------------------------------------------------------------------
+*/
+
+// Static pages
 Route::get('max-estate-105', function () {
     return view('frontend.static.max-estates');
 });
@@ -57,34 +62,26 @@ Route::get('project', function () {
     return view('frontend.project');
 })->name('frontend.projects');
 
-Route::get('thankyou', function () {
-    if (!session()->has('form_submitted')) {
-        return redirect('/');
-    }
+Route::get('thankyou', [FrontendPageController::class, 'getThankYouPage'])->name('thankyou');
 
-    $form = session('form_submitted');
-    session()->forget('form_submitted');
-
-    return view('frontend.thankyou', compact('form')); 
-})->name('thankyou');
-
-//Frontend
-Route::GET('/', [FrontendPageController::class, 'getHomePageData']);
+// Dynamic frontend pages
+Route::get('/', [FrontendPageController::class, 'getHomePageData']);
 
 Route::prefix('careers')->group(function () {
     Route::get('/', [FrontendPageController::class, 'getCareerPageData']);
     Route::get('/{slug}', [FrontendPageController::class, 'getCareerDetails']);
 });
-Route::GET('about-us', [FrontendPageController::class, 'getAboutUsPageData'])->name('about-us');
+Route::get('about-us', [FrontendPageController::class, 'getAboutUsPageData'])->name('about-us');
 
- // properties
- Route::group(['prefix' => 'properties'], function () {
+// Property browsing
+Route::prefix('properties')->group(function () {
     Route::get('/', [FrontendPageController::class, 'getPropertyListings']);
 	Route::post('filters', [FrontendPageController::class, 'filterProperties'])->name('property.filters');
 	Route::get('/{slug}', [FrontendPageController::class, 'getPropertyDetails'])->name('property.details');
 });
- 
-Route::group(['prefix' => 'projects'], function () {
+
+// Project browsing
+Route::prefix('projects')->group(function () {
     Route::get('/', [FrontendPageController::class, 'getListingsPageData'])->name('projects');
     Route::match(['GET', 'POST'], 'search', [FrontendPageController::class, 'SearchProjects'])->name('projects.search');
     Route::post('filters', [FrontendPageController::class, 'applyFilters'])->name('filters');
@@ -92,166 +89,19 @@ Route::group(['prefix' => 'projects'], function () {
     Route::get('{slug}', [FrontendPageController::class, 'getProjectDetails'])->name('projects.details');
 });
 
-//blogs
-Route::group(['prefix' => 'blogs'], function () {
-
+// Blog browsing
+Route::prefix('blogs')->group(function () {
     Route::get('/', [FrontendPageController::class, 'getBlogsPageData']) ->name('get.blogs');
     Route::get('/{slug}', [FrontendPageController::class, 'getBlogDetails'])->name('blogs.details');
+});
 
-}); 
-
+// Subscriptions and enquiries
 Route::post('subscribe', [SubscriptionController::class, 'subscribe'])->name('subscribe');
 Route::post('/popup-download', [MailController::class, 'popupDownload'])->name('popup.download');
 Route::post('/mail',[MailController::class,'SendContactMail'])->name('contact-mail');
 
-
-
-//admin panel  
-Route::get('7439/login', function () {
-    if (Auth::check() && Auth::user()->role_id == 1) {
-        return redirect()->route('dashboard'); // Already logged in as admin
-    }
-
-    return view('admin.login');
-})->middleware('PreventBackPage')->name('loginPage');
-Route::post('7439/login', [AuthController::class, 'login'])->name(name: 'login');
-Route::group(["prefix" => "7439", "middleware" => ["auth", "admin:1", "session.version", "PreventBackPage"]], function () {
-	
-    Route::GET('logout', [AuthController::class, 'logout'])->name(name: 'logout');
-
-    Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
-	
-    Route::get('password', [ChangePassController::class, 'changePassword'])->name('password');
-	Route::post('password', [ChangePassController::class, 'updatePassword'])->name('password');
-
-    Route::group(['prefix' => 'aminity-list'], function(){
-       Route::post('store',[AminityController::class, 'store'])->name('aminity-list.store');
-       Route::POST('update', [AminityController::class, 'update'])->name('aminity-list.update');
-    });
-    Route::group(['prefix' => 'developer-details'], function(){
-        Route::post('store',[DeveloperController::class, 'store'])->name('developer-details.store');
-        Route::POST('update', [DeveloperController::class, 'update'])->name('developer-details.update');
-     });
-
-    // For Career
-    Route::group(['prefix' => 'career'], function () {
-        //GET
-        Route::GET('/', [CareerController::class, 'index'])->name('career.index');
-        Route::GET('add', [CareerController::class, 'add'])->name('career.add');
-        Route::GET('ajax-list', [CareerController::class, 'ajaxList'])->name('career.ajax-list');
-        Route::GET('edit/{id}', [CareerController::class, 'edit'])->name('career.edit');
-        Route::GET('delete/{id}', [CareerController::class, 'moveToBin'])->name('career.delete');
-
-
-        //POST
-        Route::POST('store', [CareerController::class, 'store'])->name('career.store');
-        Route::POST('update', [CareerController::class, 'update'])->name('career.update');
-    });
-	
-	// develoepr
-    Route::group(['prefix' => 'developers'], function () {
-
-        //GET
-        Route::GET('/', [DeveloperController::class, 'index'])->name('developers.index');
-        Route::GET('add', [DeveloperController::class, 'add'])->name('developers.add');
-        Route::GET('ajax-list', [DeveloperController::class, 'ajaxList'])->name('developers.ajax-list');
-        Route::GET('edit/{id}', [DeveloperController::class, 'edit'])->name('developers.edit');
-        Route::GET('delete/{id}', [DeveloperController::class, 'moveToBin'])->name('developers.delete');
-
-        Route::GET('status/{id}',[DeveloperController::class,'changeStatus'])->name('developers.change-status');
-
-        //POST
-        Route::POST('store', [DeveloperController::class, 'store'])->name('developers.store');
-        Route::PUT('update', [DeveloperController::class, 'update'])->name('developers.update');
-    });
-
-    Route::group(['prefix' => 'locations'], function () {
-        Route::GET('/', [LocationController::class, 'index'])->name('locations.index');
-        Route::GET('add', [LocationController::class, 'add'])->name('locations.add');
-        Route::GET('ajax-list', [LocationController::class, 'ajaxList'])->name('locations.ajax-list');
-        Route::GET('children/{id}', [LocationController::class, 'children'])->name('locations.children');
-        Route::GET('edit/{id}', [LocationController::class, 'edit'])->name('locations.edit');
-        Route::GET('delete/{id}', [LocationController::class, 'moveToBin'])->name('locations.delete');
-        Route::POST('store', [LocationController::class, 'store'])->name('locations.store');
-        Route::PUT('update', [LocationController::class, 'update'])->name('locations.update');
-    });
-	
-    Route::group(['prefix' => 'blogs'], function () {
-        //GET
-        Route::GET('/', [BlogsController::class, 'index'])->name('blogs.index');
-        Route::GET('add', [BlogsController::class, 'add'])->name('blogs.add');
-        Route::GET('ajax-list', [BlogsController::class, 'ajaxList'])->name('blogs.ajax-list');
-        Route::GET('edit/{id}', [BlogsController::class, 'edit'])->name('blogs.edit');
-		Route::GET('status/{id}', [BlogsController::class, 'changeStatus'])->name('blogs.change-status');
-        Route::GET('delete/{id}', [BlogsController::class, 'moveToBin'])->name('blogs.delete');
-
-
-        //POST
-        Route::POST('store', [BlogsController::class, 'store'])->name('blogs.store');
-        Route::POST('update', [BlogsController::class, 'update'])->name('blogs.update');
-		Route::POST('upload-image',[BlogsController::class,'uploadImage']);
-		Route::POST('/check-slug', [BlogsController::class, 'checkSlug'])->name('check.slug');
-    });
-    Route::group(['prefix' => 'properties'], function () {
-		
-        //GET
-        Route::GET('/', [PropertiesController::class, 'index'])->name('properties.index');
-        Route::GET('ajax-list', [PropertiesController::class, 'ajaxList'])->name('properties.ajax-list');
-        Route::GET('view/{id}', [PropertiesController::class, 'view'])->name('properties.view');
-        Route::GET('status/{id}', [PropertiesController::class, 'changeStatus'])->name('properties.change-status');
-        Route::get('/{id}/approve', [PropertiesController::class, 'approveProperties'])->name('properties.approve');
-        Route::get('/{id}/reject', [PropertiesController::class, 'rejectProperties'])->name('properties.reject');
-    });
-    Route::group(['prefix' => 'projects'], function () {
-		
-        //GET
-        Route::GET('/', [ProjectController::class, 'index'])->name('projects.index');
-        Route::GET('add', [ProjectController::class, 'add'])->name('projects.add');
-        Route::GET('ajax-list', [ProjectController::class, 'ajaxList'])->name('projects.ajax-list');
-        Route::GET('edit/{id}', [ProjectController::class, 'edit'])->name('projects.edit');
-        Route::GET('delete/{id}', [ProjectController::class, 'moveToBin'])->name('projects.delete');
-
-        Route::GET('status/{id}',[ProjectController::class,'changeStatus'])->name('projects.change-status');
-
-        //POST
-        Route::POST('store', [ProjectController::class, 'store'])->name('projects.store');
-        Route::POST('update', [ProjectController::class, 'update'])->name('projects.update');
-    });
-	Route::group(['prefix' => 'settings'], function () {
-        Route::GET('/',[SettingsController::class,'index'])->name('settings.index');
-        Route::POST('store', [SettingsController::class, 'store'])->name('credentials.store');
-    });
-	
-	Route::group(['prefix' => 'queries'],function(){
-		//GET METHODS
-		Route::GET('/',[QueryController::class,'index'])->name('queries.index');
-		Route::GET('ajax-list',[QueryController::class,'ajaxList'])->name('queries.ajax-list');
-		Route::GET('view/{id}',[QueryController::class,'view'])->name('queries.view');
-		
-		//POST METHODS
-        Route::POST('reply',[QueryController::class,'reply'])->name('queries.reply');
-		
-	});
-	
-	Route::group(['prefix' => 'custom-links'],function(){
-		//GET METHODS
-		Route::GET('/',[CustomLinkController::class,'index'])->name('custom-links.index');
-		Route::GET('ajax-list',[CustomLinkController::class,'ajaxList'])->name('custom-links.ajax-list');
-		Route::GET('view/{id}',[CustomLinkController::class,'view'])->name('custom-links.view');
-		Route::GET('add',[CustomLinkController::class,'create'])->name('custom-links.add'); 
-		Route::GET('edit/{id}',[CustomLinkController::class,'edit'])->name('custom-links.edit'); 
-		Route::GET('delete/{id}',[CustomLinkController::class,'destroy'])->name('custom-links.destroy'); 
-		Route::GET('status/{id}',[CustomLinkController::class,'toggleStatus'])->name('custom-links.status'); 
-		
-		//POST METHODS
-		Route::POST('store',[CustomLinkController::class,'store'])->name('custom-links.store');
-		Route::post('update/{id}', [CustomLinkController::class, 'update'])->name('custom-links.update');
-		
-	});
-});
-
+// Frontend authentication
 Route::middleware(['web'])->group(function () {
-
     Route::get('/login', [OtpLoginController::class, 'showForm'])
         ->middleware('PreventBackPage')
         ->name('frontend.login');
@@ -261,11 +111,10 @@ Route::middleware(['web'])->group(function () {
 
     Route::post('/otp-verify', [OtpLoginController::class, 'verifyOtp'])
         ->name('frontend.otp.verify');
-
 });
 
-Route::middleware([ 'admin:2', 'PreventBackPage'])->group(function () {
-	// Logout
+// Authenticated property-owner pages
+Route::middleware(['admin:2', 'PreventBackPage'])->group(function () {
 	Route::post('/logout', [OtpLoginController::class, 'logout'])->name('frontend.logout');
     Route::get('/dashboard', [PropertyController::class, 'index'])->name('list');
     Route::post('delete/property/{property}', [PropertyController::class, 'destroy'])->name('property.destroy');
@@ -275,13 +124,11 @@ Route::middleware([ 'admin:2', 'PreventBackPage'])->group(function () {
     Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
 });
 
-Route::prefix('postproperty')->middleware('auth', 'admin:2','PreventBackPage')->name('postproperty.')->group(function () {
-    
-    // New Property Post - Add Flow
+// Property posting flow
+Route::prefix('postproperty')->middleware('auth', 'admin:2', 'PreventBackPage')->name('postproperty.')->group(function () {
     Route::get('/', [PropertyPostController::class, 'create'])->name('create');
     Route::post('/', [PropertyPostController::class, 'saveCreate'])->name('create.save');
 
-    // Edit Draft
 	Route::post('/property-image/json-delete', [PropertyPostController::class, 'deleteImageFromJson'])->name('image.json.delete');
     Route::get('/{property}/property_details', [PropertyPostController::class, 'propertyDetails'])->name('edit.property_details');
     Route::post('/{property}/property_details', [PropertyPostController::class, 'savePropertyDetails'])->name('edit.property_details.save');
@@ -296,16 +143,146 @@ Route::prefix('postproperty')->middleware('auth', 'admin:2','PreventBackPage')->
     Route::post('/{property}/amenities', [PropertyPostController::class, 'saveAmenitiesDetails'])->name('edit.amenities.save');
 
     Route::get('/{property}/galleries', [PropertyPostController::class, 'galleries'])->name('edit.galleries');
-    
-
     Route::post('/{property}/galleries/save', [PropertyPostController::class, 'saveGalleries'])->name('edit.galleries.save');
 
     Route::get('/{property}/verify', [PropertyPostController::class, 'verify'])->name('edit.verify');
     Route::post('/{property}/submit', [PropertyPostController::class, 'submit'])->name('edit.submit');
 });
 
+/*
+|--------------------------------------------------------------------------
+| Admin
+|--------------------------------------------------------------------------
+*/
 
-Route::get('clear',function(){
+Route::get('7439/login', [AuthController::class, 'loginView'])
+    ->middleware('PreventBackPage')
+    ->name('loginPage');
+Route::post('7439/login', [AuthController::class, 'login'])->name(name: 'login');
+Route::prefix('7439')->middleware(['auth', 'admin:1', 'session.version', 'PreventBackPage'])->group(function () {
+    // Authentication, dashboard, and password
+    Route::get('logout', [AuthController::class, 'logout'])->name(name: 'logout');
+    Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('password', [ChangePassController::class, 'changePassword'])->name('password');
+    Route::post('password', [ChangePassController::class, 'updatePassword'])->name('password');
+
+    // Amenity details
+    Route::prefix('aminity-list')->group(function () {
+        Route::post('store', [AminityController::class, 'store'])->name('aminity-list.store');
+        Route::post('update', [AminityController::class, 'update'])->name('aminity-list.update');
+    });
+
+    Route::prefix('developer-details')->group(function () {
+        Route::post('store', [DeveloperController::class, 'store'])->name('developer-details.store');
+        Route::post('update', [DeveloperController::class, 'update'])->name('developer-details.update');
+    });
+
+    // Careers
+    Route::prefix('career')->group(function () {
+        Route::get('/', [CareerController::class, 'index'])->name('career.index');
+        Route::get('add', [CareerController::class, 'add'])->name('career.add');
+        Route::get('ajax-list', [CareerController::class, 'ajaxList'])->name('career.ajax-list');
+        Route::get('edit/{id}', [CareerController::class, 'edit'])->name('career.edit');
+        Route::get('delete/{id}', [CareerController::class, 'moveToBin'])->name('career.delete');
+        Route::post('store', [CareerController::class, 'store'])->name('career.store');
+        Route::post('update', [CareerController::class, 'update'])->name('career.update');
+    });
+
+    // Developers
+    Route::prefix('developers')->group(function () {
+        Route::get('/', [DeveloperController::class, 'index'])->name('developers.index');
+        Route::get('add', [DeveloperController::class, 'add'])->name('developers.add');
+        Route::get('ajax-list', [DeveloperController::class, 'ajaxList'])->name('developers.ajax-list');
+        Route::get('edit/{id}', [DeveloperController::class, 'edit'])->name('developers.edit');
+        Route::get('delete/{id}', [DeveloperController::class, 'moveToBin'])->name('developers.delete');
+        Route::get('status/{id}', [DeveloperController::class, 'changeStatus'])->name('developers.change-status');
+        Route::post('store', [DeveloperController::class, 'store'])->name('developers.store');
+        Route::put('update', [DeveloperController::class, 'update'])->name('developers.update');
+    });
+
+    // Locations
+    Route::prefix('locations')->group(function () {
+        Route::get('/', [LocationController::class, 'index'])->name('locations.index');
+        Route::get('add', [LocationController::class, 'add'])->name('locations.add');
+        Route::get('ajax-list', [LocationController::class, 'ajaxList'])->name('locations.ajax-list');
+        Route::get('children/{id}', [LocationController::class, 'children'])->name('locations.children');
+        Route::get('edit/{id}', [LocationController::class, 'edit'])->name('locations.edit');
+        Route::get('delete/{id}', [LocationController::class, 'moveToBin'])->name('locations.delete');
+        Route::post('store', [LocationController::class, 'store'])->name('locations.store');
+        Route::put('update', [LocationController::class, 'update'])->name('locations.update');
+    });
+
+    // Blogs
+    Route::prefix('blogs')->group(function () {
+        Route::get('/', [BlogsController::class, 'index'])->name('blogs.index');
+        Route::get('add', [BlogsController::class, 'add'])->name('blogs.add');
+        Route::get('ajax-list', [BlogsController::class, 'ajaxList'])->name('blogs.ajax-list');
+        Route::get('edit/{id}', [BlogsController::class, 'edit'])->name('blogs.edit');
+        Route::get('status/{id}', [BlogsController::class, 'changeStatus'])->name('blogs.change-status');
+        Route::get('delete/{id}', [BlogsController::class, 'moveToBin'])->name('blogs.delete');
+        Route::post('store', [BlogsController::class, 'store'])->name('blogs.store');
+        Route::post('update', [BlogsController::class, 'update'])->name('blogs.update');
+        Route::post('upload-image', [BlogsController::class, 'uploadImage']);
+        Route::post('/check-slug', [BlogsController::class, 'checkSlug'])->name('check.slug');
+    });
+
+    // Properties
+    Route::prefix('properties')->group(function () {
+        Route::get('/', [PropertiesController::class, 'index'])->name('properties.index');
+        Route::get('ajax-list', [PropertiesController::class, 'ajaxList'])->name('properties.ajax-list');
+        Route::get('view/{id}', [PropertiesController::class, 'view'])->name('properties.view');
+        Route::get('status/{id}', [PropertiesController::class, 'changeStatus'])->name('properties.change-status');
+        Route::get('/{id}/approve', [PropertiesController::class, 'approveProperties'])->name('properties.approve');
+        Route::get('/{id}/reject', [PropertiesController::class, 'rejectProperties'])->name('properties.reject');
+    });
+
+    // Projects
+    Route::prefix('projects')->group(function () {
+        Route::get('/', [ProjectController::class, 'index'])->name('projects.index');
+        Route::get('add', [ProjectController::class, 'add'])->name('projects.add');
+        Route::get('ajax-list', [ProjectController::class, 'ajaxList'])->name('projects.ajax-list');
+        Route::get('edit/{id}', [ProjectController::class, 'edit'])->name('projects.edit');
+        Route::get('delete/{id}', [ProjectController::class, 'moveToBin'])->name('projects.delete');
+        Route::get('status/{id}', [ProjectController::class, 'changeStatus'])->name('projects.change-status');
+        Route::post('store', [ProjectController::class, 'store'])->name('projects.store');
+        Route::post('update', [ProjectController::class, 'update'])->name('projects.update');
+    });
+
+    // Settings
+    Route::prefix('settings')->group(function () {
+        Route::get('/', [SettingsController::class, 'index'])->name('settings.index');
+        Route::post('store', [SettingsController::class, 'store'])->name('credentials.store');
+    });
+
+    // Queries
+    Route::prefix('queries')->group(function () {
+        Route::get('/', [QueryController::class, 'index'])->name('queries.index');
+        Route::get('ajax-list', [QueryController::class, 'ajaxList'])->name('queries.ajax-list');
+        Route::get('view/{id}', [QueryController::class, 'view'])->name('queries.view');
+        Route::post('reply', [QueryController::class, 'reply'])->name('queries.reply');
+	});
+
+    // Custom links
+    Route::prefix('custom-links')->group(function () {
+        Route::get('/', [CustomLinkController::class, 'index'])->name('custom-links.index');
+        Route::get('ajax-list', [CustomLinkController::class, 'ajaxList'])->name('custom-links.ajax-list');
+        Route::get('view/{id}', [CustomLinkController::class, 'view'])->name('custom-links.view');
+        Route::get('add', [CustomLinkController::class, 'create'])->name('custom-links.add');
+        Route::get('edit/{id}', [CustomLinkController::class, 'edit'])->name('custom-links.edit');
+        Route::get('delete/{id}', [CustomLinkController::class, 'destroy'])->name('custom-links.destroy');
+        Route::get('status/{id}', [CustomLinkController::class, 'toggleStatus'])->name('custom-links.status');
+        Route::post('store', [CustomLinkController::class, 'store'])->name('custom-links.store');
+        Route::post('update/{id}', [CustomLinkController::class, 'update'])->name('custom-links.update');
+	});
+});
+
+/*
+|--------------------------------------------------------------------------
+| Tools
+|--------------------------------------------------------------------------
+*/
+
+Route::get('clear', function () {
 	Artisan::call('cache:clear');
 	Artisan::call('route:clear');
 	Artisan::call('config:clear');
@@ -336,13 +313,19 @@ Route::get('budget', function () {
     return view('frontend.tools.budget');
 })->name('budget-get');
 
+/*
+|--------------------------------------------------------------------------
+| Special routes
+|--------------------------------------------------------------------------
+*/
+
 Route::get('/api/load-more-links', [CustomLinkController::class, 'loadMore']);
 
 Route::get('/storage/{path}', [StorageFileController::class, 'show'])
     ->where('path', '.*');
 
-//Route::GET('/{slug}', [FrontendPageController::class, 'showFilteredProjects']);
+Route::post('/save-fcm-token', [NotificationController::class, 'saveToken']);
+
+// This broad route must remain after every specific GET route.
 Route::get('/{slug}', [FrontendPageController::class, 'showFilteredProjects'])
     ->where('slug', '.*');
-//Route::get('/generate-project-links', [CustomLinkController::class, 'generateProjectLinks']); 
-Route::post('/save-fcm-token', [NotificationController::class, 'saveToken']);

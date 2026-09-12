@@ -22,9 +22,13 @@ class AuthController extends Controller
     * @Functions- Login System for the admin panel
     */
 
-    public function loginView(){
-        $title = 'Login Admin';
-        return view('admin.login',['title' => $title]);
+    public function loginView()
+    {
+        if (Auth::check() && Auth::user()->role_id == 1) {
+            return redirect()->route('dashboard');
+        }
+
+        return view('admin.login');
     }
 
   public function login(Request $request)

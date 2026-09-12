@@ -75,6 +75,18 @@ class FrontendPageController extends Controller
 		return view('frontend.home', compact('pageData', 'feeds', 'youtubeVideo', 'youtubeShorts'));
 	}
 
+	public function getThankYouPage()
+	{
+		if (!session()->has('form_submitted')) {
+			return redirect('/');
+		}
+
+		$form = session('form_submitted');
+		session()->forget('form_submitted');
+
+		return view('frontend.thankyou', compact('form'));
+	}
+
     private function facebookPostData()
     {
         return Cache::remember('homepage.facebook-feed', now()->addMinutes(30), function () {
