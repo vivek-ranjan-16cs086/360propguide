@@ -653,6 +653,7 @@ property, real estate company in noida, property greater noida, property in grea
                         <h4 class="pillar-title">Zero Brokerage on Launches</h4>
                         <p class="pillar-desc">Enjoy transparent, direct-from-developer pricing with absolutely zero
                             brokerage fees on new residential & commercial bookings.</p>
+                    </div>
 
 
                         <div class="pillar-item">
@@ -881,7 +882,7 @@ property, real estate company in noida, property greater noida, property in grea
                     @foreach(array_slice($feedItems, 0, 8) as $feed)
                     @continue(empty($feed['full_picture']) && empty($feed['message']))
                     <div class="swiper-slide">
-                        <div class="social-feed-card">
+                        <div class="social-feed-card{{ !empty($feed['full_picture']) ? ' has-image' : '' }}">
                             <div class="social-feed-header">
                                 <div class="social-author">
                                     <img src="{{ url('frontend/360logo.webp') }}" class="social-avatar"
