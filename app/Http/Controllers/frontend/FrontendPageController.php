@@ -72,6 +72,7 @@ class FrontendPageController extends Controller
 		return view('frontend.home', compact('pageData', 'feeds', 'youtubeVideo', 'youtubeShorts'));
 	}
 
+<<<<<<< HEAD
 	private function facebookPostData()
 	{
 		return Cache::remember('homepage.facebook-feed', now()->addMinutes(30), function () {
@@ -82,6 +83,30 @@ class FrontendPageController extends Controller
 				CURLOPT_CONNECTTIMEOUT => 2,
 				CURLOPT_TIMEOUT => 4,
 			]);
+=======
+	public function getThankYouPage()
+	{
+		if (!session()->has('form_submitted')) {
+			return redirect('/');
+		}
+
+		$form = session('form_submitted');
+		session()->forget('form_submitted');
+
+		return view('frontend.thankyou', compact('form'));
+	}
+
+    private function facebookPostData()
+    {
+        return Cache::remember('homepage.facebook-feed', now()->addMinutes(30), function () {
+            $ch = curl_init();
+            curl_setopt_array($ch, [
+                CURLOPT_URL => 'https://graph.facebook.com/v21.0/me?fields=id%2Cname%2Cfeed%7Bfull_picture%2Ccreated_time%2Cmessage%2Cpermalink_url%7D&access_token=EAAIxmpZAdhYwBRzUBWc54LRTZCfF7xlD95hIzhh5T6ZA9X7IqybCIpXnNuzZBnXGfx705vyyOAih2BDFPoyCYPecYMPdfAXpSPklI28c1Q0ZC302lg0YOgd5iRw01ZCPZC9590D1DpXzHkWaOCfnKZBu7dWoHNWDfZCvF68OBnRJUUgMEneH2TFGCAl2uAYMqkV77zMsZD',
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_CONNECTTIMEOUT => 2,
+                CURLOPT_TIMEOUT => 4,
+            ]);
+>>>>>>> 439f2405db3a877a92d7ef38a9a640637cfdc73d
 
 			$response = curl_exec($ch);
 			$status = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -256,6 +281,7 @@ class FrontendPageController extends Controller
 
 			$allowedFirstWords = [
 				'projects',
+				'flats',
 				'plots',
 				'shops',
 				'studio',
@@ -1207,6 +1233,7 @@ class FrontendPageController extends Controller
 					->limit(6)
 					->pluck('city');
 
+<<<<<<< HEAD
 				foreach ($cities as $cityName) {
 					$push([
 						'name' => $cityName,
@@ -1216,6 +1243,17 @@ class FrontendPageController extends Controller
 						'label' => 'City',
 					]);
 				}
+=======
+            foreach ($cities as $cityName) {
+                $push([
+                    'name' => $cityName,
+					'slug' => 'flats-in-' . Str::slug($cityName),
+					'url' => url('/flats-in-' . Str::slug($cityName)),
+                    'type' => 'custom',
+                    'label' => 'City',
+                ]);
+            }
+>>>>>>> 439f2405db3a877a92d7ef38a9a640637cfdc73d
 
 				$localities = Location::query()
 					->whereNotNull('parent_id')
@@ -1226,6 +1264,7 @@ class FrontendPageController extends Controller
 					->limit(8)
 					->get();
 
+<<<<<<< HEAD
 				foreach ($localities as $locality) {
 					$params = ['locality' => [$locality->city]];
 					if ($locality->parent?->city) {
@@ -1240,6 +1279,22 @@ class FrontendPageController extends Controller
 						'subtitle' => $locality->parent?->city,
 					]);
 				}
+=======
+foreach ($localities as $locality) {
+
+    $localityCity = $locality->parent?->city;
+    $localitySlug = Str::slug($locality->city);
+
+    $push([
+        'name' => $locality->city,
+        'slug' => 'flats-in-' . $localitySlug,
+        'url' => url('/flats-in-' . $localitySlug),
+        'type' => 'locality',
+        'label' => 'Locality',
+        'subtitle' => $localityCity,
+    ]);
+}
+>>>>>>> 439f2405db3a877a92d7ef38a9a640637cfdc73d
 
 				if ($hasLocationColumn) {
 					$projectLocalities = Project::query()
@@ -1257,6 +1312,7 @@ class FrontendPageController extends Controller
 						})
 						->take(8);
 
+<<<<<<< HEAD
 					foreach ($projectLocalities as $row) {
 						$localityName = trim((string) $row->location);
 						$params = ['locality' => [$localityName], 'q' => $keyword];
@@ -1273,6 +1329,23 @@ class FrontendPageController extends Controller
 						]);
 					}
 				}
+=======
+               foreach ($projectLocalities as $row) {
+
+    $localityName = trim((string) $row->location);
+    $localitySlug = Str::slug($localityName);
+
+    $push([
+        'name' => $localityName,
+        'slug' => 'flats-in-' . $localitySlug,
+        'url' => url('/flats-in-' . $localitySlug),
+        'type' => 'locality',
+        'label' => 'Locality',
+        'subtitle' => $row->cities,
+    ]);
+}
+            }
+>>>>>>> 439f2405db3a877a92d7ef38a9a640637cfdc73d
 
 				$customLinks = CustomLink::query()
 					->where('is_active', 1)
@@ -1337,6 +1410,7 @@ class FrontendPageController extends Controller
 
 				$projects = $query->orderByDesc('id')->limit(12)->get();
 
+<<<<<<< HEAD
 				foreach ($projects as $project) {
 					$slug = trim((string) $project->slug);
 					if ($slug === '') {
@@ -1352,6 +1426,24 @@ class FrontendPageController extends Controller
 					]);
 				}
 			}
+=======
+            foreach ($projects as $project) {
+                $slug = trim((string) $project->slug);
+                if ($slug === '') {
+                    continue;
+                }
+                $push([
+                    'name' => $project->project_name,
+                    'slug' => $slug,
+                    'id' => $project->id,
+                    'type' => 'project',
+                    'label' => 'Project',
+					'subtitle' => $project->cities,
+                    'url' => url('/projects/' . $slug),
+                ]);
+            }
+        }
+>>>>>>> 439f2405db3a877a92d7ef38a9a640637cfdc73d
 
 			if ($keyword !== '') {
 				$properties = Property::query()

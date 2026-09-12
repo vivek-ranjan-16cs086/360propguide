@@ -118,7 +118,8 @@ document.addEventListener("DOMContentLoaded", function () {
         return String(value || "")
             .toLowerCase()
             .trim()
-            .replace(/\s+/g, "-");
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/^-+|-+$/g, "");
     }
 
     function applyHeroTab(mode) {
@@ -159,7 +160,7 @@ document.addEventListener("DOMContentLoaded", function () {
             } else if (mode === "commercial") {
                 link.href = "/shops-projects-in-" + slugifyCity(city);
             } else {
-                link.href = "/projects?location[]=" + encodeURIComponent(city);
+                link.href = "/flats-in-" + slugifyCity(city);
             }
         });
     }
@@ -196,6 +197,14 @@ document.addEventListener("DOMContentLoaded", function () {
                     window.location.href =
                         "/properties" + (query ? "?" + query : "");
                     return;
+                }
+
+                if (mode === "projects") {
+                    const searchLocation = location || keyword;
+                    if (searchLocation) {
+                        window.location.href = "/flats-in-" + slugifyCity(searchLocation);
+                        return;
+                    }
                 }
 
                 const params = new URLSearchParams();

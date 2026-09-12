@@ -180,6 +180,7 @@ property, real estate company in noida, property greater noida, property in grea
                 $heroCities = !empty($pageData['cities']) ? collect($pageData['cities'])->take(6) : collect();
                 @endphp
                 @if($heroCities->isNotEmpty())
+<<<<<<< HEAD
                 <div class="hero-cities">
                     <span class="hero-cities__label"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Popular
                         Cities</span>
@@ -189,6 +190,14 @@ property, real estate company in noida, property greater noida, property in grea
                             aria-hidden="true"></i></a>
                     @endforeach
                 </div>
+=======
+                    <div class="hero-cities">
+                        <span class="hero-cities__label"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Popular Cities</span>
+                        @foreach($heroCities as $city)
+                            <a class="hero-city-pill" href="{{ url('flats-in-' . \Illuminate\Support\Str::slug($city)) }}" data-city="{{ $city }}">{{ $city }} <i class="fa-solid fa-chevron-right" aria-hidden="true"></i></a>
+                        @endforeach
+                    </div>
+>>>>>>> 439f2405db3a877a92d7ef38a9a640637cfdc73d
                 @endif
             </div>
         </div>
