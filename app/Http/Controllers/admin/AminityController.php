@@ -8,8 +8,9 @@ use App\Models\AminityList;
 
 class AminityController extends Controller
 {
-     public function store(Request $request){
-		 //dd($request->all());
+    public function store(Request $request)
+    {
+
         $path = uploadFile($request->image, 'aminity-list');
         $aminityObj = new AminityList;
         $aminityObj->name = $request->name;

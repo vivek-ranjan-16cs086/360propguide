@@ -13,7 +13,7 @@ use App\Http\Controllers\frontend\ProfileController;
 
 // Admin controllers
 use App\Http\Controllers\admin\AuthController;
-use App\Http\Controllers\admin\DashboardController;  
+use App\Http\Controllers\admin\DashboardController;
 use App\Http\Controllers\admin\CareerController;
 use App\Http\Controllers\admin\ChangePassController;
 use App\Http\Controllers\admin\BlogsController;
@@ -23,10 +23,13 @@ use App\Http\Controllers\admin\DeveloperController;
 use App\Http\Controllers\admin\LocationController;
 use App\Http\Controllers\admin\SettingsController;
 use App\Http\Controllers\admin\QueryController;
-use App\Http\Controllers\admin\CustomLinkController; 
+use App\Http\Controllers\admin\CustomLinkController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\admin\PropertiesController;
 use App\Http\Controllers\NotificationController;
+use App\Models\Location;
+use App\Services\CustomLinkGenerator;
+
 
 
 //  Frontend
@@ -41,9 +44,9 @@ Route::get('experion-151', function () {
 });
 
 Route::get('contact', function () {
-    return view('frontend.contact');               
+    return view('frontend.contact');
 });
-Route::get('services', function () { 
+Route::get('services', function () {
     return view('frontend.services');
 });
 Route::get('disclaimer', function () {
@@ -74,8 +77,8 @@ Route::get('about-us', [FrontendPageController::class, 'getAboutUsPageData'])->n
 // Property browsing
 Route::prefix('properties')->group(function () {
     Route::get('/', [FrontendPageController::class, 'getPropertyListings']);
-	Route::post('filters', [FrontendPageController::class, 'filterProperties'])->name('property.filters');
-	Route::get('/{slug}', [FrontendPageController::class, 'getPropertyDetails'])->name('property.details');
+    Route::post('filters', [FrontendPageController::class, 'filterProperties'])->name('property.filters');
+    Route::get('/{slug}', [FrontendPageController::class, 'getPropertyDetails'])->name('property.details');
 });
 
 // Project browsing
@@ -89,14 +92,14 @@ Route::prefix('projects')->group(function () {
 
 // Blog browsing
 Route::prefix('blogs')->group(function () {
-    Route::get('/', [FrontendPageController::class, 'getBlogsPageData']) ->name('get.blogs');
+    Route::get('/', [FrontendPageController::class, 'getBlogsPageData'])->name('get.blogs');
     Route::get('/{slug}', [FrontendPageController::class, 'getBlogDetails'])->name('blogs.details');
 });
 
 // Subscriptions and enquiries
 Route::post('subscribe', [SubscriptionController::class, 'subscribe'])->name('subscribe');
 Route::post('/popup-download', [MailController::class, 'popupDownload'])->name('popup.download');
-Route::post('/mail',[MailController::class,'SendContactMail'])->name('contact-mail');
+Route::post('/mail', [MailController::class, 'SendContactMail'])->name('contact-mail');
 
 // Frontend authentication
 Route::middleware(['web'])->group(function () {
@@ -113,7 +116,7 @@ Route::middleware(['web'])->group(function () {
 
 // Authenticated property-owner pages
 Route::middleware(['admin:2', 'PreventBackPage'])->group(function () {
-	Route::post('/logout', [OtpLoginController::class, 'logout'])->name('frontend.logout');
+    Route::post('/logout', [OtpLoginController::class, 'logout'])->name('frontend.logout');
     Route::get('/dashboard', [PropertyController::class, 'index'])->name('list');
     Route::post('delete/property/{property}', [PropertyController::class, 'destroy'])->name('property.destroy');
     Route::post('/{property}/toggle', [PropertyController::class, 'toggleStatus'])->name('toggle');
@@ -127,7 +130,7 @@ Route::prefix('postproperty')->middleware('auth', 'admin:2', 'PreventBackPage')-
     Route::get('/', [PropertyPostController::class, 'create'])->name('create');
     Route::post('/', [PropertyPostController::class, 'saveCreate'])->name('create.save');
 
-	Route::post('/property-image/json-delete', [PropertyPostController::class, 'deleteImageFromJson'])->name('image.json.delete');
+    Route::post('/property-image/json-delete', [PropertyPostController::class, 'deleteImageFromJson'])->name('image.json.delete');
     Route::get('/{property}/property_details', [PropertyPostController::class, 'propertyDetails'])->name('edit.property_details');
     Route::post('/{property}/property_details', [PropertyPostController::class, 'savePropertyDetails'])->name('edit.property_details.save');
 
@@ -255,7 +258,7 @@ Route::prefix('7439')->middleware(['auth', 'admin:1', 'session.version', 'Preven
         Route::get('ajax-list', [QueryController::class, 'ajaxList'])->name('queries.ajax-list');
         Route::get('view/{id}', [QueryController::class, 'view'])->name('queries.view');
         Route::post('reply', [QueryController::class, 'reply'])->name('queries.reply');
-	});
+    });
 
     // Custom links
     Route::prefix('custom-links')->group(function () {
@@ -268,7 +271,7 @@ Route::prefix('7439')->middleware(['auth', 'admin:1', 'session.version', 'Preven
         Route::get('status/{id}', [CustomLinkController::class, 'toggleStatus'])->name('custom-links.status');
         Route::post('store', [CustomLinkController::class, 'store'])->name('custom-links.store');
         Route::post('update/{id}', [CustomLinkController::class, 'update'])->name('custom-links.update');
-	});
+    });
 });
 
 
@@ -276,14 +279,14 @@ Route::prefix('7439')->middleware(['auth', 'admin:1', 'session.version', 'Preven
 
 
 Route::get('clear', function () {
-	Artisan::call('cache:clear');
-	Artisan::call('route:clear');
-	Artisan::call('config:clear');
-	Artisan::call('view:clear');   
-	Artisan::call('clear-compiled');
-	Artisan::call('optimize:clear');
-	
-	return "Caches cleared successfully." ;    
+    Artisan::call('cache:clear');
+    Artisan::call('route:clear');
+    Artisan::call('config:clear');
+    Artisan::call('view:clear');
+    Artisan::call('clear-compiled');
+    Artisan::call('optimize:clear');
+
+    return "Caches cleared successfully.";
 });
 
 Route::get('emi', function () {

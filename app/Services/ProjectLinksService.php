@@ -12,13 +12,13 @@ class ProjectLinksService
     public function getCities(): array
     {
         $cities = Location::parentCityNames()
-            ->map(fn ($city) => strtolower(trim($city)))
+            ->map(fn($city) => strtolower(trim($city)))
             ->filter()
             ->unique()
             ->values()
             ->toArray();
 
-        usort($cities, fn ($a, $b) => strlen($b) - strlen($a));
+        usort($cities, fn($a, $b) => strlen($b) - strlen($a));
 
         return $cities;
     }
@@ -26,8 +26,8 @@ class ProjectLinksService
     public function getProjectLinks(): array
     {
         return CustomLink::where(function ($q) {
-                $q->where('type', '!=', 'property')->orWhereNull('type');
-            })
+            $q->where('type', '!=', 'property')->orWhereNull('type');
+        })
             ->orderBy('id', 'DESC')
             ->get()
             ->map(fn($link) => [
@@ -47,14 +47,16 @@ class ProjectLinksService
             'location' => 1,
             'sublocation' => 2,
             'possession' => 3,
-            'developer' => 4,
+            'bhk' => 4,
+            'developer' => 5,
+
         ];
 
         return CustomLink::query()
             ->where('is_active', 1)
-            ->whereIn('type', ['location', 'sublocation', 'possession', 'developer'])
+            ->whereIn('type', ['location', 'sublocation', 'possession', 'bhk', 'developer'])
             ->get(['name', 'title', 'slug', 'type'])
-            ->map(fn ($link) => [
+            ->map(fn($link) => [
                 'text' => $link->name ?: $link->title,
                 'title' => $link->title,
                 'url' => trim(strtolower((string) $link->slug), '/'),
@@ -83,9 +85,9 @@ class ProjectLinksService
                 $title = preg_replace('/\bflats\b/i', 'Apartments', $link->title ?: $text);
 
                 return [
-                'text'  => $text,
-                'title' => $title,
-                'url'   => $link->slug,
+                    'text'  => $text,
+                    'title' => $title,
+                    'url'   => $link->slug,
                 ];
             })
             ->toArray();
@@ -190,11 +192,13 @@ class ProjectLinksService
         $cityName = ucwords(trim($city));
         $citySlug = Str::slug($city);
 
-        foreach ([
-            'ready_to_move' => 'Ready to Move Flats in ',
-            'new_launch' => 'New Launch Flats in ',
-            'under_construction' => 'Under Construction Flats in ',
-        ] as $status => $label) {
+        foreach (
+            [
+                'ready_to_move' => 'Ready to Move Flats in ',
+                'new_launch' => 'New Launch Flats in ',
+                'under_construction' => 'Under Construction Flats in ',
+            ] as $status => $label
+        ) {
             if ($projects->contains('project_status', $status)) {
                 $links->push([
                     'text' => $label . $cityName,
