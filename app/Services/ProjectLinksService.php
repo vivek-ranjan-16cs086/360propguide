@@ -45,11 +45,10 @@ class ProjectLinksService
         $path = strtolower(trim((string) $currentPath, '/'));
         $typeOrder = [
             'location' => 1,
+            'bhk' => 4,
             'sublocation' => 2,
             'possession' => 3,
-            'bhk' => 4,
             'developer' => 5,
-
         ];
 
         return CustomLink::query()
