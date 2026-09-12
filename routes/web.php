@@ -306,7 +306,7 @@ Route::get('budget', function () {
     return view('frontend.tools.budget');
 })->name('budget-get');
 
-// | Special routes
+// Special routes
 
 Route::get('/api/load-more-links', [CustomLinkController::class, 'loadMore']);
 
