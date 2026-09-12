@@ -28,11 +28,9 @@ use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\admin\PropertiesController;
 use App\Http\Controllers\NotificationController;
 
-/*
-|--------------------------------------------------------------------------
-| Frontend
-|--------------------------------------------------------------------------
-*/
+
+//  Frontend
+
 
 // Static pages
 Route::get('max-estate-105', function () {
@@ -149,11 +147,8 @@ Route::prefix('postproperty')->middleware('auth', 'admin:2', 'PreventBackPage')-
     Route::post('/{property}/submit', [PropertyPostController::class, 'submit'])->name('edit.submit');
 });
 
-/*
-|--------------------------------------------------------------------------
-| Admin
-|--------------------------------------------------------------------------
-*/
+
+// Admin
 
 Route::get('7439/login', [AuthController::class, 'loginView'])
     ->middleware('PreventBackPage')
@@ -276,11 +271,9 @@ Route::prefix('7439')->middleware(['auth', 'admin:1', 'session.version', 'Preven
 	});
 });
 
-/*
-|--------------------------------------------------------------------------
-| Tools
-|--------------------------------------------------------------------------
-*/
+
+// Tools
+
 
 Route::get('clear', function () {
 	Artisan::call('cache:clear');
@@ -313,11 +306,7 @@ Route::get('budget', function () {
     return view('frontend.tools.budget');
 })->name('budget-get');
 
-/*
-|--------------------------------------------------------------------------
-| Special routes
-|--------------------------------------------------------------------------
-*/
+// | Special routes
 
 Route::get('/api/load-more-links', [CustomLinkController::class, 'loadMore']);
 
