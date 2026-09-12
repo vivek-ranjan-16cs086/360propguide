@@ -81,7 +81,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function titleForMode(mode, city) {
         if (mode === "properties") {
-            return "Properties to buy in <em>" + city + "</em>";
+            return "Best Properties to buy in <em>" + city + "</em>";
         }
         if (mode === "commercial") {
             return "Commercial properties in <em>" + city + "</em>";
@@ -145,7 +145,8 @@ document.addEventListener("DOMContentLoaded", function () {
             keywordInput.placeholder = copy.placeholder;
         }
         if (cityLabel) {
-            cityLabel.textContent = mode === "commercial" ? "Look in" : "Buy in";
+            cityLabel.textContent =
+                mode === "commercial" ? "Look in" : "Buy in";
         }
         if (bhkSelect) {
             bhkSelect.value = mode === "commercial" ? "Shops" : "";
@@ -177,8 +178,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 event.stopImmediatePropagation();
 
                 const mode = heroSearch.dataset.searchMode || "projects";
-                const location = heroSearch.querySelector('select[name="location"]')?.value || "";
-                const keyword = heroSearch.querySelector(".keyword")?.value.trim() || "";
+                const location =
+                    heroSearch.querySelector('select[name="location"]')
+                        ?.value || "";
+                const keyword =
+                    heroSearch.querySelector(".keyword")?.value.trim() || "";
 
                 if (mode === "properties") {
                     const params = new URLSearchParams();
@@ -189,7 +193,8 @@ document.addEventListener("DOMContentLoaded", function () {
                         params.set("keyword", keyword);
                     }
                     const query = params.toString();
-                    window.location.href = "/properties" + (query ? "?" + query : "");
+                    window.location.href =
+                        "/properties" + (query ? "?" + query : "");
                     return;
                 }
 
@@ -226,7 +231,9 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
         cityPicker.classList.remove("is-open");
-        cityPicker.closest(".hero-search-panel")?.classList.remove("is-city-open");
+        cityPicker
+            .closest(".hero-search-panel")
+            ?.classList.remove("is-city-open");
         cityTrigger.setAttribute("aria-expanded", "false");
         cityMenu.hidden = true;
     }
@@ -252,27 +259,40 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
 
-        cityPicker.querySelectorAll(".hero-city-option").forEach(function (option) {
-            option.addEventListener("click", function () {
-                const value = option.getAttribute("data-value") || "";
-                const label = option.querySelector("span")?.textContent.trim() || "All cities";
+        cityPicker
+            .querySelectorAll(".hero-city-option")
+            .forEach(function (option) {
+                option.addEventListener("click", function () {
+                    const value = option.getAttribute("data-value") || "";
+                    const label =
+                        option.querySelector("span")?.textContent.trim() ||
+                        "All cities";
 
-                if (citySelect) {
-                    citySelect.value = value;
-                    citySelect.dispatchEvent(new Event("change", { bubbles: true }));
-                }
-                if (cityValue) {
-                    cityValue.textContent = label;
-                }
+                    if (citySelect) {
+                        citySelect.value = value;
+                        citySelect.dispatchEvent(
+                            new Event("change", { bubbles: true }),
+                        );
+                    }
+                    if (cityValue) {
+                        cityValue.textContent = label;
+                    }
 
-                cityPicker.querySelectorAll(".hero-city-option").forEach(function (item) {
-                    item.classList.toggle("is-selected", item === option);
+                    cityPicker
+                        .querySelectorAll(".hero-city-option")
+                        .forEach(function (item) {
+                            item.classList.toggle(
+                                "is-selected",
+                                item === option,
+                            );
+                        });
+                    const activeTab = document.querySelector(
+                        ".hero-tab.is-active",
+                    );
+                    applyHeroTab(activeTab?.dataset.mode || "projects");
+                    closeCityMenu();
                 });
-                const activeTab = document.querySelector(".hero-tab.is-active");
-                applyHeroTab(activeTab?.dataset.mode || "projects");
-                closeCityMenu();
             });
-        });
     }
 
     document.addEventListener("click", function (event) {

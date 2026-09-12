@@ -8,11 +8,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Models\Blog;
 use App\Models\Project;
-use App\Models\Property; 
+use App\Models\Property;
 use App\Models\Career;
 use App\Models\Developer;
 use App\Models\AminityList;
-use App\Models\admin\CustomLink; 
+use App\Models\admin\CustomLink;
 use App\Models\YouTubeVideo;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Schema;
@@ -20,19 +20,16 @@ use Illuminate\Support\Facades\Http;
 
 class FrontendPageController extends Controller
 {
-    public function __construct()
-    {
-       
-    }
+	public function __construct() {}
 
 	public function getHomePageData()
 	{
 		$pageData = [];
 		//blogs
-		$blogs = Blog::orderBy('id', 'DESC')->where('status',1)->take(5)->get();
+		$blogs = Blog::orderBy('id', 'DESC')->where('status', 1)->take(5)->get();
 		$pageData['blogs'] = $blogs;
 		//projects
-		$projects = Project::orderBy('id', 'DESC')->where('status', 1)->take(5)->get(); 
+		$projects = Project::orderBy('id', 'DESC')->where('status', 1)->take(5)->get();
 		$projects = $projects->map(function ($project) {
 			$typologies = json_decode($project->typology, true);
 			$project->typology_string = is_array($typologies) ? implode(', ', $typologies) : 'N/A';
@@ -73,63 +70,63 @@ class FrontendPageController extends Controller
 		return view('frontend.home', compact('pageData', 'feeds', 'youtubeVideo', 'youtubeShorts'));
 	}
 
-    private function facebookPostData()
-    {
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, 'https://graph.facebook.com/v21.0/me?fields=id%2Cname%2Cfeed%7Bfull_picture%2Ccreated_time%2Cmessage%2Cpermalink_url%7D&access_token=EAAIxmpZAdhYwBRzUBWc54LRTZCfF7xlD95hIzhh5T6ZA9X7IqybCIpXnNuzZBnXGfx705vyyOAih2BDFPoyCYPecYMPdfAXpSPklI28c1Q0ZC302lg0YOgd5iRw01ZCPZC9590D1DpXzHkWaOCfnKZBu7dWoHNWDfZCvF68OBnRJUUgMEneH2TFGCAl2uAYMqkV77zMsZD');
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+	private function facebookPostData()
+	{
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, 'https://graph.facebook.com/v21.0/me?fields=id%2Cname%2Cfeed%7Bfull_picture%2Ccreated_time%2Cmessage%2Cpermalink_url%7D&access_token=EAAIxmpZAdhYwBRzUBWc54LRTZCfF7xlD95hIzhh5T6ZA9X7IqybCIpXnNuzZBnXGfx705vyyOAih2BDFPoyCYPecYMPdfAXpSPklI28c1Q0ZC302lg0YOgd5iRw01ZCPZC9590D1DpXzHkWaOCfnKZBu7dWoHNWDfZCvF68OBnRJUUgMEneH2TFGCAl2uAYMqkV77zMsZD');
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
 
-        $response = curl_exec($ch);
+		$response = curl_exec($ch);
 
-        curl_close($ch);
+		curl_close($ch);
 
-        return json_decode($response, true);
-    }
-    
+		return json_decode($response, true);
+	}
+
 	//Career Page
 
-    public function getCareerPageData()
-    {
-        $pageData = [];
-        //projects
-        $careers = Career::orderBy('id', 'DESC')->get();
-        $pageData['careers'] = $careers;
+	public function getCareerPageData()
+	{
+		$pageData = [];
+		//projects
+		$careers = Career::orderBy('id', 'DESC')->get();
+		$pageData['careers'] = $careers;
 
-        // return view with data
-        return view('frontend.career', compact('pageData'));
-    }
+		// return view with data
+		return view('frontend.career', compact('pageData'));
+	}
 
-    public function getCareerDetails($slug)
-    {
+	public function getCareerDetails($slug)
+	{
 
-        $careers = Career::where('slug', $slug)->firstOrFail();
+		$careers = Career::where('slug', $slug)->firstOrFail();
 
-        // return view with data
-        return view('frontend.career-details', compact('careers'));
-    }
-	
+		// return view with data
+		return view('frontend.career-details', compact('careers'));
+	}
+
 	// Project Listing Page
 
 	public function getListingsPageData(Request $request)
-	{ 
+	{
 		$projectsQuery = Project::query()->where('status', '1')->orderBy('id', 'DESC');
 
 		$minPrice = (int) $projectsQuery->min('price');
 		$maxPrice = (int) $projectsQuery->max('price');
-		
+
 		$localityCityMap = Project::select('location', 'cities')
-		->groupBy('location', 'cities')
-		->get()
-		->pluck('cities', 'location')
-		->toArray();
+			->groupBy('location', 'cities')
+			->get()
+			->pluck('cities', 'location')
+			->toArray();
 		$locations = Project::pluck('cities')->filter()->unique()->values()->all();
 		$locality = Project::pluck('location')->filter()->unique()->values()->all();
-		
-        $developers = Developer::select('id', 'developer_name')->get();
+
+		$developers = Developer::select('id', 'developer_name')->get();
 
 		$projects = $projectsQuery->paginate(9);
-        $projects->getCollection()->transform(function ($project) {
+		$projects->getCollection()->transform(function ($project) {
 
 			$typologies = json_decode($project->typology, true);
 
@@ -143,7 +140,7 @@ class FrontendPageController extends Controller
 
 			return $project;
 		});
-		
+
 		$latestProjects = Project::where('status', '1')->orderBy('id', 'DESC')->get();
 
 		// Generate ItemList schema
@@ -155,7 +152,7 @@ class FrontendPageController extends Controller
 		];
 
 		$productSchemas = [];
-		if(!empty($latestProjects) && count($latestProjects)>0){
+		if (!empty($latestProjects) && count($latestProjects) > 0) {
 			foreach ($latestProjects as $index => $project) {
 				$url = url('/projects/' . $project->slug);
 				$image = $project->logo_image ? url('/storage/' . $project->logo_image) : asset('default-image.jpg'); // fallback
@@ -166,18 +163,16 @@ class FrontendPageController extends Controller
 					"position" => $index + 1,
 					"url" => $url
 				];
-
-				
 			}
 		}
 
 		$schema = '<script type="application/ld+json">' . json_encode($itemList, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . '</script>';
-		if(!empty($productSchemas) && count($productSchemas)>0){
+		if (!empty($productSchemas) && count($productSchemas) > 0) {
 			foreach ($productSchemas as $product) {
 				$schema .= "\n<script type=\"application/ld+json\">" . json_encode($product, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "</script>";
 			}
 		}
-		
+
 		return view('frontend.listing', compact(
 			'projects',
 			'minPrice',
@@ -189,10 +184,10 @@ class FrontendPageController extends Controller
 			'localityCityMap'
 		));
 	}
-	
+
 	// filter for projects 
 
-	
+
 	public function applyFilters(Request $request)
 	{
 
@@ -240,7 +235,6 @@ class FrontendPageController extends Controller
 					$projects = $projects->orderBy('id', 'DESC');
 					break;
 			}
-
 		} else {
 
 			$projects = $projects->orderBy('id', 'DESC');
@@ -357,7 +351,6 @@ class FrontendPageController extends Controller
 			if ($project->logo_image) {
 
 				$project->logo_image = url('storage/' . $project->logo_image);
-
 			} else {
 
 				$project->logo_image = url('uploads/project/default.png');
@@ -419,7 +412,6 @@ class FrontendPageController extends Controller
 			$titleParts[] =
 				($propertyKeyword ? $propertyKeyword . ' in ' : 'in ') .
 				implode(', ', $request->filters['locality']);
-
 		} elseif (!empty($request->filters['location'])) {
 
 			$titleParts[] =
@@ -451,7 +443,7 @@ class FrontendPageController extends Controller
 			'to' => $projects->lastItem(),
 		];
 
-        if ($request->filled('html')) {
+		if ($request->filled('html')) {
 			$html = view('frontend.partials._project-list', ['projects' => $projects])->render();
 			return response()->json([
 				'message' => 'Data fetched successfully.',
@@ -462,7 +454,7 @@ class FrontendPageController extends Controller
 				'totalResultsText' => $totalResultsText,
 			]);
 		}
-		
+
 		return response()->json([
 			'message' => 'Data fetched successfully.',
 			'status' => true,
@@ -472,7 +464,7 @@ class FrontendPageController extends Controller
 			'totalResultsText' => $totalResultsText,
 		]);
 	}
-	
+
 	public function showFilteredProjects(Request $request, $slug)
 	{
 		if (str_contains($slug, 'projects-in')) {
@@ -490,7 +482,7 @@ class FrontendPageController extends Controller
 		$link = CustomLink::where('slug', $url)->first();
 
 		// if (!$link) {
-			// abort(404);
+		// abort(404);
 		// }
 
 		$title = $link->title ?? null;
@@ -680,7 +672,6 @@ class FrontendPageController extends Controller
 			}
 
 			return null;
-
 		})->filter()->values()->all();
 
 		foreach ($slugParts as $part) {
@@ -708,7 +699,7 @@ class FrontendPageController extends Controller
 			'new launch' => 'new_launch',
 			'ready to move' => 'ready_to_move',
 			'under construction' => 'under_construction',
-			'within a year' => 'within_a_year',
+			// 'within a year' => 'within_a_year',
 		];
 
 		foreach ($statusMappings as $phrase => $mapped) {
@@ -821,7 +812,6 @@ class FrontendPageController extends Controller
 
 			$titleParts[] = ($propertyKeyword ? $propertyKeyword . ' in ' : 'in ')
 				. $filters['locality'];
-
 		} elseif (!empty($filters['city'])) {
 
 			$titleParts[] = ($propertyKeyword ? $propertyKeyword . ' in ' : 'in ')
@@ -879,7 +869,7 @@ class FrontendPageController extends Controller
 		}
 
 		return view('frontend.listing', compact(
-		    'projects',
+			'projects',
 			'minPrice',
 			'maxPrice',
 			'filters',
@@ -897,36 +887,36 @@ class FrontendPageController extends Controller
 			'localityCityMap'
 		));
 	}
-			
-    public function getProjectDetails($slug)
-    {
-        //projects
-        $projects = Project::where('slug', $slug)->where('status', '1')->firstOrFail();
-        $typologies = json_decode($projects->typology, true);
-        $projects->typology_string = is_array($typologies) ? implode(', ', $typologies) : 'N/A';
-        $aminitiesIds = json_decode($projects->amenities_description);
-        $amenitiesDetails = []; // Temporary array to store amenities details
 
-        if (!empty($aminitiesIds) && count($aminitiesIds) > 0) {
-            foreach ($aminitiesIds as $key => $amenity) {
-                $amenitiesDetails[$key] = AminityList::findOrFail($amenity);
-            }
-        }
-        // Assign amenities details to a property if you need it later
-        $projects->amenitiesDetails = $amenitiesDetails;
+	public function getProjectDetails($slug)
+	{
+		//projects
+		$projects = Project::where('slug', $slug)->where('status', '1')->firstOrFail();
+		$typologies = json_decode($projects->typology, true);
+		$projects->typology_string = is_array($typologies) ? implode(', ', $typologies) : 'N/A';
+		$aminitiesIds = json_decode($projects->amenities_description);
+		$amenitiesDetails = []; // Temporary array to store amenities details
 
-        $developerId = json_decode($projects->floor_plans_description);
-        
-		
+		if (!empty($aminitiesIds) && count($aminitiesIds) > 0) {
+			foreach ($aminitiesIds as $key => $amenity) {
+				$amenitiesDetails[$key] = AminityList::findOrFail($amenity);
+			}
+		}
+		// Assign amenities details to a property if you need it later
+		$projects->amenitiesDetails = $amenitiesDetails;
+
+		$developerId = json_decode($projects->floor_plans_description);
+
+
 		// dd($projects);
 		$developerDetails = Developer::findOrFail($developerId);
-        $projects->developerDetails = $developerDetails;
-        
+		$projects->developerDetails = $developerDetails;
 
-        // $recommendedProjects = Project::where('slug', '!=', $slug)
-            // ->orderBy('created_at', 'desc')
-            // ->take(4)
-            // ->get();
+
+		// $recommendedProjects = Project::where('slug', '!=', $slug)
+		// ->orderBy('created_at', 'desc')
+		// ->take(4)
+		// ->get();
 		$currentPrice = $projects->price;
 
 		$priceMin = $currentPrice * 0.8; // -20%
@@ -938,17 +928,17 @@ class FrontendPageController extends Controller
 			->whereBetween('price', [$priceMin, $priceMax])
 			->latest()
 			->take(4)
-			->get();	
+			->get();
 
-        foreach ($recommendedProjects as $project) {
-            $typologies = json_decode($project->typology, true);
-            $project->typology = is_array($typologies) ? implode(', ', $typologies) : 'N/A';
-        }
+		foreach ($recommendedProjects as $project) {
+			$typologies = json_decode($project->typology, true);
+			$project->typology = is_array($typologies) ? implode(', ', $typologies) : 'N/A';
+		}
 
-        $projects->seo_data = json_decode($projects->seo_data, true);
-		
+		$projects->seo_data = json_decode($projects->seo_data, true);
+
 		$faqsData = json_decode($projects->faqs_data, true);
-		
+
 		// ✅ Generate FAQ Schema
 		$faqSchema = null;
 		if (!empty($faqsData) && is_array($faqsData)) {
@@ -977,71 +967,70 @@ class FrontendPageController extends Controller
 				$faqSchema = json_encode($faqSchemaArray, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
 			}
 		}
-		
-		
-        // return view with data
-        return view('frontend.project-details', compact('projects', 'recommendedProjects','faqSchema'));
-    }
-	
+
+
+		// return view with data
+		return view('frontend.project-details', compact('projects', 'recommendedProjects', 'faqSchema'));
+	}
+
 	// property details page for single page
-	
-    public function getPropertyDetails($slug)
-    {
-		
-        $property = Property::where('slug', $slug)->where(function ($query) {
-                $query->where('status', 'approved')
-                      ->orWhere('user_id', Auth::id());
-            })->firstOrFail();
-       
-        $aminitiesIds = $property->amenities;
-        $amenitiesDetails = []; 
 
-        if (!empty($aminitiesIds) && count($aminitiesIds) > 0) {
-            foreach ($aminitiesIds as $key => $amenity) {
-                $amenitiesDetails[$key] = AminityList::findOrFail($amenity);
-            }
-        }
-		 
-        // Assign amenities details to a property if you need it later
-        $property->amenitiesDetails = $amenitiesDetails;
-        $propertyImages = $property->galleries ?? [];
-        $projectImages = array_filter([
-            $property->project?->logo_image,
-            $property->project?->feature_image,
-            $property->project?->amenities_images,
-            $property->project?->logo_image,
-            $property->project?->developer_background_image,
-        ]);
+	public function getPropertyDetails($slug)
+	{
 
-        $allImages = array_merge($propertyImages, $projectImages);
-        $finalImages = array_slice($allImages, 0, 5);
+		$property = Property::where('slug', $slug)->where(function ($query) {
+			$query->where('status', 'approved')
+				->orWhere('user_id', Auth::id());
+		})->firstOrFail();
 
-        $developerId = json_decode($property->project->floor_plans_description);
-        $developerDetails = Developer::findOrFail($developerId);
-        
-        $property->developerDetails = $developerDetails;
+		$aminitiesIds = $property->amenities;
+		$amenitiesDetails = [];
 
-        $recommendedProjects = Project::where('status', 1)
+		if (!empty($aminitiesIds) && count($aminitiesIds) > 0) {
+			foreach ($aminitiesIds as $key => $amenity) {
+				$amenitiesDetails[$key] = AminityList::findOrFail($amenity);
+			}
+		}
+
+		// Assign amenities details to a property if you need it later
+		$property->amenitiesDetails = $amenitiesDetails;
+		$propertyImages = $property->galleries ?? [];
+		$projectImages = array_filter([
+			$property->project?->logo_image,
+			$property->project?->feature_image,
+			$property->project?->amenities_images,
+			$property->project?->logo_image,
+			$property->project?->developer_background_image,
+		]);
+
+		$allImages = array_merge($propertyImages, $projectImages);
+		$finalImages = array_slice($allImages, 0, 5);
+
+		$developerId = json_decode($property->project->floor_plans_description);
+		$developerDetails = Developer::findOrFail($developerId);
+
+		$property->developerDetails = $developerDetails;
+
+		$recommendedProjects = Project::where('status', 1)
 			->orderBy('created_at', 'desc')
 			->take(4)
 			->get();
-       
-        foreach ($recommendedProjects as $project) {
-            $typologies = json_decode($project->typology, true);
-            $project->typology = is_array($typologies) ? implode(', ', $typologies) : 'N/A';
-        }
-        $property->seo_data = json_decode($property->seo_data, true);
-		
-        // return view with data
-		$user = $property->user; 
-        return view('frontend.property-details', compact('property', 'recommendedProjects','finalImages','user'));
-		
-    }
+
+		foreach ($recommendedProjects as $project) {
+			$typologies = json_decode($project->typology, true);
+			$project->typology = is_array($typologies) ? implode(', ', $typologies) : 'N/A';
+		}
+		$property->seo_data = json_decode($property->seo_data, true);
+
+		// return view with data
+		$user = $property->user;
+		return view('frontend.property-details', compact('property', 'recommendedProjects', 'finalImages', 'user'));
+	}
 
 
-    // Get Blog listing pageData
+	// Get Blog listing pageData
 
-	
+
 	public function getBlogsPageData(Request $request)
 	{
 		$pageData = [];
@@ -1052,8 +1041,8 @@ class FrontendPageController extends Controller
 		if (!empty($search)) {
 			$query->where(function ($q) use ($search) {
 				$q->where('title', 'LIKE', '%' . $search . '%')
-				  ->orWhere('short_description', 'LIKE', '%' . $search . '%')
-				  ->orWhere('description', 'LIKE', '%' . $search . '%');
+					->orWhere('short_description', 'LIKE', '%' . $search . '%')
+					->orWhere('description', 'LIKE', '%' . $search . '%');
 			});
 		}
 
@@ -1066,30 +1055,30 @@ class FrontendPageController extends Controller
 		return view('frontend.blogs', compact('pageData', 'search'));
 	}
 
-    //Get blog Details single pageData
-	
-    public function getBlogDetails($slug)
-    {
-        //blogs
-        $blogs = Blog::where('slug', $slug)->where('status',1)->firstOrFail();
-        
-        $recommendedBlogs = Blog::where('slug', '!=', $slug)
-            ->orderBy('created_at', 'desc')
-            ->take(4)
-            ->get();
+	//Get blog Details single pageData
 
-        $recommendedProjects = Project::where('status', 1)
+	public function getBlogDetails($slug)
+	{
+		//blogs
+		$blogs = Blog::where('slug', $slug)->where('status', 1)->firstOrFail();
+
+		$recommendedBlogs = Blog::where('slug', '!=', $slug)
+			->orderBy('created_at', 'desc')
+			->take(4)
+			->get();
+
+		$recommendedProjects = Project::where('status', 1)
 			->orderBy('created_at', 'desc')
 			->take(5)
 			->get();
-		   
+
 		foreach ($recommendedProjects as $project) {
 			$typologies = json_decode($project->typology, true);
 			$project->typology = is_array($typologies) ? implode(', ', $typologies) : 'N/A';
 		}
-        $blogs->seo_data = json_decode($blogs->seo_data, true);
-       json_decode($blogs->faqs_data, true);
-	   
+		$blogs->seo_data = json_decode($blogs->seo_data, true);
+		json_decode($blogs->faqs_data, true);
+
 		$faqsData = json_decode($blogs->faqs_data, true);
 		$faqSchema = null;
 		if (!empty($faqsData) && is_array($faqsData)) {
@@ -1118,26 +1107,26 @@ class FrontendPageController extends Controller
 				$faqSchema = json_encode($faqSchemaArray, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
 			}
 		}
-		
-        return view('frontend.blog-details', compact('blogs', 'recommendedBlogs', 'recommendedProjects', 'faqSchema'));
-    }
 
-    // Get About us page 
-	
-    public function getAboutUsPageData()
-    {
-        $pageData = [];
-        //projects
-        $blogs = Blog::orderBy('id', 'DESC')->get();
-        $pageData['blogs'] = $blogs;
+		return view('frontend.blog-details', compact('blogs', 'recommendedBlogs', 'recommendedProjects', 'faqSchema'));
+	}
 
-        // return view with data
-        return view('frontend.about-us', compact('pageData'));
-    }
+	// Get About us page 
+
+	public function getAboutUsPageData()
+	{
+		$pageData = [];
+		//projects
+		$blogs = Blog::orderBy('id', 'DESC')->get();
+		$pageData['blogs'] = $blogs;
+
+		// return view with data
+		return view('frontend.about-us', compact('pageData'));
+	}
 
 
-    //Function For Searchabar
-	
+	//Function For Searchabar
+
 	public function SearchProjects(Request $req)
 	{
 		$query = Project::query();
@@ -1188,24 +1177,24 @@ class FrontendPageController extends Controller
 		]);
 	}
 
-    // to get property listing page
-	
-    public function getPropertyListings(Request $request)
+	// to get property listing page
+
+	public function getPropertyListings(Request $request)
 	{
 		// Show only approved properties
 		$properties = Property::where('status', 'approved')
-            ->orderBy('created_at', 'desc')
-            ->paginate(6);
+			->orderBy('created_at', 'desc')
+			->paginate(6);
 
-        // Format properties with galleries
-        foreach ($properties as $property) {
-            if ($property->galleries) {
-                $galleries = is_string($property->galleries) ? json_decode($property->galleries, true) : $property->galleries;
-                $property->galleries = is_array($galleries) ? $galleries : [];
-            } else {
-                $property->galleries = [];
-            }
-        }
+		// Format properties with galleries
+		foreach ($properties as $property) {
+			if ($property->galleries) {
+				$galleries = is_string($property->galleries) ? json_decode($property->galleries, true) : $property->galleries;
+				$property->galleries = is_array($galleries) ? $galleries : [];
+			} else {
+				$property->galleries = [];
+			}
+		}
 
 		// Price range for approved properties
 		$minPrice = Property::where('status', 'approved')->min('total_price') ?? 100000;
@@ -1221,7 +1210,7 @@ class FrontendPageController extends Controller
 			->unique()
 			->values()
 			->all();
-			
+
 		$configurations = Property::pluck('configuration')
 			->filter()
 			->unique()
@@ -1230,7 +1219,7 @@ class FrontendPageController extends Controller
 			})
 			->values()
 			->all();
-			
+
 		$constructionStatuses = Property::where('status', 'approved')
 			->pluck('construction_status')
 			->filter()
@@ -1243,12 +1232,12 @@ class FrontendPageController extends Controller
 			->filter()
 			->unique()
 			->values()
-			->all();	
-	
-        $links_description = null;
+			->all();
+
+		$links_description = null;
 		$totalResults = Property::where('status', 'approved')->count();
 		$dynamicTitle = 'All Properties';
-		
+
 		return view('frontend.property-listing', compact(
 			'locations',
 			'minPrice',
@@ -1257,16 +1246,16 @@ class FrontendPageController extends Controller
 			'properties',
 			'links_description',
 			'constructionStatuses',
-            'furnishingTypes',
-			'totalResults',      
-            'dynamicTitle',
+			'furnishingTypes',
+			'totalResults',
+			'dynamicTitle',
 		));
 	}
-	
-	
+
+
 	// For property filters 
-	
-	
+
+
 	public function filterProperties(Request $request)
 	{
 		try {
@@ -1281,7 +1270,7 @@ class FrontendPageController extends Controller
 
 				$query->where(function ($q) use ($search) {
 					$q->where('title', 'LIKE', "%{$search}%")
-					  ->orWhere('city', 'LIKE', "%{$search}%");
+						->orWhere('city', 'LIKE', "%{$search}%");
 				});
 			}
 
@@ -1312,7 +1301,7 @@ class FrontendPageController extends Controller
 					$filters['budget']['max']
 				]);
 			}
-			
+
 			// Construction Status
 			if (!empty($filters['constructionStatus']) && count($filters['constructionStatus']) > 0) {
 				$query->whereIn('construction_status', $filters['constructionStatus']);
@@ -1344,7 +1333,7 @@ class FrontendPageController extends Controller
 
 			// Configuration  (e.g. "2 BHK, 3 BHK")
 			if (!empty($filters['configuration'])) {
-				$formatted = array_map(function($c) {
+				$formatted = array_map(function ($c) {
 					return strtoupper(str_replace('_', ' ', $c)); // "2_bhk" → "2 BHK"
 				}, $filters['configuration']);
 				$titleParts[] = implode(', ', $formatted);
@@ -1397,7 +1386,6 @@ class FrontendPageController extends Controller
 					'current_page' => $properties->currentPage(),
 				]
 			]);
-
 		} catch (\Exception $e) {
 
 			//DEBUG RETURN (temporary)
@@ -1408,10 +1396,10 @@ class FrontendPageController extends Controller
 			]);
 		}
 	}
-	
-	 /**
-     * Handle property custom links
-     */	
+
+	/**
+	 * Handle property custom links
+	 */
 	private function handlePropertyCustomLink($slug, $link, $title, $name, $description, $keywords)
 	{
 		$slugParts = explode('-', $slug);
@@ -1419,7 +1407,7 @@ class FrontendPageController extends Controller
 		$bhk = null;
 		$city = null;
 
-	   //bhk wise filter
+		//bhk wise filter
 		for ($i = 0; $i < count($slugParts); $i++) {
 			if (is_numeric($slugParts[$i]) && isset($slugParts[$i + 1]) && $slugParts[$i + 1] === 'bhk') {
 				$bhk = $slugParts[$i] . ' BHK';
@@ -1427,7 +1415,7 @@ class FrontendPageController extends Controller
 			}
 		}
 
-	   //city
+		//city
 		if (str_contains($slug, 'apartments-in-')) {
 			$cityPart = explode('apartments-in-', $slug)[1] ?? null;
 
@@ -1460,7 +1448,7 @@ class FrontendPageController extends Controller
 
 		$properties = $propertiesQuery->paginate(12);
 
-	   //filter with price
+		//filter with price
 		$minPrice = Property::min('total_price') ?? 100000;
 		$maxPrice = Property::max('total_price') ?? 10000000;
 
@@ -1488,7 +1476,7 @@ class FrontendPageController extends Controller
 			->values()
 			->all();
 
-	   //filter
+		//filter
 		$initialFilters = [];
 
 		if (isset($configValue)) {
@@ -1510,7 +1498,7 @@ class FrontendPageController extends Controller
 			'locations',
 			'configurations',
 			'constructionStatuses',
-            'furnishingTypes',
+			'furnishingTypes',
 			'title',
 			'name',
 			'description',
@@ -1519,14 +1507,15 @@ class FrontendPageController extends Controller
 			'links_description'
 		));
 	}
-	
-	public function test(){
+
+	public function test()
+	{
 		$links = CustomLink::get();
-		
-		foreach($links as $item){
+
+		foreach ($links as $item) {
 			$slug = $item->slug;
 			$originalUrl = $slug;
-		
+
 
 			// Add www.
 			$updatedUrl = str_replace('/projects/filter/', '', $originalUrl);
@@ -1536,7 +1525,4 @@ class FrontendPageController extends Controller
 			//$obj->save();
 		}
 	}
-	
 }
-
-

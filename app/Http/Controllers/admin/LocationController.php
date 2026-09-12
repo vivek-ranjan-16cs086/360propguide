@@ -125,6 +125,7 @@ class LocationController extends Controller
             'latitude' => 'nullable|numeric',
             'longitude' => 'nullable|numeric',
             'status' => 'required|in:0,1',
+            'slug' => 'nullable|string|max:255',
             'image' => 'nullable|image|max:2048',
         ]);
 
@@ -135,8 +136,13 @@ class LocationController extends Controller
         $location->parent_id = $request->parent_id ?: null;
         $location->latitude = $request->latitude;
         $location->longitude = $request->longitude;
+
         $location->status = $request->status;
-        $location->slug = $this->uniqueSlug($request->city);
+        $slug = $request->filled('slug')
+            ? $request->slug
+            : $request->city;
+
+        $location->slug = $this->uniqueSlug($slug);
 
         if ($request->hasFile('image')) {
             $location->image = uploadFile($request->file('image'), 'locations');
@@ -254,9 +260,9 @@ class LocationController extends Controller
 
         while (
             Location::withTrashed()
-                ->where('slug', $slug)
-                ->when($ignoreId, fn ($q) => $q->where('id', '!=', $ignoreId))
-                ->exists()
+            ->where('slug', $slug)
+            ->when($ignoreId, fn($q) => $q->where('id', '!=', $ignoreId))
+            ->exists()
         ) {
             $slug = $base . '-' . $i++;
         }

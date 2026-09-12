@@ -8,11 +8,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Models\Blog;
 use App\Models\Project;
-use App\Models\Property; 
+use App\Models\Property;
 use App\Models\Career;
 use App\Models\Developer;
 use App\Models\AminityList;
-use App\Models\admin\CustomLink; 
+use App\Models\admin\CustomLink;
 use App\Models\YouTubeVideo;
 use App\Models\Location;
 use Illuminate\Support\Facades\View;
@@ -22,19 +22,16 @@ use Illuminate\Support\Facades\Cache;
 
 class FrontendPageController extends Controller
 {
-    public function __construct()
-    {
-       
-    }
+	public function __construct() {}
 
 	public function getHomePageData()
 	{
 		$pageData = [];
 		//blogs
-		$blogs = Blog::orderBy('id', 'DESC')->where('status',1)->take(5)->get();
+		$blogs = Blog::orderBy('id', 'DESC')->where('status', 1)->take(5)->get();
 		$pageData['blogs'] = $blogs;
 		//projects
-		$projects = Project::orderBy('id', 'DESC')->where('status', 1)->take(5)->get(); 
+		$projects = Project::orderBy('id', 'DESC')->where('status', 1)->take(5)->get();
 		$projects = $projects->map(function ($project) {
 			$typologies = json_decode($project->typology, true);
 			$project->typology_string = is_array($typologies) ? implode(', ', $typologies) : 'N/A';
@@ -75,51 +72,51 @@ class FrontendPageController extends Controller
 		return view('frontend.home', compact('pageData', 'feeds', 'youtubeVideo', 'youtubeShorts'));
 	}
 
-    private function facebookPostData()
-    {
-        return Cache::remember('homepage.facebook-feed', now()->addMinutes(30), function () {
-            $ch = curl_init();
-            curl_setopt_array($ch, [
-                CURLOPT_URL => 'https://graph.facebook.com/v21.0/me?fields=id%2Cname%2Cfeed%7Bfull_picture%2Ccreated_time%2Cmessage%2Cpermalink_url%7D&access_token=EAAIxmpZAdhYwBRzUBWc54LRTZCfF7xlD95hIzhh5T6ZA9X7IqybCIpXnNuzZBnXGfx705vyyOAih2BDFPoyCYPecYMPdfAXpSPklI28c1Q0ZC302lg0YOgd5iRw01ZCPZC9590D1DpXzHkWaOCfnKZBu7dWoHNWDfZCvF68OBnRJUUgMEneH2TFGCAl2uAYMqkV77zMsZD',
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_CONNECTTIMEOUT => 2,
-                CURLOPT_TIMEOUT => 4,
-            ]);
+	private function facebookPostData()
+	{
+		return Cache::remember('homepage.facebook-feed', now()->addMinutes(30), function () {
+			$ch = curl_init();
+			curl_setopt_array($ch, [
+				CURLOPT_URL => 'https://graph.facebook.com/v21.0/me?fields=id%2Cname%2Cfeed%7Bfull_picture%2Ccreated_time%2Cmessage%2Cpermalink_url%7D&access_token=EAAIxmpZAdhYwBRzUBWc54LRTZCfF7xlD95hIzhh5T6ZA9X7IqybCIpXnNuzZBnXGfx705vyyOAih2BDFPoyCYPecYMPdfAXpSPklI28c1Q0ZC302lg0YOgd5iRw01ZCPZC9590D1DpXzHkWaOCfnKZBu7dWoHNWDfZCvF68OBnRJUUgMEneH2TFGCAl2uAYMqkV77zMsZD',
+				CURLOPT_RETURNTRANSFER => true,
+				CURLOPT_CONNECTTIMEOUT => 2,
+				CURLOPT_TIMEOUT => 4,
+			]);
 
-            $response = curl_exec($ch);
-            $status = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            curl_close($ch);
+			$response = curl_exec($ch);
+			$status = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+			curl_close($ch);
 
-            if ($response === false || $status < 200 || $status >= 300) {
-                return [];
-            }
+			if ($response === false || $status < 200 || $status >= 300) {
+				return [];
+			}
 
-            return json_decode($response, true) ?: [];
-        });
-    }
-    
+			return json_decode($response, true) ?: [];
+		});
+	}
+
 	//Career Page
 
-    public function getCareerPageData()
-    {
-        $pageData = [];
-        //projects
-        $careers = Career::orderBy('id', 'DESC')->get();
-        $pageData['careers'] = $careers;
+	public function getCareerPageData()
+	{
+		$pageData = [];
+		//projects
+		$careers = Career::orderBy('id', 'DESC')->get();
+		$pageData['careers'] = $careers;
 
-        // return view with data
-        return view('frontend.career', compact('pageData'));
-    }
+		// return view with data
+		return view('frontend.career', compact('pageData'));
+	}
 
-    public function getCareerDetails($slug)
-    {
+	public function getCareerDetails($slug)
+	{
 
-        $careers = Career::where('slug', $slug)->firstOrFail();
+		$careers = Career::where('slug', $slug)->firstOrFail();
 
-        // return view with data
-        return view('frontend.career-details', compact('careers'));
-    }
-	
+		// return view with data
+		return view('frontend.career-details', compact('careers'));
+	}
+
 	// Project Listing Page
 
 	public function getListingsPageData(Request $request)
@@ -136,7 +133,7 @@ class FrontendPageController extends Controller
 		$projectsQuery = Project::query()->where('status', '1');
 		$this->applyProjectListingFilters($projectsQuery, $selected);
 		$projects = $projectsQuery->paginate(9)->withQueryString();
-		$this->transformListedProjects($projects);
+
 
 		$itemList = [
 			"@context" => "https://schema.org",
@@ -169,7 +166,7 @@ class FrontendPageController extends Controller
 			'filters'
 		));
 	}
-	
+
 	public function applyFilters(Request $request)
 	{
 		$legacy = (array) $request->input('filters', []);
@@ -289,145 +286,145 @@ class FrontendPageController extends Controller
 		$slugString = implode(' ', $slugParts);
 
 		// Get all cities from table
-		
-
-// ============================================================
-// LOCATION / CITY DETECTION
-// ============================================================
-
-$filters = [];
-$isValidSlug = false;
-$isTypologyValid = false;
-
-$slugParts = explode('-', strtolower($slug));
-$slugString = implode(' ', $slugParts);
 
 
-// ------------------------------------------------------------
-// LOCALITY + CITY MAPPING
-// ------------------------------------------------------------
+		// ============================================================
+		// LOCATION / CITY DETECTION
+		// ============================================================
 
-$locationCityRows = Project::query()
-    ->whereNotNull('location')
-    ->whereNotNull('cities')
-    ->select('location', 'cities')
-    ->distinct()
-    ->get();
+		$filters = [];
+		$isValidSlug = false;
+		$isTypologyValid = false;
 
-
-// ------------------------------------------------------------
-// 1. LOCALITY FIRST
-// ------------------------------------------------------------
-
-$matchedLocality = null;
-$matchedLocalityCity = null;
-
-$localityRows = $locationCityRows
-    ->sortByDesc(function ($row) {
-        return strlen(Str::slug($row->location));
-    });
-
-foreach ($localityRows as $row) {
-
-    $locationName = trim($row->location);
-
-    if (empty($locationName)) {
-        continue;
-    }
-
-    $locationSlug = strtolower(Str::slug($locationName));
-
-    if (
-        $locationSlug !== '' &&
-        Str::contains(strtolower($slug), $locationSlug)
-    ) {
-        $matchedLocality = $locationName;
-        $matchedLocalityCity = trim($row->cities);
-        break;
-    }
-}
+		$slugParts = explode('-', strtolower($slug));
+		$slugString = implode(' ', $slugParts);
 
 
-// ------------------------------------------------------------
-// 2. LOCALITY MIL GAYI TO USKI CITY BHI SET KARO
-// ------------------------------------------------------------
+		// ------------------------------------------------------------
+		// LOCALITY + CITY MAPPING
+		// ------------------------------------------------------------
 
-if ($matchedLocality) {
-
-    $filters['locality'] = $matchedLocality;
-
-    if ($matchedLocalityCity) {
-        $filters['city'] = $matchedLocalityCity;
-    }
-
-    $isValidSlug = true;
-}
+		$locationCityRows = Project::query()
+			->whereNotNull('location')
+			->whereNotNull('cities')
+			->select('location', 'cities')
+			->distinct()
+			->get();
 
 
-// ------------------------------------------------------------
-// 3. LOCALITY NA MILE TAB CITY CHECK KARO
-// ------------------------------------------------------------
+		// ------------------------------------------------------------
+		// 1. LOCALITY FIRST
+		// ------------------------------------------------------------
 
-if (!$matchedLocality) {
+		$matchedLocality = null;
+		$matchedLocalityCity = null;
 
-    $cityRows = Project::query()
-        ->whereNotNull('cities')
-        ->select('cities')
-        ->distinct()
-        ->get()
-        ->sortByDesc(function ($row) {
-            return strlen(Str::slug($row->cities));
-        });
+		$localityRows = $locationCityRows
+			->sortByDesc(function ($row) {
+				return strlen(Str::slug($row->location));
+			});
 
-    foreach ($cityRows as $row) {
+		foreach ($localityRows as $row) {
 
-        $cityName = trim($row->cities);
+			$locationName = trim($row->location);
 
-        if (empty($cityName)) {
-            continue;
-        }
+			if (empty($locationName)) {
+				continue;
+			}
 
-        $citySlug = strtolower(Str::slug($cityName));
+			$locationSlug = strtolower(Str::slug($locationName));
 
-if (
-    $citySlug === strtolower($slug) ||
-    Str::contains(strtolower($slug), $citySlug)
-) {
-
-    $filters['city'] = $cityName;
-    $isValidSlug = true;
-
-    break;
-}
-    }
-}
+			if (
+				$locationSlug !== '' &&
+				Str::contains(strtolower($slug), $locationSlug)
+			) {
+				$matchedLocality = $locationName;
+				$matchedLocalityCity = trim($row->cities);
+				break;
+			}
+		}
 
 
-if (empty($filters['city']) && empty($filters['locality'])) {
-    $locationRows = Location::query()
-        ->active()
-        ->with('parent:id,city')
-        ->get()
-        ->sortByDesc(fn ($row) => strlen(Str::slug($row->city)));
+		// ------------------------------------------------------------
+		// 2. LOCALITY MIL GAYI TO USKI CITY BHI SET KARO
+		// ------------------------------------------------------------
 
-    foreach ($locationRows as $row) {
-        $placeSlug = strtolower(Str::slug($row->city));
-        if ($placeSlug === '' || !Str::contains(strtolower($slug), $placeSlug)) {
-            continue;
-        }
+		if ($matchedLocality) {
 
-        if ($row->parent_id) {
-            $filters['locality'] = $row->city;
-            if ($row->parent?->city) {
-                $filters['city'] = $row->parent->city;
-            }
-        } else {
-            $filters['city'] = $row->city;
-        }
-        $isValidSlug = true;
-        break;
-    }
-}
+			$filters['locality'] = $matchedLocality;
+
+			if ($matchedLocalityCity) {
+				$filters['city'] = $matchedLocalityCity;
+			}
+
+			$isValidSlug = true;
+		}
+
+
+		// ------------------------------------------------------------
+		// 3. LOCALITY NA MILE TAB CITY CHECK KARO
+		// ------------------------------------------------------------
+
+		if (!$matchedLocality) {
+
+			$cityRows = Project::query()
+				->whereNotNull('cities')
+				->select('cities')
+				->distinct()
+				->get()
+				->sortByDesc(function ($row) {
+					return strlen(Str::slug($row->cities));
+				});
+
+			foreach ($cityRows as $row) {
+
+				$cityName = trim($row->cities);
+
+				if (empty($cityName)) {
+					continue;
+				}
+
+				$citySlug = strtolower(Str::slug($cityName));
+
+				if (
+					$citySlug === strtolower($slug) ||
+					Str::contains(strtolower($slug), $citySlug)
+				) {
+
+					$filters['city'] = $cityName;
+					$isValidSlug = true;
+
+					break;
+				}
+			}
+		}
+
+
+		if (empty($filters['city']) && empty($filters['locality'])) {
+			$locationRows = Location::query()
+				->active()
+				->with('parent:id,city')
+				->get()
+				->sortByDesc(fn($row) => strlen(Str::slug($row->city)));
+
+			foreach ($locationRows as $row) {
+				$placeSlug = strtolower(Str::slug($row->city));
+				if ($placeSlug === '' || !Str::contains(strtolower($slug), $placeSlug)) {
+					continue;
+				}
+
+				if ($row->parent_id) {
+					$filters['locality'] = $row->city;
+					if ($row->parent?->city) {
+						$filters['city'] = $row->parent->city;
+					}
+				} else {
+					$filters['city'] = $row->city;
+				}
+				$isValidSlug = true;
+				break;
+			}
+		}
 
 
 		// Step 2: Typology
@@ -477,21 +474,21 @@ if (empty($filters['city']) && empty($filters['locality'])) {
 		// Step 2b: Get dynamic BHKs
 		$cityProjectsQuery = Project::query();
 
-if (!empty($filters['city'])) {
-    $cityProjectsQuery->whereRaw(
-        'LOWER(TRIM(cities)) = ?',
-        [strtolower(trim($filters['city']))]
-    );
-}
+		if (!empty($filters['city'])) {
+			$cityProjectsQuery->whereRaw(
+				'LOWER(TRIM(cities)) = ?',
+				[strtolower(trim($filters['city']))]
+			);
+		}
 
-if (!empty($filters['locality'])) {
-    $cityProjectsQuery->whereRaw(
-        'LOWER(TRIM(location)) = ?',
-        [strtolower(trim($filters['locality']))]
-    );
-}
+		if (!empty($filters['locality'])) {
+			$cityProjectsQuery->whereRaw(
+				'LOWER(TRIM(location)) = ?',
+				[strtolower(trim($filters['locality']))]
+			);
+		}
 
-$cityProjects = $cityProjectsQuery->get();
+		$cityProjects = $cityProjectsQuery->get();
 
 		$availableTypologies = collect();
 
@@ -517,7 +514,6 @@ $cityProjects = $cityProjectsQuery->get();
 			}
 
 			return null;
-
 		})->filter()->values()->all();
 
 		foreach ($slugParts as $part) {
@@ -570,7 +566,7 @@ $cityProjects = $cityProjectsQuery->get();
 		$developers = Developer::select('id', 'developer_name')->get();
 
 		$matchedDeveloper = $developers
-			->sortByDesc(fn ($developer) => strlen(Str::slug($developer->developer_name)))
+			->sortByDesc(fn($developer) => strlen(Str::slug($developer->developer_name)))
 			->first(function ($developer) use ($slug) {
 				$devSlug = Str::slug($developer->developer_name);
 				return $devSlug !== '' && str_starts_with($slug, $devSlug . '-projects');
@@ -586,27 +582,27 @@ $cityProjects = $cityProjectsQuery->get();
 
 		// Build project query
 		$projectsQuery = Project::query()
-    ->where('status', '1');
+			->where('status', '1');
 
 
-// CITY FILTER
-if (!empty($filters['city'])) {
+		// CITY FILTER
+		if (!empty($filters['city'])) {
 
-    $projectsQuery->whereRaw(
-        'LOWER(TRIM(cities)) = ?',
-        [strtolower(trim($filters['city']))]
-    );
-}
+			$projectsQuery->whereRaw(
+				'LOWER(TRIM(cities)) = ?',
+				[strtolower(trim($filters['city']))]
+			);
+		}
 
 
-// LOCALITY FILTER
-if (!empty($filters['locality'])) {
+		// LOCALITY FILTER
+		if (!empty($filters['locality'])) {
 
-    $projectsQuery->whereRaw(
-        'LOWER(TRIM(location)) = ?',
-        [strtolower(trim($filters['locality']))]
-    );
-}
+			$projectsQuery->whereRaw(
+				'LOWER(TRIM(location)) = ?',
+				[strtolower(trim($filters['locality']))]
+			);
+		}
 		if (!empty($filters['typology'])) {
 			$projectsQuery->whereJsonContains('typology', $filters['typology']);
 		}
@@ -641,9 +637,6 @@ if (!empty($filters['locality'])) {
 				: 'N/A';
 
 			$project->project_status = clean($project->project_status);
-
-			$project->logo_image = storageUrl($project->logo_image);
-
 			return $project;
 		});
 
@@ -687,7 +680,6 @@ if (!empty($filters['locality'])) {
 
 			$titleParts[] = ($propertyKeyword ? $propertyKeyword . ' in ' : 'in ')
 				. $filters['locality'];
-
 		} elseif (!empty($filters['city'])) {
 
 			$titleParts[] = ($propertyKeyword ? $propertyKeyword . ' in ' : 'in ')
@@ -719,8 +711,8 @@ if (!empty($filters['locality'])) {
 
 		if (!empty($filters['city'])) {
 			$cityExists = Location::parents()
-					->whereRaw('LOWER(TRIM(city)) = ?', [strtolower(trim($filters['city']))])
-					->exists()
+				->whereRaw('LOWER(TRIM(city)) = ?', [strtolower(trim($filters['city']))])
+				->exists()
 				|| Project::whereRaw('LOWER(TRIM(cities)) = ?', [strtolower(trim($filters['city']))])->exists();
 
 			if (!$cityExists) {
@@ -730,9 +722,9 @@ if (!empty($filters['locality'])) {
 
 		if (!empty($filters['locality'])) {
 			$localityExists = Location::query()
-					->whereNotNull('parent_id')
-					->whereRaw('LOWER(TRIM(city)) = ?', [strtolower(trim($filters['locality']))])
-					->exists()
+				->whereNotNull('parent_id')
+				->whereRaw('LOWER(TRIM(city)) = ?', [strtolower(trim($filters['locality']))])
+				->exists()
 				|| Project::whereRaw('LOWER(TRIM(location)) = ?', [strtolower(trim($filters['locality']))])->exists();
 
 			if (!$localityExists) {
@@ -752,7 +744,7 @@ if (!empty($filters['locality'])) {
 
 		$selected = $this->resolveListingSelection($request, $filters);
 		return view('frontend.listing', compact(
-		    'projects',
+			'projects',
 			'minPrice',
 			'maxPrice',
 			'filters',
@@ -771,322 +763,321 @@ if (!empty($filters['locality'])) {
 			'selected'
 		));
 	}
-			
-
-
-
-private function generateRelatedCityLinks(?string $currentCity = null): array
-{
-$relatedCityLinks = [];
-
-    $allCities = Location::parentCityNames();
-
-    foreach ($allCities as $relatedCity) {
-
-        // Current city ko skip karo
-        if (
-            $currentCity &&
-            strtolower(trim($relatedCity)) === strtolower(trim($currentCity))
-        ) {
-            continue;
-        }
-
-        $cityProjects = Project::query()
-            ->where('status', 1)
-            ->whereNotNull('typology')
-            ->whereRaw(
-                'LOWER(TRIM(cities)) = ?',
-                [strtolower(trim($relatedCity))]
-            )
-            ->get();
-
-        if ($cityProjects->isEmpty()) {
-            continue;
-        }
-
-        $bhks = collect();
-
-        foreach ($cityProjects as $project) {
-
-            $typologies = json_decode($project->typology, true);
-
-            if (!is_array($typologies)) {
-                continue;
-            }
-
-            foreach ($typologies as $typology) {
-
-                $typology = trim($typology);
-
-                if (
-                    preg_match(
-                        '/^(\d+)\s*-?\s*BHK$/i',
-                        $typology,
-                        $matches
-                    )
-                ) {
-                    $bhks->push((int) $matches[1]);
-                }
-            }
-        }
-
-        $bhks = $bhks
-            ->unique()
-            ->sort()
-            ->values();
-
-        if ($bhks->isEmpty()) {
-            continue;
-        }
-
-        $cityLinks = [];
-
-        foreach ($bhks as $bhk) {
-
-            $cityLinks[] = [
-                'text' => $bhk . ' BHK Flats in ' . $relatedCity,
-
-                'url' => $bhk . '-bhk-flats-in-' . Str::slug($relatedCity),
-            ];
-        }
-
-        $relatedCityLinks[] = [
-            'city' => $relatedCity,
-            'links' => $cityLinks,
-        ];
-    }
-
-    return $relatedCityLinks;
-}
 
 
 
 
-   public function getProjectDetails($slug)
-{
-    // projects
-    $projects = Project::where('slug', $slug)
-        ->where('status', '1')
-        ->firstOrFail();
+	private function generateRelatedCityLinks(?string $currentCity = null): array
+	{
+		$relatedCityLinks = [];
 
-    $typologies = json_decode($projects->typology, true);
-    $projects->typology_string = is_array($typologies)
-        ? implode(', ', $typologies)
-        : 'N/A';
+		$allCities = Location::parentCityNames();
 
-    $aminitiesIds = json_decode($projects->amenities_description);
-    $amenitiesDetails = [];
+		foreach ($allCities as $relatedCity) {
 
-    if (!empty($aminitiesIds) && count($aminitiesIds) > 0) {
-        foreach ($aminitiesIds as $key => $amenity) {
-            $amenitiesDetails[$key] = AminityList::findOrFail($amenity);
-        }
-    }
+			// Current city ko skip karo
+			if (
+				$currentCity &&
+				strtolower(trim($relatedCity)) === strtolower(trim($currentCity))
+			) {
+				continue;
+			}
 
-    $projects->amenitiesDetails = $amenitiesDetails;
+			$cityProjects = Project::query()
+				->where('status', 1)
+				->whereNotNull('typology')
+				->whereRaw(
+					'LOWER(TRIM(cities)) = ?',
+					[strtolower(trim($relatedCity))]
+				)
+				->get();
 
-    $developerId = json_decode($projects->floor_plans_description);
+			if ($cityProjects->isEmpty()) {
+				continue;
+			}
 
-    $developerDetails = Developer::findOrFail($developerId);
-    $projects->developerDetails = $developerDetails;
+			$bhks = collect();
 
-    // Recommended Projects
-    $currentPrice = $projects->price;
+			foreach ($cityProjects as $project) {
 
-    $priceMin = $currentPrice * 0.8;
-    $priceMax = $currentPrice * 1.2;
+				$typologies = json_decode($project->typology, true);
 
-    $recommendedProjects = Project::where('id', '!=', $projects->id)
-        ->where('status', 1)
-        ->where('cities', $projects->cities)
-        ->whereBetween('price', [$priceMin, $priceMax])
-        ->latest()
-        ->take(4)
-        ->get();
+				if (!is_array($typologies)) {
+					continue;
+				}
 
-    foreach ($recommendedProjects as $project) {
-        $typologies = json_decode($project->typology, true);
+				foreach ($typologies as $typology) {
 
-        $project->typology = is_array($typologies)
-            ? implode(', ', $typologies)
-            : 'N/A';
-    }
+					$typology = trim($typology);
 
-    /*
+					if (
+						preg_match(
+							'/^(\d+)\s*-?\s*BHK$/i',
+							$typology,
+							$matches
+						)
+					) {
+						$bhks->push((int) $matches[1]);
+					}
+				}
+			}
+
+			$bhks = $bhks
+				->unique()
+				->sort()
+				->values();
+
+			if ($bhks->isEmpty()) {
+				continue;
+			}
+
+			$cityLinks = [];
+
+			foreach ($bhks as $bhk) {
+
+				$cityLinks[] = [
+					'text' => $bhk . ' BHK Flats in ' . $relatedCity,
+
+					'url' => $bhk . '-bhk-flats-in-' . Str::slug($relatedCity),
+				];
+			}
+
+			$relatedCityLinks[] = [
+				'city' => $relatedCity,
+				'links' => $cityLinks,
+			];
+		}
+
+		return $relatedCityLinks;
+	}
+
+
+
+
+	public function getProjectDetails($slug)
+	{
+		// projects
+		$projects = Project::where('slug', $slug)
+			->where('status', '1')
+			->firstOrFail();
+
+		$typologies = json_decode($projects->typology, true);
+		$projects->typology_string = is_array($typologies)
+			? implode(', ', $typologies)
+			: 'N/A';
+
+		$aminitiesIds = json_decode($projects->amenities_description);
+		$amenitiesDetails = [];
+
+		if (!empty($aminitiesIds) && count($aminitiesIds) > 0) {
+			foreach ($aminitiesIds as $key => $amenity) {
+				$amenitiesDetails[$key] = AminityList::findOrFail($amenity);
+			}
+		}
+
+		$projects->amenitiesDetails = $amenitiesDetails;
+
+		$developerId = json_decode($projects->floor_plans_description);
+
+		$developerDetails = Developer::findOrFail($developerId);
+		$projects->developerDetails = $developerDetails;
+
+		// Recommended Projects
+		$currentPrice = $projects->price;
+
+		$priceMin = $currentPrice * 0.8;
+		$priceMax = $currentPrice * 1.2;
+
+		$recommendedProjects = Project::where('id', '!=', $projects->id)
+			->where('status', 1)
+			->where('cities', $projects->cities)
+			->whereBetween('price', [$priceMin, $priceMax])
+			->latest()
+			->take(4)
+			->get();
+
+		foreach ($recommendedProjects as $project) {
+			$typologies = json_decode($project->typology, true);
+
+			$project->typology = is_array($typologies)
+				? implode(', ', $typologies)
+				: 'N/A';
+		}
+
+		/*
     |--------------------------------------------------------------------------
     | LOCATION CUSTOM LINKS
     |--------------------------------------------------------------------------
     */
-/*
+		/*
 |--------------------------------------------------------------------------
 | CITY + LOCALITY CUSTOM LINKS
 |--------------------------------------------------------------------------
 */
 
-$customLinks = collect();
+		$customLinks = collect();
 
-$projectCity = trim($projects->cities ?? '');
-$projectLocation = trim($projects->location ?? '');
+		$projectCity = trim($projects->cities ?? '');
+		$projectLocation = trim($projects->location ?? '');
 
-if (!empty($projectCity)) {
-    $localities = Project::query()
-        ->where('status', 1)
-        ->whereNotNull('location')
-        ->whereNotNull('cities')
-        ->whereRaw(
-            'LOWER(TRIM(cities)) = ?',
-            [strtolower($projectCity)]
-        )
-        ->select('location')
-        ->distinct()
-        ->pluck('location')
-        ->filter()
-        ->map(function ($location) {
-            return trim($location);
-        })
-        ->unique()
-        ->values();
+		if (!empty($projectCity)) {
+			$localities = Project::query()
+				->where('status', 1)
+				->whereNotNull('location')
+				->whereNotNull('cities')
+				->whereRaw(
+					'LOWER(TRIM(cities)) = ?',
+					[strtolower($projectCity)]
+				)
+				->select('location')
+				->distinct()
+				->pluck('location')
+				->filter()
+				->map(function ($location) {
+					return trim($location);
+				})
+				->unique()
+				->values();
 
-    $customLinks = CustomLink::where('is_active', 1)
-        ->where(function ($query) use ($projectCity, $localities) {
-            $query->whereRaw(
-                'LOWER(slug) = ?',
-                ['flats-in-' . strtolower(Str::slug($projectCity))]
-            );
+			$customLinks = CustomLink::where('is_active', 1)
+				->where(function ($query) use ($projectCity, $localities) {
+					$query->whereRaw(
+						'LOWER(slug) = ?',
+						['flats-in-' . strtolower(Str::slug($projectCity))]
+					);
 
-			$query->orWhereRaw(
-				'LOWER(slug) = ?',
-				['shops-in-' . strtolower(Str::slug($projectCity))]
-			);
+					$query->orWhereRaw(
+						'LOWER(slug) = ?',
+						['shops-in-' . strtolower(Str::slug($projectCity))]
+					);
 
-			$query->orWhereRaw(
-				'LOWER(slug) = ?',
-				['studio-apartments-in-' . strtolower(Str::slug($projectCity))]
-			);
+					$query->orWhereRaw(
+						'LOWER(slug) = ?',
+						['studio-apartments-in-' . strtolower(Str::slug($projectCity))]
+					);
 
-            foreach ($localities as $location) {
-                $query->orWhereRaw(
-                    'LOWER(slug) = ?',
-					['flats-in-' . strtolower(Str::slug($location))]
-                );
-            }
-        })
-        ->orderBy('id', 'DESC')
-        ->get()
-        ->unique('slug')
-        ->values();
-}
-    /*
+					foreach ($localities as $location) {
+						$query->orWhereRaw(
+							'LOWER(slug) = ?',
+							['flats-in-' . strtolower(Str::slug($location))]
+						);
+					}
+				})
+				->orderBy('id', 'DESC')
+				->get()
+				->unique('slug')
+				->values();
+		}
+		/*
     |--------------------------------------------------------------------------
     | FAQ
     |--------------------------------------------------------------------------
     */
 
-    $projects->seo_data = json_decode($projects->seo_data, true);
+		$projects->seo_data = json_decode($projects->seo_data, true);
 
-    $faqsData = json_decode($projects->faqs_data, true);
+		$faqsData = json_decode($projects->faqs_data, true);
 
-    $faqSchema = null;
+		$faqSchema = null;
 
-    if (!empty($faqsData) && is_array($faqsData)) {
+		if (!empty($faqsData) && is_array($faqsData)) {
 
-        $mainEntities = [];
+			$mainEntities = [];
 
-      
 
-        if (!empty($mainEntities)) {
 
-            $faqSchemaArray = [
-                "@context" => "https://schema.org",
-                "@type" => "FAQPage",
-                "mainEntity" => $mainEntities,
-            ];
+			if (!empty($mainEntities)) {
 
-            $faqSchema = json_encode(
-                $faqSchemaArray,
-                JSON_UNESCAPED_UNICODE |
-                JSON_UNESCAPED_SLASHES |
-                JSON_PRETTY_PRINT
-            );
-        }
-    }
+				$faqSchemaArray = [
+					"@context" => "https://schema.org",
+					"@type" => "FAQPage",
+					"mainEntity" => $mainEntities,
+				];
 
-    /*
+				$faqSchema = json_encode(
+					$faqSchemaArray,
+					JSON_UNESCAPED_UNICODE |
+						JSON_UNESCAPED_SLASHES |
+						JSON_PRETTY_PRINT
+				);
+			}
+		}
+
+		/*
     |--------------------------------------------------------------------------
     | RETURN VIEW
     |--------------------------------------------------------------------------
     */
 
-    return view(
-        'frontend.project-details',
-        compact(
-            'projects',
-            'recommendedProjects',
-            'faqSchema',
-            'customLinks'
-        )
-    );
-}
-	
+		return view(
+			'frontend.project-details',
+			compact(
+				'projects',
+				'recommendedProjects',
+				'faqSchema',
+				'customLinks'
+			)
+		);
+	}
+
 	// property details page for single page
-	
-    public function getPropertyDetails($slug)
-    {
-		
-        $property = Property::where('slug', $slug)->where(function ($query) {
-                $query->where('status', 'approved')
-                      ->orWhere('user_id', Auth::id());
-            })->firstOrFail();
-       
-        $aminitiesIds = $property->amenities;
-        $amenitiesDetails = []; 
 
-        if (!empty($aminitiesIds) && count($aminitiesIds) > 0) {
-            foreach ($aminitiesIds as $key => $amenity) {
-                $amenitiesDetails[$key] = AminityList::findOrFail($amenity);
-            }
-        }
-		 
-        // Assign amenities details to a property if you need it later
-        $property->amenitiesDetails = $amenitiesDetails;
-        $propertyImages = $property->galleries ?? [];
-        $projectImages = array_filter([
-            $property->project?->logo_image,
-            $property->project?->feature_image,
-            $property->project?->amenities_images,
-            $property->project?->logo_image,
-            $property->project?->developer_background_image,
-        ]);
+	public function getPropertyDetails($slug)
+	{
 
-        $allImages = array_merge($propertyImages, $projectImages);
-        $finalImages = array_slice($allImages, 0, 5);
+		$property = Property::where('slug', $slug)->where(function ($query) {
+			$query->where('status', 'approved')
+				->orWhere('user_id', Auth::id());
+		})->firstOrFail();
 
-        $developerId = json_decode($property->project->floor_plans_description);
-        $developerDetails = Developer::findOrFail($developerId);
-        
-        $property->developerDetails = $developerDetails;
+		$aminitiesIds = $property->amenities;
+		$amenitiesDetails = [];
 
-        $recommendedProjects = Project::where('status', 1)
+		if (!empty($aminitiesIds) && count($aminitiesIds) > 0) {
+			foreach ($aminitiesIds as $key => $amenity) {
+				$amenitiesDetails[$key] = AminityList::findOrFail($amenity);
+			}
+		}
+
+		// Assign amenities details to a property if you need it later
+		$property->amenitiesDetails = $amenitiesDetails;
+		$propertyImages = $property->galleries ?? [];
+		$projectImages = array_filter([
+			$property->project?->logo_image,
+			$property->project?->feature_image,
+			$property->project?->amenities_images,
+			$property->project?->logo_image,
+			$property->project?->developer_background_image,
+		]);
+
+		$allImages = array_merge($propertyImages, $projectImages);
+		$finalImages = array_slice($allImages, 0, 5);
+
+		$developerId = json_decode($property->project->floor_plans_description);
+		$developerDetails = Developer::findOrFail($developerId);
+
+		$property->developerDetails = $developerDetails;
+
+		$recommendedProjects = Project::where('status', 1)
 			->orderBy('created_at', 'desc')
 			->take(4)
 			->get();
-       
-        foreach ($recommendedProjects as $project) {
-            $typologies = json_decode($project->typology, true);
-            $project->typology = is_array($typologies) ? implode(', ', $typologies) : 'N/A';
-        }
-        $property->seo_data = json_decode($property->seo_data, true);
-		
-        // return view with data
-		$user = $property->user; 
-        return view('frontend.property-details', compact('property', 'recommendedProjects','finalImages','user'));
-		
-    }
+
+		foreach ($recommendedProjects as $project) {
+			$typologies = json_decode($project->typology, true);
+			$project->typology = is_array($typologies) ? implode(', ', $typologies) : 'N/A';
+		}
+		$property->seo_data = json_decode($property->seo_data, true);
+
+		// return view with data
+		$user = $property->user;
+		return view('frontend.property-details', compact('property', 'recommendedProjects', 'finalImages', 'user'));
+	}
 
 
-    // Get Blog listing pageData
+	// Get Blog listing pageData
 
-	
+
 	public function getBlogsPageData(Request $request)
 	{
 		$pageData = [];
@@ -1097,8 +1088,8 @@ if (!empty($projectCity)) {
 		if (!empty($search)) {
 			$query->where(function ($q) use ($search) {
 				$q->where('title', 'LIKE', '%' . $search . '%')
-				  ->orWhere('short_description', 'LIKE', '%' . $search . '%')
-				  ->orWhere('description', 'LIKE', '%' . $search . '%');
+					->orWhere('short_description', 'LIKE', '%' . $search . '%')
+					->orWhere('description', 'LIKE', '%' . $search . '%');
 			});
 		}
 
@@ -1111,30 +1102,30 @@ if (!empty($projectCity)) {
 		return view('frontend.blogs', compact('pageData', 'search'));
 	}
 
-    //Get blog Details single pageData
-	
-    public function getBlogDetails($slug)
-    {
-        //blogs
-        $blogs = Blog::where('slug', $slug)->where('status',1)->firstOrFail();
-        
-        $recommendedBlogs = Blog::where('slug', '!=', $slug)
-            ->orderBy('created_at', 'desc')
-            ->take(4)
-            ->get();
+	//Get blog Details single pageData
 
-        $recommendedProjects = Project::where('status', 1)
+	public function getBlogDetails($slug)
+	{
+		//blogs
+		$blogs = Blog::where('slug', $slug)->where('status', 1)->firstOrFail();
+
+		$recommendedBlogs = Blog::where('slug', '!=', $slug)
+			->orderBy('created_at', 'desc')
+			->take(4)
+			->get();
+
+		$recommendedProjects = Project::where('status', 1)
 			->orderBy('created_at', 'desc')
 			->take(5)
 			->get();
-		   
+
 		foreach ($recommendedProjects as $project) {
 			$typologies = json_decode($project->typology, true);
 			$project->typology = is_array($typologies) ? implode(', ', $typologies) : 'N/A';
 		}
-        $blogs->seo_data = json_decode($blogs->seo_data, true);
-       json_decode($blogs->faqs_data, true);
-	   
+		$blogs->seo_data = json_decode($blogs->seo_data, true);
+		json_decode($blogs->faqs_data, true);
+
 		$faqsData = json_decode($blogs->faqs_data, true);
 		$faqSchema = null;
 		if (!empty($faqsData) && is_array($faqsData)) {
@@ -1163,272 +1154,272 @@ if (!empty($projectCity)) {
 				$faqSchema = json_encode($faqSchemaArray, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
 			}
 		}
-		
-        return view('frontend.blog-details', compact('blogs', 'recommendedBlogs', 'recommendedProjects', 'faqSchema'));
-    }
 
-    // Get About us page 
-	
-    public function getAboutUsPageData()
-    {
-        $pageData = [];
-        //projects
-        $blogs = Blog::orderBy('id', 'DESC')->get();
-        $pageData['blogs'] = $blogs;
+		return view('frontend.blog-details', compact('blogs', 'recommendedBlogs', 'recommendedProjects', 'faqSchema'));
+	}
 
-        // return view with data
-        return view('frontend.about-us', compact('pageData'));
-    }
+	// Get About us page 
 
+	public function getAboutUsPageData()
+	{
+		$pageData = [];
+		//projects
+		$blogs = Blog::orderBy('id', 'DESC')->get();
+		$pageData['blogs'] = $blogs;
 
-    //Function For Searchabar
-
-public function SearchProjects(Request $req)
-{
-    try {
-        $keyword = trim((string) $req->input('keyword', ''));
-        $location = trim((string) $req->input('location', ''));
-        $bhkType = trim((string) $req->input('bhkType', ''));
-        $like = '%' . addcslashes($keyword, '%_\\') . '%';
-        $hasLocationColumn = Schema::hasColumn('projects', 'location');
-        $results = [];
-        $seen = [];
-
-        $push = static function (array $item) use (&$results, &$seen) {
-            $name = trim((string) ($item['name'] ?? ''));
-            $url = trim((string) ($item['url'] ?? ''));
-            if ($name === '' || $url === '') {
-                return;
-            }
-            $key = strtolower($item['type'] . '|' . $name . '|' . $url);
-            if (isset($seen[$key])) {
-                return;
-            }
-            $seen[$key] = true;
-            $results[] = $item;
-        };
-
-        if ($keyword !== '') {
-            $cities = Location::parents()
-                ->active()
-                ->where('city', 'LIKE', $like)
-                ->orderBy('city')
-                ->limit(6)
-                ->pluck('city');
-
-            foreach ($cities as $cityName) {
-                $push([
-                    'name' => $cityName,
-                    'slug' => ltrim(route('projects', ['location' => [$cityName]], false), '/'),
-                    'url' => route('projects', ['location' => [$cityName]]),
-                    'type' => 'custom',
-                    'label' => 'City',
-                ]);
-            }
-
-            $localities = Location::query()
-                ->whereNotNull('parent_id')
-                ->active()
-                ->where('city', 'LIKE', $like)
-                ->with('parent:id,city')
-                ->orderBy('city')
-                ->limit(8)
-                ->get();
-
-            foreach ($localities as $locality) {
-                $params = ['locality' => [$locality->city]];
-                if ($locality->parent?->city) {
-                    $params['location'] = [$locality->parent->city];
-                }
-                $push([
-                    'name' => $locality->city,
-                    'slug' => ltrim(route('projects', $params, false), '/'),
-                    'url' => route('projects', $params),
-                    'type' => 'locality',
-                    'label' => 'Locality',
-                    'subtitle' => $locality->parent?->city,
-                ]);
-            }
-
-            if ($hasLocationColumn) {
-                $projectLocalities = Project::query()
-                    ->where('status', true)
-                    ->whereNotNull('location')
-                    ->where('location', 'LIKE', $like)
-                    ->when($location !== '', function ($q) use ($location) {
-                        $q->whereRaw('LOWER(TRIM(cities)) = ?', [strtolower($location)]);
-                    })
-                    ->select('location', 'cities')
-                    ->limit(12)
-                    ->get()
-                    ->unique(function ($row) {
-                        return strtolower(trim((string) $row->location));
-                    })
-                    ->take(8);
-
-                foreach ($projectLocalities as $row) {
-                    $localityName = trim((string) $row->location);
-                    $params = ['locality' => [$localityName], 'q' => $keyword];
-                    if (!empty($row->cities)) {
-                        $params['location'] = [$row->cities];
-                    }
-                    $push([
-                        'name' => $localityName,
-                        'slug' => ltrim(route('projects', $params, false), '/'),
-                        'url' => route('projects', $params),
-                        'type' => 'locality',
-                        'label' => 'Locality',
-                        'subtitle' => $row->cities,
-                    ]);
-                }
-            }
-
-            $customLinks = CustomLink::query()
-                ->where('is_active', 1)
-                ->where(function ($q) use ($like) {
-                    $q->where('name', 'LIKE', $like)
-                        ->orWhere('title', 'LIKE', $like)
-                        ->orWhere('slug', 'LIKE', $like);
-                })
-                ->limit(8)
-                ->get();
-
-            foreach ($customLinks as $link) {
-                $slug = ltrim((string) $link->slug, '/');
-                if ($slug === '') {
-                    continue;
-                }
-                $push([
-                    'name' => $link->name ?: $link->title,
-                    'slug' => $slug,
-                    'url' => url('/' . $slug),
-                    'type' => 'custom',
-                    'label' => 'Area',
-                ]);
-            }
-        }
-
-        if ($keyword !== '' || $location !== '' || $bhkType !== '') {
-            $query = Project::query()->where('status', true);
-
-            if ($keyword !== '') {
-                $query->where(function ($q) use ($like, $hasLocationColumn) {
-                    $q->where('project_name', 'LIKE', $like)
-                        ->orWhere('cities', 'LIKE', $like)
-                        ->orWhere('developer_name', 'LIKE', $like);
-                    if ($hasLocationColumn) {
-                        $q->orWhere('location', 'LIKE', $like);
-                    }
-                });
-            }
-
-            if ($location !== '') {
-                $query->where(function ($q) use ($location) {
-                    $q->whereRaw('LOWER(TRIM(cities)) = ?', [strtolower($location)]);
-                    if (Schema::hasColumn('projects', 'location_id')) {
-                        $parentId = Location::parents()
-                            ->active()
-                            ->whereRaw('LOWER(TRIM(city)) = ?', [strtolower($location)])
-                            ->value('id');
-                        if ($parentId) {
-                            $q->orWhere('location_id', $parentId);
-                        }
-                    }
-                });
-            }
-
-            if ($bhkType !== '' && $bhkType !== 'Shops') {
-                $bhkLike = '%' . addcslashes($bhkType, '%_\\') . '%';
-                $query->where('typology', 'LIKE', $bhkLike);
-            } elseif ($bhkType === 'Shops') {
-                $query->where('typology', 'LIKE', '%Shop%');
-            }
-
-            $projects = $query->orderByDesc('id')->limit(12)->get();
-
-            foreach ($projects as $project) {
-                $slug = trim((string) $project->slug);
-                if ($slug === '') {
-                    continue;
-                }
-                $push([
-                    'name' => $project->project_name,
-                    'slug' => $slug,
-                    'id' => $project->id,
-                    'type' => 'project',
-                    'label' => 'Project',
-                    'url' => url('/projects/' . $slug),
-                ]);
-            }
-        }
-
-        if ($keyword !== '') {
-            $properties = Property::query()
-                ->where('status', 'approved')
-                ->where(function ($q) use ($like) {
-                    $q->where('title', 'LIKE', $like)
-                        ->orWhere('city', 'LIKE', $like)
-                        ->orWhere('property_type', 'LIKE', $like)
-                        ->orWhere('configuration', 'LIKE', $like);
-                })
-                ->when($location !== '', function ($q) use ($location) {
-                    $q->whereRaw('LOWER(TRIM(city)) = ?', [strtolower($location)]);
-                })
-                ->orderByDesc('id')
-                ->limit(8)
-                ->get(['id', 'title', 'slug', 'city']);
-
-            foreach ($properties as $property) {
-                $slug = trim((string) $property->slug);
-                if ($slug === '') {
-                    continue;
-                }
-                $push([
-                    'name' => $property->title,
-                    'slug' => $slug,
-                    'type' => 'property',
-                    'label' => 'Property',
-                    'subtitle' => $property->city,
-                    'url' => url('/properties/' . $slug),
-                ]);
-            }
-        }
-
-        return response()->json([
-            'status' => true,
-            'data' => array_values($results),
-        ]);
-    } catch (\Throwable $e) {
-        report($e);
-
-        return response()->json([
-            'status' => false,
-            'data' => [],
-            'message' => 'Search is unavailable right now.',
-        ], 200);
-    }
-}
+		// return view with data
+		return view('frontend.about-us', compact('pageData'));
+	}
 
 
+	//Function For Searchabar
 
-    // to get property listing page
-	
-    public function getPropertyListings(Request $request)
+	public function SearchProjects(Request $req)
+	{
+		try {
+			$keyword = trim((string) $req->input('keyword', ''));
+			$location = trim((string) $req->input('location', ''));
+			$bhkType = trim((string) $req->input('bhkType', ''));
+			$like = '%' . addcslashes($keyword, '%_\\') . '%';
+			$hasLocationColumn = Schema::hasColumn('projects', 'location');
+			$results = [];
+			$seen = [];
+
+			$push = static function (array $item) use (&$results, &$seen) {
+				$name = trim((string) ($item['name'] ?? ''));
+				$url = trim((string) ($item['url'] ?? ''));
+				if ($name === '' || $url === '') {
+					return;
+				}
+				$key = strtolower($item['type'] . '|' . $name . '|' . $url);
+				if (isset($seen[$key])) {
+					return;
+				}
+				$seen[$key] = true;
+				$results[] = $item;
+			};
+
+			if ($keyword !== '') {
+				$cities = Location::parents()
+					->active()
+					->where('city', 'LIKE', $like)
+					->orderBy('city')
+					->limit(6)
+					->pluck('city');
+
+				foreach ($cities as $cityName) {
+					$push([
+						'name' => $cityName,
+						'slug' => ltrim(route('projects', ['location' => [$cityName]], false), '/'),
+						'url' => route('projects', ['location' => [$cityName]]),
+						'type' => 'custom',
+						'label' => 'City',
+					]);
+				}
+
+				$localities = Location::query()
+					->whereNotNull('parent_id')
+					->active()
+					->where('city', 'LIKE', $like)
+					->with('parent:id,city')
+					->orderBy('city')
+					->limit(8)
+					->get();
+
+				foreach ($localities as $locality) {
+					$params = ['locality' => [$locality->city]];
+					if ($locality->parent?->city) {
+						$params['location'] = [$locality->parent->city];
+					}
+					$push([
+						'name' => $locality->city,
+						'slug' => ltrim(route('projects', $params, false), '/'),
+						'url' => route('projects', $params),
+						'type' => 'locality',
+						'label' => 'Locality',
+						'subtitle' => $locality->parent?->city,
+					]);
+				}
+
+				if ($hasLocationColumn) {
+					$projectLocalities = Project::query()
+						->where('status', true)
+						->whereNotNull('location')
+						->where('location', 'LIKE', $like)
+						->when($location !== '', function ($q) use ($location) {
+							$q->whereRaw('LOWER(TRIM(cities)) = ?', [strtolower($location)]);
+						})
+						->select('location', 'cities')
+						->limit(12)
+						->get()
+						->unique(function ($row) {
+							return strtolower(trim((string) $row->location));
+						})
+						->take(8);
+
+					foreach ($projectLocalities as $row) {
+						$localityName = trim((string) $row->location);
+						$params = ['locality' => [$localityName], 'q' => $keyword];
+						if (!empty($row->cities)) {
+							$params['location'] = [$row->cities];
+						}
+						$push([
+							'name' => $localityName,
+							'slug' => ltrim(route('projects', $params, false), '/'),
+							'url' => route('projects', $params),
+							'type' => 'locality',
+							'label' => 'Locality',
+							'subtitle' => $row->cities,
+						]);
+					}
+				}
+
+				$customLinks = CustomLink::query()
+					->where('is_active', 1)
+					->where(function ($q) use ($like) {
+						$q->where('name', 'LIKE', $like)
+							->orWhere('title', 'LIKE', $like)
+							->orWhere('slug', 'LIKE', $like);
+					})
+					->limit(8)
+					->get();
+
+				foreach ($customLinks as $link) {
+					$slug = ltrim((string) $link->slug, '/');
+					if ($slug === '') {
+						continue;
+					}
+					$push([
+						'name' => $link->name ?: $link->title,
+						'slug' => $slug,
+						'url' => url('/' . $slug),
+						'type' => 'custom',
+						'label' => 'Area',
+					]);
+				}
+			}
+
+			if ($keyword !== '' || $location !== '' || $bhkType !== '') {
+				$query = Project::query()->where('status', true);
+
+				if ($keyword !== '') {
+					$query->where(function ($q) use ($like, $hasLocationColumn) {
+						$q->where('project_name', 'LIKE', $like)
+							->orWhere('cities', 'LIKE', $like)
+							->orWhere('developer_name', 'LIKE', $like);
+						if ($hasLocationColumn) {
+							$q->orWhere('location', 'LIKE', $like);
+						}
+					});
+				}
+
+				if ($location !== '') {
+					$query->where(function ($q) use ($location) {
+						$q->whereRaw('LOWER(TRIM(cities)) = ?', [strtolower($location)]);
+						if (Schema::hasColumn('projects', 'location_id')) {
+							$parentId = Location::parents()
+								->active()
+								->whereRaw('LOWER(TRIM(city)) = ?', [strtolower($location)])
+								->value('id');
+							if ($parentId) {
+								$q->orWhere('location_id', $parentId);
+							}
+						}
+					});
+				}
+
+				if ($bhkType !== '' && $bhkType !== 'Shops') {
+					$bhkLike = '%' . addcslashes($bhkType, '%_\\') . '%';
+					$query->where('typology', 'LIKE', $bhkLike);
+				} elseif ($bhkType === 'Shops') {
+					$query->where('typology', 'LIKE', '%Shop%');
+				}
+
+				$projects = $query->orderByDesc('id')->limit(12)->get();
+
+				foreach ($projects as $project) {
+					$slug = trim((string) $project->slug);
+					if ($slug === '') {
+						continue;
+					}
+					$push([
+						'name' => $project->project_name,
+						'slug' => $slug,
+						'id' => $project->id,
+						'type' => 'project',
+						'label' => 'Project',
+						'url' => url('/projects/' . $slug),
+					]);
+				}
+			}
+
+			if ($keyword !== '') {
+				$properties = Property::query()
+					->where('status', 'approved')
+					->where(function ($q) use ($like) {
+						$q->where('title', 'LIKE', $like)
+							->orWhere('city', 'LIKE', $like)
+							->orWhere('property_type', 'LIKE', $like)
+							->orWhere('configuration', 'LIKE', $like);
+					})
+					->when($location !== '', function ($q) use ($location) {
+						$q->whereRaw('LOWER(TRIM(city)) = ?', [strtolower($location)]);
+					})
+					->orderByDesc('id')
+					->limit(8)
+					->get(['id', 'title', 'slug', 'city']);
+
+				foreach ($properties as $property) {
+					$slug = trim((string) $property->slug);
+					if ($slug === '') {
+						continue;
+					}
+					$push([
+						'name' => $property->title,
+						'slug' => $slug,
+						'type' => 'property',
+						'label' => 'Property',
+						'subtitle' => $property->city,
+						'url' => url('/properties/' . $slug),
+					]);
+				}
+			}
+
+			return response()->json([
+				'status' => true,
+				'data' => array_values($results),
+			]);
+		} catch (\Throwable $e) {
+			report($e);
+
+			return response()->json([
+				'status' => false,
+				'data' => [],
+				'message' => 'Search is unavailable right now.',
+			], 200);
+		}
+	}
+
+
+
+	// to get property listing page
+
+	public function getPropertyListings(Request $request)
 	{
 		// Show only approved properties
 		$properties = Property::where('status', 'approved')
-            ->orderBy('created_at', 'desc')
-            ->paginate(6);
+			->orderBy('created_at', 'desc')
+			->paginate(6);
 
-        // Format properties with galleries
-        foreach ($properties as $property) {
-            if ($property->galleries) {
-                $galleries = is_string($property->galleries) ? json_decode($property->galleries, true) : $property->galleries;
-                $property->galleries = is_array($galleries) ? $galleries : [];
-            } else {
-                $property->galleries = [];
-            }
-        }
+		// Format properties with galleries
+		foreach ($properties as $property) {
+			if ($property->galleries) {
+				$galleries = is_string($property->galleries) ? json_decode($property->galleries, true) : $property->galleries;
+				$property->galleries = is_array($galleries) ? $galleries : [];
+			} else {
+				$property->galleries = [];
+			}
+		}
 
 		// Price range for approved properties
 		$minPrice = Property::where('status', 'approved')->min('total_price') ?? 100000;
@@ -1444,7 +1435,7 @@ public function SearchProjects(Request $req)
 			->unique()
 			->values()
 			->all();
-			
+
 		$configurations = Property::pluck('configuration')
 			->filter()
 			->unique()
@@ -1453,7 +1444,7 @@ public function SearchProjects(Request $req)
 			})
 			->values()
 			->all();
-			
+
 		$constructionStatuses = Property::where('status', 'approved')
 			->pluck('construction_status')
 			->filter()
@@ -1466,12 +1457,12 @@ public function SearchProjects(Request $req)
 			->filter()
 			->unique()
 			->values()
-			->all();	
-	
-        $links_description = null;
+			->all();
+
+		$links_description = null;
 		$totalResults = Property::where('status', 'approved')->count();
 		$dynamicTitle = 'All Properties';
-		
+
 		return view('frontend.property-listing', compact(
 			'locations',
 			'minPrice',
@@ -1480,16 +1471,16 @@ public function SearchProjects(Request $req)
 			'properties',
 			'links_description',
 			'constructionStatuses',
-            'furnishingTypes',
-			'totalResults',      
-            'dynamicTitle',
+			'furnishingTypes',
+			'totalResults',
+			'dynamicTitle',
 		));
 	}
-	
-	
+
+
 	// For property filters 
-	
-	
+
+
 	public function filterProperties(Request $request)
 	{
 		try {
@@ -1518,12 +1509,12 @@ public function SearchProjects(Request $req)
 
 					$query->where(function ($q) use ($like) {
 						$q->where('title', 'LIKE', $like)
-						  ->orWhere('city', 'LIKE', $like)
-						  ->orWhere('property_type', 'LIKE', $like)
-						  ->orWhere('configuration', 'LIKE', $like)
-						  ->orWhereHas('project', function ($projectQuery) use ($like) {
-							  $projectQuery->where('project_name', 'LIKE', $like);
-						  });
+							->orWhere('city', 'LIKE', $like)
+							->orWhere('property_type', 'LIKE', $like)
+							->orWhere('configuration', 'LIKE', $like)
+							->orWhereHas('project', function ($projectQuery) use ($like) {
+								$projectQuery->where('project_name', 'LIKE', $like);
+							});
 					});
 				}
 			}
@@ -1649,7 +1640,6 @@ public function SearchProjects(Request $req)
 					'current_page' => $properties->currentPage(),
 				]
 			]);
-
 		} catch (\Throwable $e) {
 			report($e);
 
@@ -1676,10 +1666,10 @@ public function SearchProjects(Request $req)
 			], 200);
 		}
 	}
-	
-	 /**
-     * Handle property custom links
-     */	
+
+	/**
+	 * Handle property custom links
+	 */
 	private function handlePropertyCustomLink($slug, $link, $title, $name, $description, $keywords)
 	{
 		$slugParts = explode('-', $slug);
@@ -1687,7 +1677,7 @@ public function SearchProjects(Request $req)
 		$bhk = null;
 		$city = null;
 
-	   //bhk wise filter
+		//bhk wise filter
 		for ($i = 0; $i < count($slugParts); $i++) {
 			if (is_numeric($slugParts[$i]) && isset($slugParts[$i + 1]) && $slugParts[$i + 1] === 'bhk') {
 				$bhk = $slugParts[$i] . ' BHK';
@@ -1695,7 +1685,7 @@ public function SearchProjects(Request $req)
 			}
 		}
 
-	   //city
+		//city
 		if (str_contains($slug, 'apartment-in-') || str_contains($slug, 'apartments-in-')) {
 			$cityPart = str_contains($slug, 'apartment-in-')
 				? explode('apartment-in-', $slug)[1] ?? null
@@ -1730,7 +1720,7 @@ public function SearchProjects(Request $req)
 
 		$properties = $propertiesQuery->paginate(12);
 
-	   //filter with price
+		//filter with price
 		$minPrice = Property::min('total_price') ?? 100000;
 		$maxPrice = Property::max('total_price') ?? 10000000;
 
@@ -1758,7 +1748,7 @@ public function SearchProjects(Request $req)
 			->values()
 			->all();
 
-	   //filter
+		//filter
 		$initialFilters = [];
 
 		if (isset($configValue)) {
@@ -1780,7 +1770,7 @@ public function SearchProjects(Request $req)
 			'locations',
 			'configurations',
 			'constructionStatuses',
-            'furnishingTypes',
+			'furnishingTypes',
 			'title',
 			'name',
 			'description',
@@ -1789,14 +1779,15 @@ public function SearchProjects(Request $req)
 			'links_description'
 		));
 	}
-	
-	public function test(){
+
+	public function test()
+	{
 		$links = CustomLink::get();
-		
-		foreach($links as $item){
+
+		foreach ($links as $item) {
 			$slug = $item->slug;
 			$originalUrl = $slug;
-		
+
 
 			// Add www.
 			$updatedUrl = str_replace('/projects/filter/', '', $originalUrl);
@@ -2004,14 +1995,4 @@ public function SearchProjects(Request $req)
 			default => $query->orderBy('id', 'desc'),
 		};
 	}
-
-	private function transformListedProjects($projects): void
-	{
-		$projects->getCollection()->transform(function ($project) {
-			$project->logo_image = storageUrl($project->logo_image);
-
-			return $project;
-		});
-	}
-	
 }
