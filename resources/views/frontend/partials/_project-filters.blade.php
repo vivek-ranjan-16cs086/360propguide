@@ -134,7 +134,6 @@ $selectedDevelopers = array_map('strval', $selected['developer'] ?? []);
 
         <details class="filter-section">
             <summary class="filter-section__trigger">
-<<<<<<< HEAD
                 <span class="filter-section__title">Budget</span>
                 <i class="fa-solid fa-chevron-down filter-section__chevron" aria-hidden="true"></i>
             </summary>
@@ -157,8 +156,6 @@ $selectedDevelopers = array_map('strval', $selected['developer'] ?? []);
 
         <details class="filter-section">
             <summary class="filter-section__trigger">
-=======
->>>>>>> 439f2405db3a877a92d7ef38a9a640637cfdc73d
                 <span class="filter-section__title">Developer</span>
                 <i class="fa-solid fa-chevron-down filter-section__chevron" aria-hidden="true"></i>
             </summary>
