@@ -294,9 +294,9 @@ class ProjectController extends Controller
             $project->site_plans_description = $request->site_plans_description;
             $project->possession_description = $request->possession_description;
             // $project->amenities_description = json_encode(array_keys($request->aminities));
-			$project->amenities_description = json_encode(array_keys($request->amenities));
+			$project->amenities_description = json_encode(array_values($request->input('amenities', [])));
             // $project->floor_plans_description = json_encode(array_keys($request->details));
-			$project->floor_plans_description = json_encode(array_keys($request->details));
+			$project->floor_plans_description = json_encode(array_values($request->input('details', [])));
             $project->developer_background_dscp = $request->developer_background_dscp;
             $project->seo_data = json_encode($request->seo_data);
             $project->floor_plans_data = $floorPlanData;
@@ -478,8 +478,8 @@ class ProjectController extends Controller
             $project->location_description = $request->location_description;
             $project->site_plans_description = $request->site_plans_description;
             $project->possession_description = $request->possession_description;
-            $project->amenities_description = json_encode($request->amenities);
-            $project->floor_plans_description = json_encode($request->details);
+            $project->amenities_description = json_encode(array_values($request->input('amenities', [])));
+            $project->floor_plans_description = json_encode(array_values($request->input('details', [])));
             $project->developer_background_dscp = $request->developer_background_dscp;
             $project->seo_data = json_encode($request->seo_data);
             $project->youtube_links = $request->youtube_links;
