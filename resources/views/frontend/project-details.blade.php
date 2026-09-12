@@ -194,8 +194,8 @@
     </div>
 
     <div class="container">
-        <div class="row my-4 justify-content-between position-relative">
-            <div class="col-lg-7 col-md-12 order-2 order-lg-1">
+        <div class="row my-4 gx-lg-5 justify-content-between position-relative">
+            <div class="col-lg-8 col-md-12 order-2 order-lg-1">
                 <!-- Project Info Header Card -->
                 <div
                     class="project-info-card card border border-light-subtle shadow-sm rounded-3 p-2 p-md-3 mb-4 bg-white">
