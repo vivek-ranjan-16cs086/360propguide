@@ -10,39 +10,39 @@ property, real estate company in noida, property greater noida, property in grea
 @section('canonical', url()->current())
 @section('customCSS')
 <script type="application/ld+json">
-{
-    "@context": "http://schema.org",
-    "@type": "ItemList",
-    "itemListElement": [{
-            "@type": "SiteNavigationElement",
-            "position": 1,
-            "name": "About Us",
-            "description": "Spaces crafted for a refined lifestyle.",
-            "url": "https://www.360propguide.com/about-us"
-        },
-        {
-            "@type": "SiteNavigationElement",
-            "position": 2,
-            "name": "Explore Project",
-            "description": "Discover Real Estate Top Projects with 360 PropGuide",
-            "url": "https://www.360propguide.com/projects"
-        },
-        {
-            "@type": "SiteNavigationElement",
-            "position": 3,
-            "name": "360 Knowledge Base",
-            "description": "Explore ideas for a better lifestyle.",
-            "url": "https://www.360propguide.com/blogs"
-        },
-        {
-            "@type": "SiteNavigationElement",
-            "position": 4,
-            "name": "Get in Touch",
-            "description": "Connect to bring your dream home closer.",
-            "url": "https://www.360propguide.com/contact"
-        }
-    ]
-}
+    {
+        "@context": "http://schema.org",
+        "@type": "ItemList",
+        "itemListElement": [{
+                "@type": "SiteNavigationElement",
+                "position": 1,
+                "name": "About Us",
+                "description": "Spaces crafted for a refined lifestyle.",
+                "url": "https://www.360propguide.com/about-us"
+            },
+            {
+                "@type": "SiteNavigationElement",
+                "position": 2,
+                "name": "Explore Project",
+                "description": "Discover Real Estate Top Projects with 360 PropGuide",
+                "url": "https://www.360propguide.com/projects"
+            },
+            {
+                "@type": "SiteNavigationElement",
+                "position": 3,
+                "name": "360 Knowledge Base",
+                "description": "Explore ideas for a better lifestyle.",
+                "url": "https://www.360propguide.com/blogs"
+            },
+            {
+                "@type": "SiteNavigationElement",
+                "position": 4,
+                "name": "Get in Touch",
+                "description": "Connect to bring your dream home closer.",
+                "url": "https://www.360propguide.com/contact"
+            }
+        ]
+    }
 </script>
 <link rel="stylesheet"
     href="{{ url('frontend/css/home.css') }}?v={{ filemtime(public_path('frontend/css/home.css')) }}">
@@ -653,29 +653,28 @@ property, real estate company in noida, property greater noida, property in grea
                         <h4 class="pillar-title">Zero Brokerage on Launches</h4>
                         <p class="pillar-desc">Enjoy transparent, direct-from-developer pricing with absolutely zero
                             brokerage fees on new residential & commercial bookings.</p>
+                    </div>
 
-
-                        <div class="pillar-item">
-                            <div class="pillar-icon">
-                                <i class="fa-solid fa-user-tie"></i>
-                            </div>
-                            <h4 class="pillar-title">Dedicated Property Advisor</h4>
-                            <p class="pillar-desc">Receive unbiased, data-backed guidance tailored specifically to your
-                                family's budget, lifestyle needs, and ROI targets.</p>
+                    <div class="pillar-item">
+                        <div class="pillar-icon">
+                            <i class="fa-solid fa-user-tie"></i>
                         </div>
+                        <h4 class="pillar-title">Dedicated Property Advisor</h4>
+                        <p class="pillar-desc">Receive unbiased, data-backed guidance tailored specifically to your
+                            family's budget, lifestyle needs, and ROI targets.</p>
+                    </div>
 
-                        <div class="pillar-item">
-                            <div class="pillar-icon">
-                                <i class="fa-solid fa-key"></i>
-                            </div>
-                            <h4 class="pillar-title">End-to-End Support</h4>
-                            <p class="pillar-desc">From customized site visits and competitive home loan approvals to
-                                legal
-                                registry and key handover, we guide you at every step.</p>
+                    <div class="pillar-item">
+                        <div class="pillar-icon">
+                            <i class="fa-solid fa-key"></i>
                         </div>
+                        <h4 class="pillar-title">End-to-End Support</h4>
+                        <p class="pillar-desc">From customized site visits and competitive home loan approvals to
+                            legal registry and key handover, we guide you at every step.</p>
                     </div>
                 </div>
             </div>
+        </div>
     </section>
 
     <!-- =========================================================================
