@@ -702,7 +702,10 @@
                                         <div class="stat-label mb-1 text-muted fs-12">BSP</div>
                                         <div class="stat-value text-primary fw-bold fs-5"
                                             id="bsp_value_{{ $projects->id }}">
-                                            @if ($priceValue)
+                                            @if ($projects->id == 268)
+                                            -
+                                            @elseif ($priceValue)
+
                                             ₹{{ number_format($priceValue, 0) }}/sq.ft
                                             @else
                                             --
