@@ -51,6 +51,25 @@ class CustomLinkGenerator
 
         return $saved;
     }
+    private function getPossessionsForLocation(Location $location): array
+    {
+        return Project::query()
+            ->where(function ($q) use ($location) {
+                $q->where('location_id', $location->id)
+                    ->orWhereHas('sublocation', function ($q) use ($location) {
+                        $q->where('parent_id', $location->id);
+                    });
+            })
+            ->whereNotNull('project_status')
+            ->whereIn('project_status', array_keys(self::POSSESSIONS))
+            ->pluck('project_status')
+            ->unique()
+            ->filter(fn($status) => isset(self::POSSESSIONS[$status]))
+            ->mapWithKeys(fn($status) => [
+                $status => self::POSSESSIONS[$status],
+            ])
+            ->all();
+    }
     private function removeStaleBhkLinks(
         Location $location,
         array $payloads
@@ -273,16 +292,16 @@ class CustomLinkGenerator
 
 
         if (!$isChild) {
-            foreach (self::POSSESSIONS as $status => $label) {
+            foreach ($this->getPossessionsForLocation($location) as $status => $label) {
                 $statusSlug = Str::slug(str_replace('_', ' ', $status));
-                $payloads[] =
-                    $this->make(
-                        $statusSlug . '-flats-in-' . $placeSlug,
-                        $label . ' Flats in ' . $place,
-                        'possession',
-                        $place,
-                        $label
-                    );
+
+                $payloads[] = $this->make(
+                    $statusSlug . '-flats-in-' . $placeSlug,
+                    $label . ' Flats in ' . $place,
+                    'possession',
+                    $place,
+                    $label
+                );
             }
         }
         foreach ($this->getBhkTypesForLocation($location) as $typology) {
