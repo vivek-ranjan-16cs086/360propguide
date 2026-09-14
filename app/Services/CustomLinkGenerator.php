@@ -181,70 +181,60 @@ class CustomLinkGenerator
 
     private function getBhkTypesForLocation(Location $location): array
     {
+        // Typology links ONLY for major cities
+        if ($location->parent_id !== null) {
+            return [];
+        }
+
         $query = Project::query()
-            ->whereNotNull('typology');
-
-
-        if ($location->parent_id === null) {
-
-
-            $query->where(function ($q) use ($location) {
-
+            ->whereNotNull('typology')
+            ->where(function ($q) use ($location) {
                 $q->where('location_id', $location->id)
                     ->orWhereHas('sublocation', function ($q) use ($location) {
                         $q->where('parent_id', $location->id);
                     });
             });
-        } else {
+        // $query = Project::query()
+        //     ->whereNotNull('typology')
+        //     ->whereRaw(
+        //         'LOWER(TRIM(cities)) = ?',
+        //         [strtolower(trim($location->city))]
+        //     );
 
-            // This is a sublocation like Sector 168.
-            $query->where('sublocation_id', $location->id);
-        }
-
-        $bhks = [];
+        $typologies = [];
 
         $query
             ->select(['id', 'typology'])
-            ->chunkById(100, function ($projects) use (&$bhks) {
+            ->chunkById(100, function ($projects) use (&$typologies) {
 
                 foreach ($projects as $project) {
 
+                    $values = $project->typology;
 
+                    if (is_string($values)) {
 
-                    $typologies = $project->typology;
-
-
-
-                    if (is_string($typologies)) {
-
-                        $decoded = json_decode($typologies, true);
+                        $decoded = json_decode($values, true);
 
                         if (
-                            json_last_error() === JSON_ERROR_NONE
-                            && is_array($decoded)
+                            json_last_error() === JSON_ERROR_NONE &&
+                            is_array($decoded)
                         ) {
-                            $typologies = $decoded;
+                            $values = $decoded;
                         } else {
-
-                            // Fallback if value is something like:
-                            // "2 BHK, 3 BHK"
-
-                            $typologies = array_filter(
+                            $values = array_filter(
                                 array_map(
                                     'trim',
-                                    explode(',', $typologies)
+                                    explode(',', $values)
                                 )
                             );
                         }
                     }
 
-
-                    if (!is_array($typologies)) {
+                    if (!is_array($values)) {
                         continue;
                     }
 
-
-                    foreach ($typologies as $typology) {
+                    foreach ($values as $typology) {
 
                         $typology = trim((string) $typology);
 
@@ -252,20 +242,20 @@ class CustomLinkGenerator
                             continue;
                         }
 
-
-                        if (preg_match('/^\d+\s*BHK$/i', $typology)) {
-
-                            $bhks[] = strtoupper(
-                                preg_replace('/\s+/', ' ', $typology)
-                            );
-                        }
+                        // Keep every typology:
+                        // 2 BHK, 3 BHK, Plot, Villa, Studio, etc.
+                        $typologies[] = preg_replace(
+                            '/\s+/',
+                            ' ',
+                            $typology
+                        );
                     }
                 }
             });
 
-        return collect($bhks)
-            ->unique()
-            ->sortBy(fn($bhk) => (int) $bhk)
+        return collect($typologies)
+            ->filter()
+            ->unique(fn($type) => strtolower($type))
             ->values()
             ->all();
     }

@@ -184,7 +184,7 @@ property, real estate company in noida, property greater noida, property in grea
                     <span class="hero-cities__label"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Popular
                         Cities</span>
                     @foreach($heroCities as $city)
-                    <a class="hero-city-pill" href="{{ url('flats-in-' . \Illuminate\Support\Str::slug($city)) }}"
+                    <a class="hero-city-pill" href="{{ route('projects', ['location' => [$city]]) }}"
                         data-city="{{ $city }}">{{ $city }} <i class="fa-solid fa-chevron-right"
                             aria-hidden="true"></i></a>
                     @endforeach
@@ -655,28 +655,26 @@ property, real estate company in noida, property greater noida, property in grea
                             brokerage fees on new residential & commercial bookings.</p>
                     </div>
 
-
-                        <div class="pillar-item">
-                            <div class="pillar-icon">
-                                <i class="fa-solid fa-user-tie"></i>
-                            </div>
-                            <h4 class="pillar-title">Dedicated Property Advisor</h4>
-                            <p class="pillar-desc">Receive unbiased, data-backed guidance tailored specifically to your
-                                family's budget, lifestyle needs, and ROI targets.</p>
+                    <div class="pillar-item">
+                        <div class="pillar-icon">
+                            <i class="fa-solid fa-user-tie"></i>
                         </div>
+                        <h4 class="pillar-title">Dedicated Property Advisor</h4>
+                        <p class="pillar-desc">Receive unbiased, data-backed guidance tailored specifically to your
+                            family's budget, lifestyle needs, and ROI targets.</p>
+                    </div>
 
-                        <div class="pillar-item">
-                            <div class="pillar-icon">
-                                <i class="fa-solid fa-key"></i>
-                            </div>
-                            <h4 class="pillar-title">End-to-End Support</h4>
-                            <p class="pillar-desc">From customized site visits and competitive home loan approvals to
-                                legal
-                                registry and key handover, we guide you at every step.</p>
+                    <div class="pillar-item">
+                        <div class="pillar-icon">
+                            <i class="fa-solid fa-key"></i>
                         </div>
+                        <h4 class="pillar-title">End-to-End Support</h4>
+                        <p class="pillar-desc">From customized site visits and competitive home loan approvals to
+                            legal registry and key handover, we guide you at every step.</p>
                     </div>
                 </div>
             </div>
+        </div>
     </section>
 
     <!-- =========================================================================
@@ -882,7 +880,7 @@ property, real estate company in noida, property greater noida, property in grea
                     @foreach(array_slice($feedItems, 0, 8) as $feed)
                     @continue(empty($feed['full_picture']) && empty($feed['message']))
                     <div class="swiper-slide">
-                        <div class="social-feed-card{{ !empty($feed['full_picture']) ? ' has-image' : '' }}">
+                        <div class="social-feed-card">
                             <div class="social-feed-header">
                                 <div class="social-author">
                                     <img src="{{ url('frontend/360logo.webp') }}" class="social-avatar"
