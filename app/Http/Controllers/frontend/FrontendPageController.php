@@ -72,18 +72,6 @@ class FrontendPageController extends Controller
 		return view('frontend.home', compact('pageData', 'feeds', 'youtubeVideo', 'youtubeShorts'));
 	}
 
-	public function getThankYouPage()
-	{
-		if (!session()->has('form_submitted')) {
-			return redirect('/');
-		}
-
-		$form = session('form_submitted');
-		session()->forget('form_submitted');
-
-		return view('frontend.thankyou', compact('form'));
-	}
-
 	private function facebookPostData()
 	{
 		return Cache::remember('homepage.facebook-feed', now()->addMinutes(30), function () {
@@ -133,6 +121,7 @@ class FrontendPageController extends Controller
 
 	public function getListingsPageData(Request $request)
 	{
+
 		$selected = $this->resolveListingSelection($request);
 		$minPrice = (int) Project::where('status', '1')->min('price');
 		$maxPrice = (int) Project::where('status', '1')->max('price');
@@ -181,6 +170,7 @@ class FrontendPageController extends Controller
 
 	public function applyFilters(Request $request)
 	{
+
 		$legacy = (array) $request->input('filters', []);
 		$selected = $this->resolveListingSelection($request);
 
@@ -223,6 +213,8 @@ class FrontendPageController extends Controller
 
 	public function showFilteredProjects(Request $request, $slug)
 	{
+		// dd($request);
+
 		if (preg_match('/^(\d+-bhk-)?projects-in-(.+)$/', $slug, $matches)) {
 			return redirect('/' . ($matches[1] ?? '') . 'flats-in-' . $matches[2], 301);
 		}
@@ -268,7 +260,6 @@ class FrontendPageController extends Controller
 
 			$allowedFirstWords = [
 				'projects',
-				'flats',
 				'plots',
 				'shops',
 				'studio',
@@ -554,7 +545,7 @@ class FrontendPageController extends Controller
 			'new launch' => 'new_launch',
 			'ready to move' => 'ready_to_move',
 			'under construction' => 'under_construction',
-			'within a year' => 'within_a_year',
+			// 'within a year' => 'within_a_year',
 			'completed' => 'completed',
 		];
 
@@ -1223,8 +1214,8 @@ class FrontendPageController extends Controller
 				foreach ($cities as $cityName) {
 					$push([
 						'name' => $cityName,
-						'slug' => 'flats-in-' . Str::slug($cityName),
-						'url' => url('/flats-in-' . Str::slug($cityName)),
+						'slug' => ltrim(route('projects', ['location' => [$cityName]], false), '/'),
+						'url' => route('projects', ['location' => [$cityName]]),
 						'type' => 'custom',
 						'label' => 'City',
 					]);
@@ -1240,11 +1231,14 @@ class FrontendPageController extends Controller
 					->get();
 
 				foreach ($localities as $locality) {
-					$localitySlug = Str::slug($locality->city);
+					$params = ['locality' => [$locality->city]];
+					if ($locality->parent?->city) {
+						$params['location'] = [$locality->parent->city];
+					}
 					$push([
 						'name' => $locality->city,
-						'slug' => 'flats-in-' . $localitySlug,
-						'url' => url('/flats-in-' . $localitySlug),
+						'slug' => ltrim(route('projects', $params, false), '/'),
+						'url' => route('projects', $params),
 						'type' => 'locality',
 						'label' => 'Locality',
 						'subtitle' => $locality->parent?->city,
@@ -1269,11 +1263,14 @@ class FrontendPageController extends Controller
 
 					foreach ($projectLocalities as $row) {
 						$localityName = trim((string) $row->location);
-						$localitySlug = Str::slug($localityName);
+						$params = ['locality' => [$localityName], 'q' => $keyword];
+						if (!empty($row->cities)) {
+							$params['location'] = [$row->cities];
+						}
 						$push([
 							'name' => $localityName,
-							'slug' => 'flats-in-' . $localitySlug,
-							'url' => url('/flats-in-' . $localitySlug),
+							'slug' => ltrim(route('projects', $params, false), '/'),
+							'url' => route('projects', $params),
 							'type' => 'locality',
 							'label' => 'Locality',
 							'subtitle' => $row->cities,
@@ -1355,7 +1352,6 @@ class FrontendPageController extends Controller
 						'id' => $project->id,
 						'type' => 'project',
 						'label' => 'Project',
-						'subtitle' => $project->cities,
 						'url' => url('/projects/' . $slug),
 					]);
 				}

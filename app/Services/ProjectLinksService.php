@@ -45,16 +45,15 @@ class ProjectLinksService
         $path = strtolower(trim((string) $currentPath, '/'));
         $typeOrder = [
             'location' => 1,
+            'typology' => 3,
             'sublocation' => 2,
-            'possession' => 3,
-            'bhk' => 4,
+            'possession' => 4,
             'developer' => 5,
-
         ];
 
         return CustomLink::query()
             ->where('is_active', 1)
-            ->whereIn('type', ['location', 'sublocation', 'possession', 'bhk', 'developer'])
+            ->whereIn('type', ['location', 'sublocation', 'possession', 'typology', 'developer'])
             ->get(['name', 'title', 'slug', 'type'])
             ->map(fn($link) => [
                 'text' => $link->name ?: $link->title,

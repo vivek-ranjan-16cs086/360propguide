@@ -10,39 +10,39 @@ property, real estate company in noida, property greater noida, property in grea
 @section('canonical', url()->current())
 @section('customCSS')
 <script type="application/ld+json">
-    {
-        "@context": "http://schema.org",
-        "@type": "ItemList",
-        "itemListElement": [{
-                "@type": "SiteNavigationElement",
-                "position": 1,
-                "name": "About Us",
-                "description": "Spaces crafted for a refined lifestyle.",
-                "url": "https://www.360propguide.com/about-us"
-            },
-            {
-                "@type": "SiteNavigationElement",
-                "position": 2,
-                "name": "Explore Project",
-                "description": "Discover Real Estate Top Projects with 360 PropGuide",
-                "url": "https://www.360propguide.com/projects"
-            },
-            {
-                "@type": "SiteNavigationElement",
-                "position": 3,
-                "name": "360 Knowledge Base",
-                "description": "Explore ideas for a better lifestyle.",
-                "url": "https://www.360propguide.com/blogs"
-            },
-            {
-                "@type": "SiteNavigationElement",
-                "position": 4,
-                "name": "Get in Touch",
-                "description": "Connect to bring your dream home closer.",
-                "url": "https://www.360propguide.com/contact"
-            }
-        ]
-    }
+{
+    "@context": "http://schema.org",
+    "@type": "ItemList",
+    "itemListElement": [{
+            "@type": "SiteNavigationElement",
+            "position": 1,
+            "name": "About Us",
+            "description": "Spaces crafted for a refined lifestyle.",
+            "url": "https://www.360propguide.com/about-us"
+        },
+        {
+            "@type": "SiteNavigationElement",
+            "position": 2,
+            "name": "Explore Project",
+            "description": "Discover Real Estate Top Projects with 360 PropGuide",
+            "url": "https://www.360propguide.com/projects"
+        },
+        {
+            "@type": "SiteNavigationElement",
+            "position": 3,
+            "name": "360 Knowledge Base",
+            "description": "Explore ideas for a better lifestyle.",
+            "url": "https://www.360propguide.com/blogs"
+        },
+        {
+            "@type": "SiteNavigationElement",
+            "position": 4,
+            "name": "Get in Touch",
+            "description": "Connect to bring your dream home closer.",
+            "url": "https://www.360propguide.com/contact"
+        }
+    ]
+}
 </script>
 <link rel="stylesheet"
     href="{{ url('frontend/css/home.css') }}?v={{ filemtime(public_path('frontend/css/home.css')) }}">
@@ -184,7 +184,7 @@ property, real estate company in noida, property greater noida, property in grea
                     <span class="hero-cities__label"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Popular
                         Cities</span>
                     @foreach($heroCities as $city)
-                    <a class="hero-city-pill" href="{{ url('flats-in-' . \Illuminate\Support\Str::slug($city)) }}"
+                    <a class="hero-city-pill" href="{{ route('projects', ['location' => [$city]]) }}"
                         data-city="{{ $city }}">{{ $city }} <i class="fa-solid fa-chevron-right"
                             aria-hidden="true"></i></a>
                     @endforeach
@@ -653,7 +653,6 @@ property, real estate company in noida, property greater noida, property in grea
                         <h4 class="pillar-title">Zero Brokerage on Launches</h4>
                         <p class="pillar-desc">Enjoy transparent, direct-from-developer pricing with absolutely zero
                             brokerage fees on new residential & commercial bookings.</p>
-                    </div>
 
 
                         <div class="pillar-item">
@@ -882,7 +881,7 @@ property, real estate company in noida, property greater noida, property in grea
                     @foreach(array_slice($feedItems, 0, 8) as $feed)
                     @continue(empty($feed['full_picture']) && empty($feed['message']))
                     <div class="swiper-slide">
-                        <div class="social-feed-card{{ !empty($feed['full_picture']) ? ' has-image' : '' }}">
+                        <div class="social-feed-card">
                             <div class="social-feed-header">
                                 <div class="social-author">
                                     <img src="{{ url('frontend/360logo.webp') }}" class="social-avatar"
