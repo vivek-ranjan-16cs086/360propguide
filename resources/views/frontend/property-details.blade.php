@@ -19,6 +19,9 @@
         );
     }
 @endphp
+
+
+
 @section('title', $property->seo_data['meta_title'])
 @section('description', $property->seo_data['meta_description'])
 @section('canonical', url()->current())
