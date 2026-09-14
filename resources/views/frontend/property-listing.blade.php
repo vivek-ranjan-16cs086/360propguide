@@ -122,27 +122,13 @@
 
                                 <!-- Property Images -->
                                 <div class="property-image">
-                                    <div class="slider-container">
-                                        <div id="propertyCarousel{{ $property->id }}"
-                                             class="carousel slide slider"
-                                             data-bs-ride="carousel"
-                                             data-bs-interval="2000">
-
-                                            <div class="carousel-inner">
-                                                @if($property->galleries && count($property->galleries) > 0)
-                                                    @foreach($property->galleries as $index => $gallery)
-                                                        <div class="carousel-item slide {{ $index === 0 ? 'active' : '' }}">
-                                                            <img src="/storage/{{ $gallery }}" alt="{{ $property->title }}">
-                                                        </div>
-                                                    @endforeach
-                                                @else
-                                                    <div class="carousel-item slide active">
-                                                        <img src="/images/no-image.jpg" alt="No Image">
-                                                    </div>
-                                                @endif
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <a href="{{ route('property.details', $property->slug) }}">
+                                        @if(!empty($property->galleries) && count($property->galleries) > 0)
+                                            <img src="/storage/{{ $property->galleries[0] }}" alt="{{ $property->title }}">
+                                        @else
+                                            <img src="/images/no-image.jpg" alt="{{ $property->title }}">
+                                        @endif
+                                    </a>
                                 </div>
 
                                 <!-- Property Details -->
@@ -659,30 +645,14 @@
          data-location="${property.city || ''}">
 
         <!-- Property Images -->
-    <div class="property-image">
-        <div class="slider-container">
-            <div id="propertyCarousel${property.id}"
-                 class="carousel slide slider"
-                 data-bs-ride="carousel"
-                 data-bs-interval="2000">
-
-                <div class="carousel-inner">
-                    ${galleries.length > 0
-                                    ? galleries.map((gallery, key) => `
-                            <div class="carousel-item slide ${key === 0 ? 'active' : ''}">
-                                <img src="/storage/${gallery}" alt="${property.title || 'Property'}">
-                            </div>
-                        `).join('')
-                                    : `
-                            <div class="carousel-item slide active">
-                                <img src="/images/no-image.jpg" alt="No Image">
-                            </div>
-                        `
-                                }
-                </div>
-            </div>
+        <div class="property-image">
+            <a href="{{url('properties')}}/${property.slug}">
+                ${galleries.length > 0
+                    ? `<img src="/storage/${galleries[0]}" alt="${property.title || 'Property'}">`
+                    : `<img src="/images/no-image.jpg" alt="No Image">`
+                }
+            </a>
         </div>
-    </div>
 
         <!-- Property Details -->
         <div class="property-details">
