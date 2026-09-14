@@ -85,8 +85,8 @@
                     </div>
                 </div>
 
-                <!-- Col 2: Top Projects -->
-                ```html
+
+
                 <div class="col-lg-2 col-md-6 col-6">
                     <div class="footer-widget widget-links">
                         <h4 class="footer-widget-title">Top Projects</h4>
@@ -104,7 +104,7 @@
                         </ul>
                     </div>
                 </div>
-                ```
+
 
 
                 <!-- Col 3: Quick Links -->
