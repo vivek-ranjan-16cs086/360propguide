@@ -104,9 +104,6 @@
                         </ul>
                     </div>
                 </div>
-
-
-
                 <!-- Col 3: Quick Links -->
                 <div class="col-lg-2 col-md-6 col-6">
                     <div class="footer-widget widget-links">
