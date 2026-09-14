@@ -86,7 +86,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (mode === "commercial") {
             return "Commercial properties in <em>" + city + "</em>";
         }
-        return "New projects to buy in <em>" + city + "</em>";
+        // return "New projects to buy in <em>" + city + "</em>";
     }
 
     function leadForMode(mode) {
@@ -202,7 +202,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (mode === "projects") {
                     const searchLocation = location || keyword;
                     if (searchLocation) {
-                        window.location.href = "/flats-in-" + slugifyCity(searchLocation);
+                        window.location.href =
+                            "/flats-in-" + slugifyCity(searchLocation);
                         return;
                     }
                 }
@@ -490,7 +491,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 576: { slidesPerView: 1.6, spaceBetween: 16 },
                 768: { slidesPerView: 2, spaceBetween: 18 },
                 992: { slidesPerView: 3, spaceBetween: 20 },
-                1200: { slidesPerView: 3, spaceBetween: 22 },
+                1200: { slidesPerView: 5, spaceBetween: 16 },
             },
         });
     });
