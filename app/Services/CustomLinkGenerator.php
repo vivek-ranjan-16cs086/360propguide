@@ -182,6 +182,12 @@ class CustomLinkGenerator
                         $q->where('parent_id', $location->id);
                     });
             });
+        // $query = Project::query()
+        //     ->whereNotNull('typology')
+        //     ->whereRaw(
+        //         'LOWER(TRIM(cities)) = ?',
+        //         [strtolower(trim($location->city))]
+        //     );
 
         $typologies = [];
 
