@@ -129,6 +129,18 @@ class FrontendPageController extends Controller
 		$localityCityMap = Location::sublocationParentMap();
 		$locations = Location::parentCityNames()->all();
 		$locality = Location::sublocationNames();
+		// $locations = Location::query()
+		// 	->whereNull('parent_id')
+		// 	->active()
+		// 	->select('id', 'city')
+		// 	->orderBy('city')
+		// 	->get();
+		// $locality = Location::query()
+		// 	->whereNotNull('parent_id')
+		// 	->active()
+		// 	->select('id', 'parent_id', 'city')
+		// 	->orderBy('city')
+		// 	->get();
 		$developers = Developer::select('id', 'developer_name')->orderBy('developer_name')->get();
 
 		$projectsQuery = Project::query()->where('status', '1');
@@ -564,8 +576,19 @@ class FrontendPageController extends Controller
 		$minPrice = (int) Project::min('price');
 		$maxPrice = (int) Project::max('price');
 
-		$locations = Location::parentCityNames()->all();
-		$locality = Location::sublocationNames();
+		$locations = Location::query()
+			->whereNull('parent_id')
+			->active()
+			->select('id', 'city')
+			->orderBy('city')
+			->get();
+		$locality = Location::query()
+			->whereNotNull('parent_id')
+			->active()
+			->select('id', 'parent_id', 'city')
+			->orderBy('city')
+			->get();
+		// $locality = Location::sublocationNames();
 
 		$developers = Developer::select('id', 'developer_name')->get();
 
@@ -1893,91 +1916,155 @@ class FrontendPageController extends Controller
 		$hasLocationId = Schema::hasColumn('projects', 'location_id');
 		$hasSublocationId = Schema::hasColumn('projects', 'sublocation_id');
 
-		if (!empty($selected['location'])) {
-			$parentIds = collect();
-			if ($hasLocationId) {
-				$parentIds = Location::parents()
-					->active()
-					->where(function ($q) use ($selected) {
-						foreach ($selected['location'] as $city) {
-							$q->orWhereRaw('LOWER(TRIM(city)) = ?', [strtolower(trim($city))]);
-						}
-					})
-					->pluck('id');
-			}
+		/*
+    |--------------------------------------------------------------------------
+    | Location
+    |--------------------------------------------------------------------------
+    | URL/request:
+    | location[]=Noida
+    |
+    | Resolve:
+    | Noida -> Location ID
+    |
+    | Filter:
+    | projects.location_id
+    |--------------------------------------------------------------------------
+    */
+		if (!empty($selected['location']) && $hasLocationId) {
+			$parentIds = Location::parents()
+				->active()
+				->where(function ($q) use ($selected) {
+					foreach ($selected['location'] as $city) {
+						$q->orWhereRaw(
+							'LOWER(TRIM(city)) = ?',
+							[strtolower(trim($city))]
+						);
+					}
+				})
+				->pluck('id');
 
-			$query->where(function ($q) use ($selected, $parentIds, $hasLocationId) {
-				foreach ($selected['location'] as $city) {
-					$q->orWhereRaw('LOWER(TRIM(cities)) = ?', [strtolower(trim($city))]);
-				}
-				if ($hasLocationId && $parentIds->isNotEmpty()) {
-					$q->orWhereIn('location_id', $parentIds);
-				}
-			});
+			$query->whereIn('location_id', $parentIds);
 		}
 
-		if (!empty($selected['locality'])) {
-			$childIds = collect();
-			if ($hasSublocationId) {
-				$childIds = Location::query()
-					->whereNotNull('parent_id')
-					->active()
-					->where(function ($q) use ($selected) {
-						foreach ($selected['locality'] as $locality) {
-							$q->orWhereRaw('LOWER(TRIM(city)) = ?', [strtolower(trim($locality))]);
-						}
-					})
-					->pluck('id');
-			}
+		/*
+    |--------------------------------------------------------------------------
+    | Locality / Sublocation
+    |--------------------------------------------------------------------------
+    | URL/request:
+    | locality[]=Sector 150
+    |
+    | Resolve:
+    | Sector 150 -> Sublocation ID
+    |
+    | Filter:
+    | projects.sublocation_id
+    |--------------------------------------------------------------------------
+    */
+		if (!empty($selected['locality']) && $hasSublocationId) {
+			$childIds = Location::query()
+				->whereNotNull('parent_id')
+				->active()
+				->where(function ($q) use ($selected) {
+					foreach ($selected['locality'] as $locality) {
+						$q->orWhereRaw(
+							'LOWER(TRIM(city)) = ?',
+							[strtolower(trim($locality))]
+						);
+					}
+				})
+				->pluck('id');
 
-			$query->where(function ($q) use ($selected, $childIds, $hasSublocationId) {
-				foreach ($selected['locality'] as $locality) {
-					$q->orWhereRaw('LOWER(TRIM(location)) = ?', [strtolower(trim($locality))]);
-				}
-				if ($hasSublocationId && $childIds->isNotEmpty()) {
-					$q->orWhereIn('sublocation_id', $childIds);
-				}
-			});
+			$query->whereIn('sublocation_id', $childIds);
 		}
 
+		/*
+    |--------------------------------------------------------------------------
+    | Type
+    |--------------------------------------------------------------------------
+    */
 		if (!empty($selected['type'])) {
 			$query->where(function ($q) use ($selected) {
 				foreach ($selected['type'] as $type) {
 					$needle = trim((string) $type);
+
 					if ($needle === '') {
 						continue;
 					}
-					$like = '%' . addcslashes($needle === 'Shops' ? 'Shop' : $needle, '%_\\') . '%';
+
+					$like = '%' . addcslashes(
+						$needle === 'Shops' ? 'Shop' : $needle,
+						'%_\\'
+					) . '%';
+
 					$q->orWhere('typology', 'like', $like);
 				}
 			});
 		}
 
+		/*
+    |--------------------------------------------------------------------------
+    | Possession
+    |--------------------------------------------------------------------------
+    */
 		if (!empty($selected['possession'])) {
 			$possession = array_map(function ($value) {
-				return strtolower(str_replace(' ', '_', (string) $value));
+				return strtolower(
+					str_replace(' ', '_', (string) $value)
+				);
 			}, $selected['possession']);
+
 			$query->whereIn('project_status', $possession);
 		}
 
+		/*
+    |--------------------------------------------------------------------------
+    | Developer
+    |--------------------------------------------------------------------------
+    */
 		if (!empty($selected['developer'])) {
-			$developerIds = array_map('intval', $selected['developer']);
-			$developerNames = Developer::whereIn('id', $developerIds)->pluck('developer_name');
+			$developerIds = array_map(
+				'intval',
+				$selected['developer']
+			);
 
-			$query->where(function ($q) use ($developerIds, $developerNames) {
+			$developerNames = Developer::whereIn(
+				'id',
+				$developerIds
+			)->pluck('developer_name');
+
+			$query->where(function ($q) use (
+				$developerIds,
+				$developerNames
+			) {
 				foreach ($developerNames as $name) {
-					$q->orWhereRaw('LOWER(TRIM(developer_name)) = ?', [strtolower(trim($name))]);
+					$q->orWhereRaw(
+						'LOWER(TRIM(developer_name)) = ?',
+						[strtolower(trim($name))]
+					);
 				}
+
 				foreach ($developerIds as $id) {
 					$q->orWhere('floor_plans_description', $id)
 						->orWhere('floor_plans_description', (string) $id)
-						->orWhere('floor_plans_description', json_encode($id));
+						->orWhere(
+							'floor_plans_description',
+							json_encode($id)
+						);
 				}
 			});
 		}
 
+		/*
+    |--------------------------------------------------------------------------
+    | Search
+    |--------------------------------------------------------------------------
+    */
 		if ($selected['q'] !== '') {
-			$like = '%' . addcslashes($selected['q'], '%_\\') . '%';
+			$like = '%' . addcslashes(
+				$selected['q'],
+				'%_\\'
+			) . '%';
+
 			$query->where(function ($q) use ($like) {
 				$q->where('project_name', 'like', $like)
 					->orWhere('location', 'like', $like)
@@ -1986,16 +2073,41 @@ class FrontendPageController extends Controller
 			});
 		}
 
+		/*
+    |--------------------------------------------------------------------------
+    | Price
+    |--------------------------------------------------------------------------
+    */
 		if ($selected['min_price'] !== null) {
-			$query->where('price', '>=', $selected['min_price']);
-		}
-		if ($selected['max_price'] !== null) {
-			$query->where('price', '<=', $selected['max_price']);
+			$query->where(
+				'price',
+				'>=',
+				$selected['min_price']
+			);
 		}
 
+		if ($selected['max_price'] !== null) {
+			$query->where(
+				'price',
+				'<=',
+				$selected['max_price']
+			);
+		}
+
+		/*
+    |--------------------------------------------------------------------------
+    | Sort
+    |--------------------------------------------------------------------------
+    */
 		match ($selected['sort']) {
-			'price_asc' => $query->orderBy('price', 'asc')->orderBy('id', 'desc'),
-			'price_desc' => $query->orderBy('price', 'desc')->orderBy('id', 'desc'),
+			'price_asc' => $query
+				->orderBy('price', 'asc')
+				->orderBy('id', 'desc'),
+
+			'price_desc' => $query
+				->orderBy('price', 'desc')
+				->orderBy('id', 'desc'),
+
 			default => $query->orderBy('id', 'desc'),
 		};
 	}
