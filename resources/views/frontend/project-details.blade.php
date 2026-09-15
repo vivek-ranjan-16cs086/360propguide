@@ -8,69 +8,69 @@
 @push('schema')
 @if (!empty($faqSchema))
 <script type="application/ld+json">
-    {
-        !!$faqSchema!!
-    }
+{
+    !!$faqSchema!!
+}
 </script>
 @endif
 <script type="application/ld+json">
-    {
-        !!json_encode([
-            "@context" => "https://schema.org",
-            "@type" => "RealEstateListing",
+{
+    !!json_encode([
+        "@context" => "https://schema.org",
+        "@type" => "RealEstateListing",
 
-            "name" => $projects - > project_name,
+        "name" => $projects - > project_name,
 
-            "title" => $projects - > seo_data['title'] ?? $projects - > project_name,
+        "title" => $projects - > seo_data['title'] ?? $projects - > project_name,
 
-            "description" => strip_tags(
-                $projects - > seo_data['meta_description'] ??
-                $projects - > about_description
-            ),
+        "description" => strip_tags(
+            $projects - > seo_data['meta_description'] ??
+            $projects - > about_description
+        ),
 
-            "url" => url() - > current(),
+        "url" => url() - > current(),
 
-            "datePosted" => optional($projects - > created_at) - > format('Y-m-d'),
+        "datePosted" => optional($projects - > created_at) - > format('Y-m-d'),
 
-            "image" => storageUrl($projects - > hero_images),
+        "image" => storageUrl($projects - > hero_images),
 
-            "offers" => [
-                "@type" => "AggregateOffer",
-                "priceCurrency" => "INR",
-                "lowPrice" => (string) $projects - > price,
-                "highPrice" => (string)($projects - > max_price ? : $projects - > price),
-                "availability" => "https://schema.org/InStock",
-                "url" => url() - > current()
-            ],
+        "offers" => [
+            "@type" => "AggregateOffer",
+            "priceCurrency" => "INR",
+            "lowPrice" => (string) $projects - > price,
+            "highPrice" => (string)($projects - > max_price ? : $projects - > price),
+            "availability" => "https://schema.org/InStock",
+            "url" => url() - > current()
+        ],
 
-            "address" => [
-                "@type" => "PostalAddress",
-                "streetAddress" => $projects - > location,
-                "addressLocality" => $projects - > location,
-                "addressRegion" => "Uttar Pradesh",
-                "addressCountry" => "IN"
-            ],
+        "address" => [
+            "@type" => "PostalAddress",
+            "streetAddress" => $projects - > location,
+            "addressLocality" => $projects - > location,
+            "addressRegion" => "Uttar Pradesh",
+            "addressCountry" => "IN"
+        ],
 
-            "identifier" => [
-                "@type" => "PropertyValue",
-                "name" => "RERA Registration",
-                "value" => $projects - > rera_no
-            ],
+        "identifier" => [
+            "@type" => "PropertyValue",
+            "name" => "RERA Registration",
+            "value" => $projects - > rera_no
+        ],
 
-            "brand" => [
-                "@type" => "Brand",
-                "name" => $projects - > developer_name
-            ],
+        "brand" => [
+            "@type" => "Brand",
+            "name" => $projects - > developer_name
+        ],
 
-            "seller" => [
-                "@type" => "RealEstateAgent",
-                "name" => "360PropGuide",
-                "url" => "https://www.360propguide.com",
-                "telephone" => "+91-9643020020"
-            ]
+        "seller" => [
+            "@type" => "RealEstateAgent",
+            "name" => "360PropGuide",
+            "url" => "https://www.360propguide.com",
+            "telephone" => "+91-9643020020"
+        ]
 
-        ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) !!
-    }
+    ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) !!
+}
 </script>
 @endpush
 
@@ -1379,572 +1379,572 @@
 @section('customJS')
 
 <script>
-    $(document).on('click', '.download-btn', function() {
-        let type = $(this).data('type');
-        let projectId = $(this).data('project-id');
+$(document).on('click', '.download-btn', function() {
+    let type = $(this).data('type');
+    let projectId = $(this).data('project-id');
 
-        $('#downloadType').val(type);
-        $('input[name="project_id"]').val(projectId);
-    });
+    $('#downloadType').val(type);
+    $('input[name="project_id"]').val(projectId);
+});
 
-    $(document).on("submit", "#popupFormDownload", function(e) {
-        e.preventDefault();
+$(document).on("submit", "#popupFormDownload", function(e) {
+    e.preventDefault();
 
-        let form = $(this);
-        form.find(".error-name, .error-email, .error-mobile, .error-recaptcha").text('');
+    let form = $(this);
+    form.find(".error-name, .error-email, .error-mobile, .error-recaptcha").text('');
 
-        let name = (form.find('[name="name"]').val() || "").trim();
-        let email = (form.find('[name="email"]').val() || "").trim();
-        let mobile = (form.find('[name="mobile"]').val() || "").trim();
-        let recaptcha = (form.find('[name="g-recaptcha-response"]').val() || "").trim();
+    let name = (form.find('[name="name"]').val() || "").trim();
+    let email = (form.find('[name="email"]').val() || "").trim();
+    let mobile = (form.find('[name="mobile"]').val() || "").trim();
+    let recaptcha = (form.find('[name="g-recaptcha-response"]').val() || "").trim();
 
-        let isValid = true;
+    let isValid = true;
 
-        if (name === "") {
-            form.find(".error-name").text("Name is required.");
-            isValid = false;
-        }
+    if (name === "") {
+        form.find(".error-name").text("Name is required.");
+        isValid = false;
+    }
 
-        if (email === "") {
-            form.find(".error-email").text("Email is required.");
-            isValid = false;
-        } else if (!/^\S+@\S+\.\S+$/.test(email)) {
-            form.find(".error-email").text("Invalid email format.");
-            isValid = false;
-        }
+    if (email === "") {
+        form.find(".error-email").text("Email is required.");
+        isValid = false;
+    } else if (!/^\S+@\S+\.\S+$/.test(email)) {
+        form.find(".error-email").text("Invalid email format.");
+        isValid = false;
+    }
 
-        if (mobile === "") {
-            form.find(".error-mobile").text("Mobile number is required.");
-            isValid = false;
-        } else if (!/^\d{10}$/.test(mobile)) {
-            form.find(".error-mobile").text("Enter a valid 10-digit mobile number.");
-            isValid = false;
-        }
+    if (mobile === "") {
+        form.find(".error-mobile").text("Mobile number is required.");
+        isValid = false;
+    } else if (!/^\d{10}$/.test(mobile)) {
+        form.find(".error-mobile").text("Enter a valid 10-digit mobile number.");
+        isValid = false;
+    }
 
-        if (form.find('[name="g-recaptcha-response"]').length > 0 && recaptcha === "") {
-            form.find(".error-recaptcha").text("Please validate Recaptcha");
-            isValid = false;
-        }
+    if (form.find('[name="g-recaptcha-response"]').length > 0 && recaptcha === "") {
+        form.find(".error-recaptcha").text("Please validate Recaptcha");
+        isValid = false;
+    }
 
-        if (!isValid) return;
+    if (!isValid) return;
 
-        let submitBtn = form.find('.submitButton');
-        submitBtn.prop('disabled', true).html('<div class="loader"></div>');
+    let submitBtn = form.find('.submitButton');
+    submitBtn.prop('disabled', true).html('<div class="loader"></div>');
 
-        $.ajax({
-            url: "{{ route('popup.download') }}",
-            type: "POST",
-            data: form.serialize(),
-            dataType: "json",
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            success: function(response) {
-                submitBtn.prop("disabled", false).text("Submit");
+    $.ajax({
+        url: "{{ route('popup.download') }}",
+        type: "POST",
+        data: form.serialize(),
+        dataType: "json",
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function(response) {
+            submitBtn.prop("disabled", false).text("Submit");
 
-                // Redirect to thankyou page with session
-                if (response.redirect_url) {
-                    window.location.href = response.redirect_url;
-                }
-            },
-            error: function(xhr) {
-                submitBtn.prop("disabled", false).text("Submit");
-
-                if (xhr.status === 422) {
-                    let errors = xhr.responseJSON.errors;
-                    form.find(".error-name").text(errors?.name ?? '');
-                    form.find(".error-mobile").text(errors?.mobile ?? '');
-                    form.find(".error-email").text(errors?.email ?? '');
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Oops...',
-                        text: 'Something went wrong. Please try again later.',
-                        confirmButtonColor: '#ff6600'
-                    });
-                }
+            // Redirect to thankyou page with session
+            if (response.redirect_url) {
+                window.location.href = response.redirect_url;
             }
-        });
+        },
+        error: function(xhr) {
+            submitBtn.prop("disabled", false).text("Submit");
+
+            if (xhr.status === 422) {
+                let errors = xhr.responseJSON.errors;
+                form.find(".error-name").text(errors?.name ?? '');
+                form.find(".error-mobile").text(errors?.mobile ?? '');
+                form.find(".error-email").text(errors?.email ?? '');
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Something went wrong. Please try again later.',
+                    confirmButtonColor: '#ff6600'
+                });
+            }
+        }
     });
+});
 </script>
 
 <script>
-    let swiper = new Swiper(".mySwiper", {
-        spaceBetween: 10,
-        slidesPerView: "auto",
-        freeMode: true,
-        watchSlidesProgress: true,
-        centeredSlides: true,
-    });
-    let swiper2 = new Swiper(".floorSwiper", {
-        spaceBetween: 10,
-        navigation: {
-            nextEl: ".swiper-button-next",
-            prevEl: ".swiper-button-prev",
-        },
-        thumbs: {
-            swiper: swiper,
-        },
-    });
-    swiper2.on("slideChange", function() {
-        let activeIndex = swiper2.activeIndex;
-        swiper.slideTo(activeIndex); // shift thumbs to keep active one visible
+let swiper = new Swiper(".mySwiper", {
+    spaceBetween: 10,
+    slidesPerView: "auto",
+    freeMode: true,
+    watchSlidesProgress: true,
+    centeredSlides: true,
+});
+let swiper2 = new Swiper(".floorSwiper", {
+    spaceBetween: 10,
+    navigation: {
+        nextEl: ".swiper-button-next",
+        prevEl: ".swiper-button-prev",
+    },
+    thumbs: {
+        swiper: swiper,
+    },
+});
+swiper2.on("slideChange", function() {
+    let activeIndex = swiper2.activeIndex;
+    swiper.slideTo(activeIndex); // shift thumbs to keep active one visible
+});
+
+// Dynamic 99acres-Style Sticky Section Navigation with Butter-Smooth 60FPS Scroll Spy
+document.addEventListener('DOMContentLoaded', function() {
+    const navContainer = document.getElementById('navItemsContainer');
+    const navWrapper = document.getElementById('projectStickyNavWrapper');
+    if (!navContainer) return;
+
+    const sectionTitleMap = {
+        'overview': 'Overview',
+        'key': 'Key Insights',
+        'summary': 'About',
+        'price': 'Pricing & Plans',
+        'location': 'Location',
+        'floor': 'Floor Plans',
+        'amenities': 'Amenities',
+        'developer': 'Developer',
+        'faq': 'FAQ'
+    };
+
+    // Scan page for primary project sections
+    const sections = Array.from(document.querySelectorAll('.project-section[id]')).filter(sec => {
+        return (sec.id in sectionTitleMap) && (sec.offsetWidth > 0 || sec.offsetHeight > 0 || sec
+            .getClientRects().length > 0);
     });
 
-    // Dynamic 99acres-Style Sticky Section Navigation with Butter-Smooth 60FPS Scroll Spy
-    document.addEventListener('DOMContentLoaded', function() {
-        const navContainer = document.getElementById('navItemsContainer');
-        const navWrapper = document.getElementById('projectStickyNavWrapper');
-        if (!navContainer) return;
+    if (sections.length === 0) {
+        if (navWrapper) navWrapper.style.display = 'none';
+        return;
+    }
 
-        const sectionTitleMap = {
-            'overview': 'Overview',
-            'key': 'Key Insights',
-            'summary': 'About',
-            'price': 'Pricing & Plans',
-            'location': 'Location',
-            'floor': 'Floor Plans',
-            'amenities': 'Amenities',
-            'developer': 'Developer',
-            'faq': 'FAQ'
-        };
+    // Clean & rebuild navigation items
+    navContainer.querySelectorAll('.nav-menu-item').forEach(item => item.remove());
 
-        // Scan page for primary project sections
-        const sections = Array.from(document.querySelectorAll('.project-section[id]')).filter(sec => {
-            return (sec.id in sectionTitleMap) && (sec.offsetWidth > 0 || sec.offsetHeight > 0 || sec
-                .getClientRects().length > 0);
+    let underline = document.getElementById('navUnderlineIndicator');
+    if (!underline) {
+        underline = document.createElement('div');
+        underline.className = 'nav-underline-indicator';
+        underline.id = 'navUnderlineIndicator';
+        navContainer.appendChild(underline);
+    }
+
+    sections.forEach((sec, idx) => {
+        const id = sec.id;
+        const title = sectionTitleMap[id] || (sec.querySelector('h2, h3')?.textContent?.trim() ||
+            id);
+
+        const li = document.createElement('li');
+        li.className = 'nav-menu-item';
+
+        const a = document.createElement('a');
+        a.href = '#' + id;
+        a.className = 'nav-menu-link' + (idx === 0 ? ' active' : '');
+        a.setAttribute('data-target', id);
+        a.setAttribute('role', 'tab');
+        a.setAttribute('aria-selected', idx === 0 ? 'true' : 'false');
+        a.textContent = title;
+
+        li.appendChild(a);
+        navContainer.appendChild(li);
+    });
+
+    const navLinks = navContainer.querySelectorAll('.nav-menu-link');
+
+    // Pixel-perfect single underline positioning with requestAnimationFrame batching
+    let rAFId = null;
+
+    function moveUnderline(link) {
+        if (!underline || !link) return;
+        const containerRect = navContainer.getBoundingClientRect();
+        const linkRect = link.getBoundingClientRect();
+
+        const left = linkRect.left - containerRect.left + navContainer.scrollLeft;
+        const width = linkRect.width;
+
+        if (rAFId) cancelAnimationFrame(rAFId);
+        rAFId = requestAnimationFrame(() => {
+            underline.style.transform = `translate3d(${left}px, 0, 0)`;
+            underline.style.width = `${width}px`;
+            underline.style.opacity = '1';
         });
+    }
 
-        if (sections.length === 0) {
-            if (navWrapper) navWrapper.style.display = 'none';
+    // Helper to ensure navContainer remains firmly at scrollLeft 0
+    function centerActiveTab(link) {
+        if (!navContainer) return;
+        navContainer.scrollLeft = 0;
+    }
+
+    // Desktop Mouse Drag-to-Scroll support
+    let isDragDown = false;
+    let dragStartX, dragScrollLeft;
+
+    navContainer.addEventListener('mousedown', (e) => {
+        isDragDown = true;
+        dragStartX = e.pageX - navContainer.offsetLeft;
+        dragScrollLeft = navContainer.scrollLeft;
+    });
+
+    navContainer.addEventListener('mouseleave', () => {
+        isDragDown = false;
+    });
+    navContainer.addEventListener('mouseup', () => {
+        isDragDown = false;
+    });
+
+    navContainer.addEventListener('mousemove', (e) => {
+        if (!isDragDown) return;
+        e.preventDefault();
+        const x = e.pageX - navContainer.offsetLeft;
+        const walk = (x - dragStartX) * 1.5;
+        navContainer.scrollLeft = dragScrollLeft - walk;
+    });
+
+    // Initialize active underline position after DOM layout renders
+    setTimeout(() => {
+        const initialActive = navContainer.querySelector('.nav-menu-link.active');
+        if (initialActive) moveUnderline(initialActive);
+    }, 100);
+
+    // Update underline position on resize or container scroll
+    window.addEventListener('resize', function() {
+        const active = navContainer.querySelector('.nav-menu-link.active');
+        if (active) moveUnderline(active);
+    }, {
+        passive: true
+    });
+
+    navContainer.addEventListener('scroll', function() {
+        const active = navContainer.querySelector('.nav-menu-link.active');
+        if (active) moveUnderline(active);
+    }, {
+        passive: true
+    });
+
+    let isManualScrolling = false;
+    let scrollTimer = null;
+    let currentActiveId = null;
+
+    // Instant Click Response & Immediate Page Scroll
+    navContainer.addEventListener('click', function(e) {
+        const link = e.target.closest('.nav-menu-link');
+        if (!link) return;
+
+        e.preventDefault();
+        const targetId = link.getAttribute('data-target');
+        const targetEl = document.getElementById(targetId);
+
+        if (targetEl) {
+            isManualScrolling = true;
+            currentActiveId = targetId;
+
+            navLinks.forEach(l => {
+                if (l === link) {
+                    l.classList.add('active');
+                    l.setAttribute('aria-selected', 'true');
+                    moveUnderline(l);
+                    centerActiveTab(l);
+                } else {
+                    l.classList.remove('active');
+                    l.setAttribute('aria-selected', 'false');
+                }
+            });
+
+            const navbarHeight = document.getElementById('navbar')?.offsetHeight || 80;
+            const stickyNavHeight = navWrapper?.offsetHeight || 56;
+            const totalOffset = navbarHeight + stickyNavHeight + 12;
+
+            const targetPosition = targetEl.getBoundingClientRect().top + window.pageYOffset -
+                totalOffset;
+
+            window.scrollTo({
+                top: targetPosition,
+                behavior: 'smooth'
+            });
+
+            clearTimeout(scrollTimer);
+            scrollTimer = setTimeout(() => {
+                isManualScrolling = false;
+            }, 800);
+        }
+    });
+
+    // Butter-Smooth 60FPS Scroll Spy
+    let isScrollSpyTicking = false;
+
+    function updateScrollSpy() {
+        if (isManualScrolling) return;
+
+        const navbarHeight = document.getElementById('navbar')?.offsetHeight || 80;
+        const stickyNavHeight = navWrapper?.offsetHeight || 54;
+        const totalHeaderOffset = navbarHeight + stickyNavHeight + 25;
+
+        const scrollPosition = window.scrollY + totalHeaderOffset;
+
+        let activeSection = sections[0];
+        for (let i = 0; i < sections.length; i++) {
+            const sec = sections[i];
+            const secTop = sec.getBoundingClientRect().top + window.pageYOffset;
+            if (scrollPosition >= secTop - 5) {
+                activeSection = sec;
+            } else {
+                break;
+            }
+        }
+
+        if (activeSection && activeSection.id !== currentActiveId) {
+            currentActiveId = activeSection.id;
+
+            navLinks.forEach(link => {
+                if (link.getAttribute('data-target') === currentActiveId) {
+                    link.classList.add('active');
+                    link.setAttribute('aria-selected', 'true');
+                    moveUnderline(link);
+                    centerActiveTab(link);
+                } else {
+                    link.classList.remove('active');
+                    link.setAttribute('aria-selected', 'false');
+                }
+            });
+        }
+    }
+
+    // 2-Stage Desktop Sidebar Sticky Handler:
+    // Stage 1 (first half of the detail content): Quick Enquiry stays sticky.
+    // Stage 2 (remaining content): Recommended Projects takes its place and stays sticky.
+    // Keep the form height cached: measuring it after display:none returns 0 and
+    // previously caused the two cards to alternate rapidly while scrolling.
+    let sidebarStage = null;
+    let enquiryFormHeight = 0;
+
+    function measureEnquiryForm(enquiryForm) {
+        const measuredHeight = enquiryForm.getBoundingClientRect().height || enquiryForm.scrollHeight;
+
+        if (measuredHeight > 0) {
+            enquiryFormHeight = measuredHeight;
+        }
+
+        return enquiryFormHeight;
+    }
+
+    function setSidebarCardDisplay(element, display) {
+        // Bootstrap's d-lg-block utility uses !important, so a normal
+        // element.style.display assignment cannot reliably hide a card.
+        element.style.setProperty('display', display, 'important');
+    }
+
+    function updateTwoStageSidebar() {
+        const enquiryForm = document.getElementById('sidebar-enquiry-form');
+        const recommendedCard = document.getElementById('sidebar-recommended-projects');
+        const sidebarWrapper = document.getElementById('sidebar-wrapper');
+
+        if (!enquiryForm || !recommendedCard || !sidebarWrapper) return;
+
+        if (window.innerWidth < 992) {
+            enquiryForm.style.removeProperty('display');
+            enquiryForm.style.position = '';
+            enquiryForm.style.top = '';
+            enquiryForm.style.transform = '';
+            recommendedCard.style.removeProperty('display');
+            recommendedCard.style.position = '';
+            recommendedCard.style.top = '';
+            sidebarStage = null;
             return;
         }
 
-        // Clean & rebuild navigation items
-        navContainer.querySelectorAll('.nav-menu-item').forEach(item => item.remove());
+        // Measure before either card is hidden, and retain that height across
+        // later scroll frames to make the switch point deterministic.
+        measureEnquiryForm(enquiryForm);
 
-        let underline = document.getElementById('navUnderlineIndicator');
-        if (!underline) {
-            underline = document.createElement('div');
-            underline.className = 'nav-underline-indicator';
-            underline.id = 'navUnderlineIndicator';
-            navContainer.appendChild(underline);
+        const boundarySection = document.getElementById('possession') ||
+            document.getElementById('floor') ||
+            document.getElementById('location') ||
+            document.getElementById('summary') ||
+            document.getElementById('overview');
+
+        if (!boundarySection) return;
+
+        const navbarHeight = document.getElementById('navbar')?.offsetHeight || 80;
+        const stickyNavHeight = navWrapper?.offsetHeight || 54;
+        const topMargin = navbarHeight + stickyNavHeight + 15;
+
+        const scrollY = window.pageYOffset;
+        const boundaryRect = boundarySection.getBoundingClientRect();
+        const boundaryBottomDoc = boundaryRect.top + scrollY + boundarySection.offsetHeight;
+
+        const enquiryHeight = enquiryFormHeight || 500;
+        const stickyTriggerDoc = scrollY + topMargin;
+        const maxEnquiryTopDoc = boundaryBottomDoc - enquiryHeight;
+        const nextStage = stickyTriggerDoc < maxEnquiryTopDoc ? 'enquiry' : 'recommended';
+
+        // Styles only change at the handoff point. Re-applying display and
+        // sticky properties on every scroll frame creates visible jitter.
+        if (sidebarStage === nextStage) return;
+
+        sidebarStage = nextStage;
+
+        if (nextStage === 'enquiry') {
+            // STAGE 1 (Overview -> Possession): Show Enquiry Form (Sticky), Hide Recommended Card
+            setSidebarCardDisplay(enquiryForm, 'block');
+            enquiryForm.style.position = 'sticky';
+            enquiryForm.style.top = `${topMargin}px`;
+            enquiryForm.style.zIndex = '12';
+
+            setSidebarCardDisplay(recommendedCard, 'none');
+        } else {
+            // STAGE 2 (After Possession -> Bottom): Hide Enquiry Form, Show & Hold Recommended Card (Sticky)
+            setSidebarCardDisplay(enquiryForm, 'none');
+
+            setSidebarCardDisplay(recommendedCard, 'block');
+            recommendedCard.style.position = 'sticky';
+            recommendedCard.style.top = `${topMargin}px`;
+            recommendedCard.style.zIndex = '10';
         }
+    }
 
-        sections.forEach((sec, idx) => {
-            const id = sec.id;
-            const title = sectionTitleMap[id] || (sec.querySelector('h2, h3')?.textContent?.trim() ||
-                id);
-
-            const li = document.createElement('li');
-            li.className = 'nav-menu-item';
-
-            const a = document.createElement('a');
-            a.href = '#' + id;
-            a.className = 'nav-menu-link' + (idx === 0 ? ' active' : '');
-            a.setAttribute('data-target', id);
-            a.setAttribute('role', 'tab');
-            a.setAttribute('aria-selected', idx === 0 ? 'true' : 'false');
-            a.textContent = title;
-
-            li.appendChild(a);
-            navContainer.appendChild(li);
-        });
-
-        const navLinks = navContainer.querySelectorAll('.nav-menu-link');
-
-        // Pixel-perfect single underline positioning with requestAnimationFrame batching
-        let rAFId = null;
-
-        function moveUnderline(link) {
-            if (!underline || !link) return;
-            const containerRect = navContainer.getBoundingClientRect();
-            const linkRect = link.getBoundingClientRect();
-
-            const left = linkRect.left - containerRect.left + navContainer.scrollLeft;
-            const width = linkRect.width;
-
-            if (rAFId) cancelAnimationFrame(rAFId);
-            rAFId = requestAnimationFrame(() => {
-                underline.style.transform = `translate3d(${left}px, 0, 0)`;
-                underline.style.width = `${width}px`;
-                underline.style.opacity = '1';
-            });
-        }
-
-        // Helper to ensure navContainer remains firmly at scrollLeft 0
-        function centerActiveTab(link) {
-            if (!navContainer) return;
-            navContainer.scrollLeft = 0;
-        }
-
-        // Desktop Mouse Drag-to-Scroll support
-        let isDragDown = false;
-        let dragStartX, dragScrollLeft;
-
-        navContainer.addEventListener('mousedown', (e) => {
-            isDragDown = true;
-            dragStartX = e.pageX - navContainer.offsetLeft;
-            dragScrollLeft = navContainer.scrollLeft;
-        });
-
-        navContainer.addEventListener('mouseleave', () => {
-            isDragDown = false;
-        });
-        navContainer.addEventListener('mouseup', () => {
-            isDragDown = false;
-        });
-
-        navContainer.addEventListener('mousemove', (e) => {
-            if (!isDragDown) return;
-            e.preventDefault();
-            const x = e.pageX - navContainer.offsetLeft;
-            const walk = (x - dragStartX) * 1.5;
-            navContainer.scrollLeft = dragScrollLeft - walk;
-        });
-
-        // Initialize active underline position after DOM layout renders
-        setTimeout(() => {
-            const initialActive = navContainer.querySelector('.nav-menu-link.active');
-            if (initialActive) moveUnderline(initialActive);
-        }, 100);
-
-        // Update underline position on resize or container scroll
-        window.addEventListener('resize', function() {
-            const active = navContainer.querySelector('.nav-menu-link.active');
-            if (active) moveUnderline(active);
-        }, {
-            passive: true
-        });
-
-        navContainer.addEventListener('scroll', function() {
-            const active = navContainer.querySelector('.nav-menu-link.active');
-            if (active) moveUnderline(active);
-        }, {
-            passive: true
-        });
-
-        let isManualScrolling = false;
-        let scrollTimer = null;
-        let currentActiveId = null;
-
-        // Instant Click Response & Immediate Page Scroll
-        navContainer.addEventListener('click', function(e) {
-            const link = e.target.closest('.nav-menu-link');
-            if (!link) return;
-
-            e.preventDefault();
-            const targetId = link.getAttribute('data-target');
-            const targetEl = document.getElementById(targetId);
-
-            if (targetEl) {
-                isManualScrolling = true;
-                currentActiveId = targetId;
-
-                navLinks.forEach(l => {
-                    if (l === link) {
-                        l.classList.add('active');
-                        l.setAttribute('aria-selected', 'true');
-                        moveUnderline(l);
-                        centerActiveTab(l);
-                    } else {
-                        l.classList.remove('active');
-                        l.setAttribute('aria-selected', 'false');
+    // Visibility toggle, Scroll Spy, and 2-Stage Sticky listener
+    function handleScroll() {
+        if (!isScrollSpyTicking) {
+            requestAnimationFrame(() => {
+                updateScrollSpy();
+                updateTwoStageSidebar();
+                if (navWrapper) {
+                    const overviewEl = document.getElementById('overview');
+                    if (overviewEl) {
+                        const currentNavbarHeight = document.getElementById('navbar')
+                            ?.offsetHeight || 80;
+                        const rect = overviewEl.getBoundingClientRect();
+                        if (rect.top <= currentNavbarHeight + 160) {
+                            navWrapper.classList.add('is-visible');
+                        } else {
+                            navWrapper.classList.remove('is-visible');
+                        }
                     }
-                });
-
-                const navbarHeight = document.getElementById('navbar')?.offsetHeight || 80;
-                const stickyNavHeight = navWrapper?.offsetHeight || 56;
-                const totalOffset = navbarHeight + stickyNavHeight + 12;
-
-                const targetPosition = targetEl.getBoundingClientRect().top + window.pageYOffset -
-                    totalOffset;
-
-                window.scrollTo({
-                    top: targetPosition,
-                    behavior: 'smooth'
-                });
-
-                clearTimeout(scrollTimer);
-                scrollTimer = setTimeout(() => {
-                    isManualScrolling = false;
-                }, 800);
-            }
-        });
-
-        // Butter-Smooth 60FPS Scroll Spy
-        let isScrollSpyTicking = false;
-
-        function updateScrollSpy() {
-            if (isManualScrolling) return;
-
-            const navbarHeight = document.getElementById('navbar')?.offsetHeight || 80;
-            const stickyNavHeight = navWrapper?.offsetHeight || 54;
-            const totalHeaderOffset = navbarHeight + stickyNavHeight + 25;
-
-            const scrollPosition = window.scrollY + totalHeaderOffset;
-
-            let activeSection = sections[0];
-            for (let i = 0; i < sections.length; i++) {
-                const sec = sections[i];
-                const secTop = sec.getBoundingClientRect().top + window.pageYOffset;
-                if (scrollPosition >= secTop - 5) {
-                    activeSection = sec;
-                } else {
-                    break;
                 }
-            }
-
-            if (activeSection && activeSection.id !== currentActiveId) {
-                currentActiveId = activeSection.id;
-
-                navLinks.forEach(link => {
-                    if (link.getAttribute('data-target') === currentActiveId) {
-                        link.classList.add('active');
-                        link.setAttribute('aria-selected', 'true');
-                        moveUnderline(link);
-                        centerActiveTab(link);
-                    } else {
-                        link.classList.remove('active');
-                        link.setAttribute('aria-selected', 'false');
-                    }
-                });
-            }
+                isScrollSpyTicking = false;
+            });
+            isScrollSpyTicking = true;
         }
+    }
 
-        // 2-Stage Desktop Sidebar Sticky Handler:
-        // Stage 1 (first half of the detail content): Quick Enquiry stays sticky.
-        // Stage 2 (remaining content): Recommended Projects takes its place and stays sticky.
-        // Keep the form height cached: measuring it after display:none returns 0 and
-        // previously caused the two cards to alternate rapidly while scrolling.
-        let sidebarStage = null;
-        let enquiryFormHeight = 0;
+    window.addEventListener('resize', function() {
+        const active = navContainer.querySelector('.nav-menu-link.active');
+        if (active) moveUnderline(active);
+        updateTwoStageSidebar();
+    }, {
+        passive: true
+    });
 
-        function measureEnquiryForm(enquiryForm) {
-            const measuredHeight = enquiryForm.getBoundingClientRect().height || enquiryForm.scrollHeight;
+    window.addEventListener('scroll', handleScroll, {
+        passive: true
+    });
+    handleScroll();
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
 
-            if (measuredHeight > 0) {
-                enquiryFormHeight = measuredHeight;
-            }
+    const projectBox = document.querySelector('.project-box');
+    if (!projectBox) return;
 
-            return enquiryFormHeight;
-        }
+    const projectId = projectBox.id.split('_')[1];
 
-        function setSidebarCardDisplay(element, display) {
-            // Bootstrap's d-lg-block utility uses !important, so a normal
-            // element.style.display assignment cannot reliably hide a card.
-            element.style.setProperty('display', display, 'important');
-        }
+    const sqftPriceData = JSON.parse(projectBox.dataset.sqftprice || '[]');
+    const priceValue = parseFloat(sqftPriceData[0]?.value || 0);
 
-        function updateTwoStageSidebar() {
-            const enquiryForm = document.getElementById('sidebar-enquiry-form');
-            const recommendedCard = document.getElementById('sidebar-recommended-projects');
-            const sidebarWrapper = document.getElementById('sidebar-wrapper');
+    const bspEl = document.getElementById('bsp_value_' + projectId);
+    const totalEl = document.getElementById('total_value_' + projectId);
 
-            if (!enquiryForm || !recommendedCard || !sidebarWrapper) return;
+    document.querySelectorAll('.floor-btn').forEach(btn => {
 
-            if (window.innerWidth < 992) {
-                enquiryForm.style.removeProperty('display');
-                enquiryForm.style.position = '';
-                enquiryForm.style.top = '';
-                enquiryForm.style.transform = '';
-                recommendedCard.style.removeProperty('display');
-                recommendedCard.style.position = '';
-                recommendedCard.style.top = '';
-                sidebarStage = null;
-                return;
-            }
+        btn.addEventListener('click', function() {
 
-            // Measure before either card is hidden, and retain that height across
-            // later scroll frames to make the switch point deterministic.
-            measureEnquiryForm(enquiryForm);
+            const planIndex = this.dataset.planIndex;
 
-            const boundarySection = document.getElementById('possession') ||
-                document.getElementById('floor') ||
-                document.getElementById('location') ||
-                document.getElementById('summary') ||
-                document.getElementById('overview');
+            document.querySelectorAll('.floor-btn').forEach(b => b.classList.remove(
+                'active'));
 
-            if (!boundarySection) return;
-
-            const navbarHeight = document.getElementById('navbar')?.offsetHeight || 80;
-            const stickyNavHeight = navWrapper?.offsetHeight || 54;
-            const topMargin = navbarHeight + stickyNavHeight + 15;
-
-            const scrollY = window.pageYOffset;
-            const boundaryRect = boundarySection.getBoundingClientRect();
-            const boundaryBottomDoc = boundaryRect.top + scrollY + boundarySection.offsetHeight;
-
-            const enquiryHeight = enquiryFormHeight || 500;
-            const stickyTriggerDoc = scrollY + topMargin;
-            const maxEnquiryTopDoc = boundaryBottomDoc - enquiryHeight;
-            const nextStage = stickyTriggerDoc < maxEnquiryTopDoc ? 'enquiry' : 'recommended';
-
-            // Styles only change at the handoff point. Re-applying display and
-            // sticky properties on every scroll frame creates visible jitter.
-            if (sidebarStage === nextStage) return;
-
-            sidebarStage = nextStage;
-
-            if (nextStage === 'enquiry') {
-                // STAGE 1 (Overview -> Possession): Show Enquiry Form (Sticky), Hide Recommended Card
-                setSidebarCardDisplay(enquiryForm, 'block');
-                enquiryForm.style.position = 'sticky';
-                enquiryForm.style.top = `${topMargin}px`;
-                enquiryForm.style.zIndex = '12';
-
-                setSidebarCardDisplay(recommendedCard, 'none');
+            if (planIndex !== undefined) {
+                document.querySelectorAll(`.floor-btn[data-plan-index="${planIndex}"]`)
+                    .forEach(b => b.classList.add('active'));
             } else {
-                // STAGE 2 (After Possession -> Bottom): Hide Enquiry Form, Show & Hold Recommended Card (Sticky)
-                setSidebarCardDisplay(enquiryForm, 'none');
-
-                setSidebarCardDisplay(recommendedCard, 'block');
-                recommendedCard.style.position = 'sticky';
-                recommendedCard.style.top = `${topMargin}px`;
-                recommendedCard.style.zIndex = '10';
+                this.classList.add('active');
             }
-        }
 
-        // Visibility toggle, Scroll Spy, and 2-Stage Sticky listener
-        function handleScroll() {
-            if (!isScrollSpyTicking) {
-                requestAnimationFrame(() => {
-                    updateScrollSpy();
-                    updateTwoStageSidebar();
-                    if (navWrapper) {
-                        const overviewEl = document.getElementById('overview');
-                        if (overviewEl) {
-                            const currentNavbarHeight = document.getElementById('navbar')
-                                ?.offsetHeight || 80;
-                            const rect = overviewEl.getBoundingClientRect();
-                            if (rect.top <= currentNavbarHeight + 160) {
-                                navWrapper.classList.add('is-visible');
-                            } else {
-                                navWrapper.classList.remove('is-visible');
-                            }
-                        }
-                    }
-                    isScrollSpyTicking = false;
-                });
-                isScrollSpyTicking = true;
+            const superArea = parseFloat(this.dataset.superArea || 0);
+            const planPriceAttr = this.dataset.planPrice;
+
+            if (bspEl && priceValue > 0) {
+                bspEl.textContent = `₹${priceValue.toLocaleString('en-IN')}/sq.ft`;
             }
-        }
 
-        window.addEventListener('resize', function() {
-            const active = navContainer.querySelector('.nav-menu-link.active');
-            if (active) moveUnderline(active);
-            updateTwoStageSidebar();
-        }, {
-            passive: true
-        });
-
-        window.addEventListener('scroll', handleScroll, {
-            passive: true
-        });
-        handleScroll();
-    });
-</script>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-
-        const projectBox = document.querySelector('.project-box');
-        if (!projectBox) return;
-
-        const projectId = projectBox.id.split('_')[1];
-
-        const sqftPriceData = JSON.parse(projectBox.dataset.sqftprice || '[]');
-        const priceValue = parseFloat(sqftPriceData[0]?.value || 0);
-
-        const bspEl = document.getElementById('bsp_value_' + projectId);
-        const totalEl = document.getElementById('total_value_' + projectId);
-
-        document.querySelectorAll('.floor-btn').forEach(btn => {
-
-            btn.addEventListener('click', function() {
-
-                const planIndex = this.dataset.planIndex;
-
-                document.querySelectorAll('.floor-btn').forEach(b => b.classList.remove(
-                    'active'));
-
-                if (planIndex !== undefined) {
-                    document.querySelectorAll(`.floor-btn[data-plan-index="${planIndex}"]`)
-                        .forEach(b => b.classList.add('active'));
-                } else {
-                    this.classList.add('active');
+            if (totalEl) {
+                if (planPriceAttr && planPriceAttr !== '—') {
+                    totalEl.textContent = planPriceAttr;
+                } else if (superArea > 0 && priceValue > 0) {
+                    const totalValue = superArea * priceValue;
+                    totalEl.textContent = `₹ ${(totalValue / 10000000).toFixed(2)} Cr`;
                 }
-
-                const superArea = parseFloat(this.dataset.superArea || 0);
-                const planPriceAttr = this.dataset.planPrice;
-
-                if (bspEl && priceValue > 0) {
-                    bspEl.textContent = `₹${priceValue.toLocaleString('en-IN')}/sq.ft`;
-                }
-
-                if (totalEl) {
-                    if (planPriceAttr && planPriceAttr !== '—') {
-                        totalEl.textContent = planPriceAttr;
-                    } else if (superArea > 0 && priceValue > 0) {
-                        const totalValue = superArea * priceValue;
-                        totalEl.textContent = `₹ ${(totalValue / 10000000).toFixed(2)} Cr`;
-                    }
-                }
-            });
-
+            }
         });
 
     });
+
+});
 </script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        document.querySelectorAll('.rera-toggle').forEach(function(toggle) {
-            const panel = toggle.closest('.position-relative') ? toggle.closest('.position-relative')
-                .querySelector('.rera-panel') : toggle.parentElement.querySelector('.rera-panel');
-            if (!panel) return;
-            toggle.addEventListener('click', function(e) {
-                e.stopPropagation();
-                if (panel.classList.contains('pinned')) {
-                    panel.classList.remove('active', 'pinned');
-                } else {
-                    document.querySelectorAll('.rera-panel.active').forEach(function(p) {
-                        if (p !== panel) {
-                            p.classList.remove('active', 'pinned');
-                        }
-                    });
-                    panel.classList.add('active', 'pinned');
-                }
-            });
-            toggle.addEventListener('mouseenter', function() {
-                if (!panel.classList.contains('pinned')) {
-                    document.querySelectorAll('.rera-panel.active').forEach(function(p) {
-                        if (p !== panel && !p.classList.contains('pinned')) {
-                            p.classList.remove('active');
-                        }
-                    });
-                    panel.classList.add('active');
-                }
-            });
-
-            toggle.addEventListener('mouseleave', function() {
-                if (!panel.classList.contains('pinned')) {
-                    panel.classList.remove('active');
-                }
-            });
-        });
-        document.addEventListener('click', function(e) {
-            if (e.target.closest('.rera-close')) {
-                const p = e.target.closest('.rera-panel');
-                if (p) {
-                    p.classList.remove('active', 'pinned');
-                }
-                return;
-            }
-            if (!e.target.closest('.rera-panel') && !e.target.closest('.rera-toggle')) {
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.rera-toggle').forEach(function(toggle) {
+        const panel = toggle.closest('.position-relative') ? toggle.closest('.position-relative')
+            .querySelector('.rera-panel') : toggle.parentElement.querySelector('.rera-panel');
+        if (!panel) return;
+        toggle.addEventListener('click', function(e) {
+            e.stopPropagation();
+            if (panel.classList.contains('pinned')) {
+                panel.classList.remove('active', 'pinned');
+            } else {
                 document.querySelectorAll('.rera-panel.active').forEach(function(p) {
-                    p.classList.remove('active', 'pinned');
+                    if (p !== panel) {
+                        p.classList.remove('active', 'pinned');
+                    }
                 });
+                panel.classList.add('active', 'pinned');
+            }
+        });
+        toggle.addEventListener('mouseenter', function() {
+            if (!panel.classList.contains('pinned')) {
+                document.querySelectorAll('.rera-panel.active').forEach(function(p) {
+                    if (p !== panel && !p.classList.contains('pinned')) {
+                        p.classList.remove('active');
+                    }
+                });
+                panel.classList.add('active');
+            }
+        });
+
+        toggle.addEventListener('mouseleave', function() {
+            if (!panel.classList.contains('pinned')) {
+                panel.classList.remove('active');
             }
         });
     });
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.rera-close')) {
+            const p = e.target.closest('.rera-panel');
+            if (p) {
+                p.classList.remove('active', 'pinned');
+            }
+            return;
+        }
+        if (!e.target.closest('.rera-panel') && !e.target.closest('.rera-toggle')) {
+            document.querySelectorAll('.rera-panel.active').forEach(function(p) {
+                p.classList.remove('active', 'pinned');
+            });
+        }
+    });
+});
 </script>
 @endSection
