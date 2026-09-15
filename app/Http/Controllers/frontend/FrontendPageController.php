@@ -222,7 +222,14 @@ class FrontendPageController extends Controller
 
 		return redirect()->route('projects', $this->listingQueryParams($selected));
 	}
+	public function getThankYouPage()
+	{
+		if (!session()->has('form_submitted')) {
+			return redirect('/');
+		}
 
+		return view('frontend.thankyou');
+	}
 	public function showFilteredProjects(Request $request, $slug)
 	{
 		// dd($request);

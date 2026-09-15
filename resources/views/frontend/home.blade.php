@@ -10,39 +10,39 @@ property, real estate company in noida, property greater noida, property in grea
 @section('canonical', url()->current())
 @section('customCSS')
 <script type="application/ld+json">
-    {
-        "@context": "http://schema.org",
-        "@type": "ItemList",
-        "itemListElement": [{
-                "@type": "SiteNavigationElement",
-                "position": 1,
-                "name": "About Us",
-                "description": "Spaces crafted for a refined lifestyle.",
-                "url": "https://www.360propguide.com/about-us"
-            },
-            {
-                "@type": "SiteNavigationElement",
-                "position": 2,
-                "name": "Explore Project",
-                "description": "Discover Real Estate Top Projects with 360 PropGuide",
-                "url": "https://www.360propguide.com/projects"
-            },
-            {
-                "@type": "SiteNavigationElement",
-                "position": 3,
-                "name": "360 Knowledge Base",
-                "description": "Explore ideas for a better lifestyle.",
-                "url": "https://www.360propguide.com/blogs"
-            },
-            {
-                "@type": "SiteNavigationElement",
-                "position": 4,
-                "name": "Get in Touch",
-                "description": "Connect to bring your dream home closer.",
-                "url": "https://www.360propguide.com/contact"
-            }
-        ]
-    }
+{
+    "@context": "http://schema.org",
+    "@type": "ItemList",
+    "itemListElement": [{
+            "@type": "SiteNavigationElement",
+            "position": 1,
+            "name": "About Us",
+            "description": "Spaces crafted for a refined lifestyle.",
+            "url": "https://www.360propguide.com/about-us"
+        },
+        {
+            "@type": "SiteNavigationElement",
+            "position": 2,
+            "name": "Explore Project",
+            "description": "Discover Real Estate Top Projects with 360 PropGuide",
+            "url": "https://www.360propguide.com/projects"
+        },
+        {
+            "@type": "SiteNavigationElement",
+            "position": 3,
+            "name": "360 Knowledge Base",
+            "description": "Explore ideas for a better lifestyle.",
+            "url": "https://www.360propguide.com/blogs"
+        },
+        {
+            "@type": "SiteNavigationElement",
+            "position": 4,
+            "name": "Get in Touch",
+            "description": "Connect to bring your dream home closer.",
+            "url": "https://www.360propguide.com/contact"
+        }
+    ]
+}
 </script>
 <link rel="stylesheet"
     href="{{ url('frontend/css/home.css') }}?v={{ filemtime(public_path('frontend/css/home.css')) }}">
@@ -89,7 +89,7 @@ property, real estate company in noida, property greater noida, property in grea
                 return $count . '+';
                 };
                 @endphp
-                <h1 class="hero-title">Real Estate Consultant in Noida & Delhi NCR — Buy, Sell, Invest </h1>
+                <h1 class="hero-title">Best Real Estate Consultant in Noida — Buy, Sell, Invest</h1>
                 <p class="hero-lead" id="heroLead"
                     data-lead-projects="{{ $heroCountLabel($heroProjectCount) }} verified projects and 100% RERA checked listings"
                     data-lead-properties="{{ $heroCountLabel($heroPropertyCount) }} listings added across Delhi NCR"

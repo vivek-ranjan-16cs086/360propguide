@@ -10,32 +10,36 @@
 
                     <div class="h3">
                         @php
-                            $form = session('form');
+                        $form = session('form');
                         @endphp
 
                         @if(in_array($form, ['form1', 'form2', 'form3', 'form4']))
-                            <p>Thank you for sharing your details! Our representative will reach out to you soon to discuss your requirements!</p>
+                        <p>Thank you for sharing your details! Our representative will reach out to you soon to discuss
+                            your requirements!</p>
                         @elseif($form === 'popup')
-                            @if(session('download_file'))
-                                <p>Thank you for sharing your details! Our representative will reach out to you soon to discuss your requirements!</p>
+                        @if(session('download_file'))
+                        <p>Thank you for sharing your details! Our representative will reach out to you soon to discuss
+                            your requirements!</p>
 
-                                <script>
-                                    window.addEventListener('DOMContentLoaded', () => {
-                                        let a = document.createElement('a');
-                                        a.href = "{{ asset('storage/' . session('download_file')) }}";
-                                        a.download = "";
-                                        document.body.appendChild(a);
-                                        a.click();
-                                        document.body.removeChild(a);
-                                    });
-                                </script>
-                            @elseif(session('message'))
-                                <p>{{ session('message') }}</p>
-                            @else
-                                <p>Thank you for sharing your details! Our representative will reach out to you soon to discuss your requirements!</p>
-                            @endif
+                        <script>
+                            window.addEventListener('DOMContentLoaded', () => {
+                                let a = document.createElement('a');
+                                a.href = "{{ asset('storage/' . session('download_file')) }}";
+                                a.download = "";
+                                document.body.appendChild(a);
+                                a.click();
+                                document.body.removeChild(a);
+                            });
+                        </script>
+                        @elseif(session('message'))
+                        <p>{{ session('message') }}</p>
                         @else
-                            <p>Thank you for sharing your details! Our representative will reach out to you soon to discuss your requirements!</p>
+                        <p>Thank you for sharing your details! Our representative will reach out to you soon to discuss
+                            your requirements!</p>
+                        @endif
+                        @else
+                        <p>Thank you for sharing your details! Our representative will reach out to you soon to discuss
+                            your requirements!</p>
                         @endif
                     </div>
 
@@ -47,7 +51,7 @@
     </div>
 </div>
 @php
-    session()->forget(['form', 'download_file', 'message']);
+session()->forget(['form', 'download_file', 'message']);
 @endphp
 
 @endsection
