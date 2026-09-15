@@ -225,7 +225,7 @@ class FrontendPageController extends Controller
 	public function getThankYouPage()
 	{
 		if (!session()->has('form_submitted')) {
-			return redirect()->route('home');
+			return redirect('/');
 		}
 
 		return view('frontend.thankyou');
