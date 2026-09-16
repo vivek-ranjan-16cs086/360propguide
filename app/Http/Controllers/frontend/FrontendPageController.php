@@ -582,20 +582,21 @@ class FrontendPageController extends Controller
 		// Step 4: Price range
 		$minPrice = (int) Project::min('price');
 		$maxPrice = (int) Project::max('price');
+		$locations = Location::parentCityNames()->all();
+		// $locations = Location::query()
+		// 	->whereNull('parent_id')
+		// 	->active()
+		// 	->select('id', 'city')
+		// 	->orderBy('city')
+		// 	->get();
+		// $locality = Location::query()
+		// 	->whereNotNull('parent_id')
+		// 	->active()
+		// 	->select('id', 'parent_id', 'city')
+		// 	->orderBy('city')
+		// 	->get();
 
-		$locations = Location::query()
-			->whereNull('parent_id')
-			->active()
-			->select('id', 'city')
-			->orderBy('city')
-			->get();
-		$locality = Location::query()
-			->whereNotNull('parent_id')
-			->active()
-			->select('id', 'parent_id', 'city')
-			->orderBy('city')
-			->get();
-		// $locality = Location::sublocationNames();
+		$locality = Location::sublocationNames();
 
 		$developers = Developer::select('id', 'developer_name')->get();
 
