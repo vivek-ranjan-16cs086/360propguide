@@ -254,6 +254,7 @@ class FrontendPageController extends Controller
 		$title = $link->title ?? null;
 		$name = $link->name ?? null;
 		$description = $link->description ?? null;
+
 		$links_description = $link->links_description ?? null;
 		$keywords = $link->keywords ?? null;
 		$linkType = $link->type ?? null;
@@ -763,7 +764,60 @@ class FrontendPageController extends Controller
 				abort(404);
 			}
 		}
+		if (empty($links_description)) {
 
+			// ============================================================
+			// DYNAMIC DESCRIPTION — ONLY IF CUSTOM DESCRIPTION NOT FOUND
+			// ============================================================
+
+
+
+			$location = $filters['locality'] ?? $filters['city'] ?? '';
+
+			$configuration = '';
+			$propertyType = 'Flats';
+
+			if (!empty($filters['typology'])) {
+
+				$typology = $filters['typology'];
+
+				// 1 BHK, 2 BHK, 3 BHK etc.
+				if (preg_match('/^\d+\s+BHK$/i', $typology)) {
+					$configuration = $typology;
+					$propertyType = 'Flats';
+				}
+
+				// Plots
+				elseif (strtolower($typology) === 'plots') {
+					$propertyType = 'Plots';
+				}
+
+				// Shops
+				elseif (strtolower($typology) === 'shops') {
+					$propertyType = 'Shops';
+				}
+
+				// Studio Apartments
+				elseif (strtolower($typology) === 'studio apartments') {
+					$propertyType = 'Studio Apartments';
+				}
+			}
+
+			if (!empty($location)) {
+
+				$configurationText = $configuration
+					? $configuration . ' '
+					: '';
+
+				$links_description = "Explore this page to find out a wide range of <strong>{$configurationText}{$propertyType} in {$location}</strong>. These projects are developed by some of the most trusted and well-known real estate developers. On this page, we have brought together some of the most relevant <strong>residential projects in {$location}</strong> that will surely match your property requirements.
+
+It means, no matter whether you are looking a home for your family or you want to upgrade to a larger apartment or in search of buying real estate from a long-term investment perspective, on this page you will find multiple <strong>{$configurationText}{$propertyType} in {$location}</strong>.
+
+If you’re a home buyer, you can check out properties from different developers and compare all the important factors. Talking about the pricing, the <strong>property prices in {$location}</strong> can vary significantly depending on the sector, developer, project stage, apartment size, specifications, and location advantages.
+
+You can use this page to discover and compare <strong>{$configurationText}{$propertyType} for sale in {$location}</strong> and shortlist projects that align with your preferred budget, location, lifestyle, and property requirements.";
+			}
+		}
 
 		$selected = $this->resolveListingSelection($request, $filters);
 		return view('frontend.listing', compact(
