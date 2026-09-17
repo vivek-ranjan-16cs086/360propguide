@@ -583,18 +583,6 @@ class FrontendPageController extends Controller
 		$minPrice = (int) Project::min('price');
 		$maxPrice = (int) Project::max('price');
 		$locations = Location::parentCityNames()->all();
-		// $locations = Location::query()
-		// 	->whereNull('parent_id')
-		// 	->active()
-		// 	->select('id', 'city')
-		// 	->orderBy('city')
-		// 	->get();
-		// $locality = Location::query()
-		// 	->whereNotNull('parent_id')
-		// 	->active()
-		// 	->select('id', 'parent_id', 'city')
-		// 	->orderBy('city')
-		// 	->get();
 
 		$locality = Location::sublocationNames();
 
