@@ -195,21 +195,37 @@
 
     function syncLocalities() {
         var cities = selectedCities();
+        var list = form.querySelector('#localityList');
+        if (!list) return;
+        var search = form.querySelector('[data-filter-search="localityList"]');
+        var query = search ? search.value.trim().toLowerCase() : '';
+        var expanded = list.classList.contains('is-expanded');
+        var matchingCount = 0;
         form.querySelectorAll('#localityList [data-city]').forEach(function (row) {
             var city = (row.getAttribute('data-city') || '').toLowerCase();
             var matchesCity = !cities.length || !city || cities.indexOf(city) !== -1;
+            var label = row.getAttribute('data-filter-label') || '';
+            var matchesQuery = !query || label.indexOf(query) !== -1;
+            if (matchesCity) matchingCount++;
+            // Collapse visually without disabling selected localities on submission.
+            row.style.display = matchesCity && !query && !expanded && matchingCount > 5 ? 'none' : '';
+            row.hidden = !matchesCity || !matchesQuery;
             if (!matchesCity) {
-                row.hidden = true;
                 var checkbox = row.querySelector('input[type="checkbox"]');
                 if (checkbox) checkbox.checked = false;
-            } else if (!row.hasAttribute('data-search-hidden')) {
-                row.hidden = false;
             }
         });
+        var button = form.querySelector('[data-toggle-more="localityList"]');
+        if (button) {
+            button.hidden = matchingCount <= 5 || !!query;
+            button.textContent = expanded ? 'Show less' : 'Show more';
+        }
     }
 
     form.addEventListener('change', function (event) {
         if (event.target.matches('input[name="location[]"]')) {
+            var localityList = form.querySelector('#localityList');
+            if (localityList) localityList.classList.remove('is-expanded');
             syncLocalities();
         }
         if (event.target.matches('input[type="checkbox"], select[name="sort"]')) {
@@ -234,6 +250,10 @@
             var query = input.value.trim().toLowerCase();
             var list = document.getElementById(input.getAttribute('data-filter-search'));
             if (!list) return;
+            if (list.id === 'localityList') {
+                syncLocalities();
+                return;
+            }
             list.querySelectorAll('[data-filter-label]').forEach(function (row) {
                 var label = row.getAttribute('data-filter-label') || '';
                 var matchesQuery = !query || label.indexOf(query) !== -1;
@@ -260,6 +280,7 @@
             if (!list) return;
             list.classList.toggle('is-expanded');
             button.textContent = list.classList.contains('is-expanded') ? 'Show less' : 'Show more';
+            if (list.id === 'localityList') syncLocalities();
         });
     });
 
