@@ -74,7 +74,7 @@ $selectedDevelopers = array_map('strval', $selected['developer'] ?? []);
                     <input type="search" class="filter-search-input" data-filter-search="localityList"
                         placeholder="Search locality" autocomplete="off">
                 </div>
-                <div class="filter-checkbox-list filter-limited" id="localityList">
+                <div class="filter-checkbox-list" id="localityList">
                     @foreach ($locality as $index => $localityName)
                     @php
                     $id = 'filter-locality-' . \Illuminate\Support\Str::slug($localityName) . '-' . $index;
@@ -89,7 +89,7 @@ $selectedDevelopers = array_map('strval', $selected['developer'] ?? []);
                     </label>
                     @endforeach
                 </div>
-                @if(count($locality) > 8)
+                @if(count($locality) > 5)
                 <button type="button" class="filter-more-btn" data-toggle-more="localityList">Show more</button>
                 @endif
             </div>
@@ -132,7 +132,7 @@ $selectedDevelopers = array_map('strval', $selected['developer'] ?? []);
             </div>
         </details>
 
-        <details class="filter-section" open>
+        {{-- <details class="filter-section" open>
             <summary class="filter-section__trigger">
                 <span class="filter-section__title">Budget</span>
                 <i class="fa-solid fa-chevron-down filter-section__chevron" aria-hidden="false"></i>
@@ -152,7 +152,7 @@ $selectedDevelopers = array_map('strval', $selected['developer'] ?? []);
                 </div>
                 <button type="submit" class="filter-apply-btn">Apply budget</button>
             </div>
-        </details>
+        </details> --}}
 
         <details class="filter-section">
             <summary class="filter-section__trigger">
