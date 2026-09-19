@@ -91,8 +91,8 @@
                     <div class="footer-widget widget-links">
                         <h4 class="footer-widget-title">Top Projects</h4>
                         <ul class="footer-menu-list">
-                            <li><a href="{{ url('/projects/eldeco-whispers-of-wonder') }}"><i
-                                        class="fa-solid fa-chevron-right"></i> Eldeco Whispers of Wonder</a></li>
+                            <li><a href="{{ url('/projects/eldeco-wow') }}"><i class="fa-solid fa-chevron-right"></i>
+                                    Eldeco Whispers of Wonder</a></li>
                             <li><a href="{{ url('/projects/max-one') }}"><i class="fa-solid fa-chevron-right"></i> Max
                                     One</a></li>
                             <li><a href="{{ url('/projects/jindal-sons-epic') }}"><i
