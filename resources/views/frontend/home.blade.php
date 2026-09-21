@@ -10,39 +10,39 @@ property, real estate company in noida, property greater noida, property in grea
 @section('canonical', url()->current())
 @section('customCSS')
 <script type="application/ld+json">
-{
-    "@context": "http://schema.org",
-    "@type": "ItemList",
-    "itemListElement": [{
-            "@type": "SiteNavigationElement",
-            "position": 1,
-            "name": "About Us",
-            "description": "Spaces crafted for a refined lifestyle.",
-            "url": "https://www.360propguide.com/about-us"
-        },
-        {
-            "@type": "SiteNavigationElement",
-            "position": 2,
-            "name": "Explore Project",
-            "description": "Discover Real Estate Top Projects with 360 PropGuide",
-            "url": "https://www.360propguide.com/projects"
-        },
-        {
-            "@type": "SiteNavigationElement",
-            "position": 3,
-            "name": "360 Knowledge Base",
-            "description": "Explore ideas for a better lifestyle.",
-            "url": "https://www.360propguide.com/blogs"
-        },
-        {
-            "@type": "SiteNavigationElement",
-            "position": 4,
-            "name": "Get in Touch",
-            "description": "Connect to bring your dream home closer.",
-            "url": "https://www.360propguide.com/contact"
-        }
-    ]
-}
+    {
+        "@context": "http://schema.org",
+        "@type": "ItemList",
+        "itemListElement": [{
+                "@type": "SiteNavigationElement",
+                "position": 1,
+                "name": "About Us",
+                "description": "Spaces crafted for a refined lifestyle.",
+                "url": "https://www.360propguide.com/about-us"
+            },
+            {
+                "@type": "SiteNavigationElement",
+                "position": 2,
+                "name": "Explore Project",
+                "description": "Discover Real Estate Top Projects with 360 PropGuide",
+                "url": "https://www.360propguide.com/projects"
+            },
+            {
+                "@type": "SiteNavigationElement",
+                "position": 3,
+                "name": "360 Knowledge Base",
+                "description": "Explore ideas for a better lifestyle.",
+                "url": "https://www.360propguide.com/blogs"
+            },
+            {
+                "@type": "SiteNavigationElement",
+                "position": 4,
+                "name": "Get in Touch",
+                "description": "Connect to bring your dream home closer.",
+                "url": "https://www.360propguide.com/contact"
+            }
+        ]
+    }
 </script>
 <link rel="stylesheet"
     href="{{ url('frontend/css/home.css') }}?v={{ filemtime(public_path('frontend/css/home.css')) }}">
