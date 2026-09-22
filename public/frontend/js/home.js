@@ -86,7 +86,8 @@ document.addEventListener("DOMContentLoaded", function () {
         if (mode === "commercial") {
             return "Commercial properties in <em>" + city + "</em>";
         }
-        // return "New projects to buy in <em>" + city + "</em>";
+        return "Best Real Estate Consultant in Noida — Buy, Sell, Invest";
+        
     }
 
     function leadForMode(mode) {
