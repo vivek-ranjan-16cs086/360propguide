@@ -168,7 +168,7 @@
   }
   @endphp
   <!--Popup form -->
-
+@include('frontend.partials.contact-mail-modal')
   <div class="modal fade" id="contactModalPopup" tabindex="-1" aria-hidden="true" aria-labelledby="contactModalTitle">
     <div class="modal-dialog popupFormHome">
       <div class="modal-content p-3">
@@ -1362,7 +1362,7 @@ $(document).on('click', '.project-results .suggestion-item', function (e) {
     <!-- Call -->
     @if (!request()->routeIs('projects.details'))
 
-    <a href="tel:+919643020020" class="floating-contact call-contact-btn call-contact-btns" aria-label="Call Now">
+    <a href="tel:+919643020020"   class="floating-contact call-contact-btn call-contact-btns d-block d-md-none" aria-label="Call Now">
 
       <span class="floating-label">Call Now</span>
 
@@ -1379,7 +1379,21 @@ $(document).on('click', '.project-results .suggestion-item', function (e) {
       </span>
 
     </a>
+   <a 
+   class="floating-contact call-contact-btn call-contact-btns d-none d-md-block"
+   aria-label="Email Now"
+   data-bs-toggle="modal"
+   data-bs-target="#contactMailModal">
 
+    <span class="floating-label">
+        Email Now
+    </span>
+
+    <span class="floating-icon floating-email-icon">
+        <i class="fa-solid fa-envelope"></i>
+    </span>
+
+</a>
     @endif
 
   </div>
@@ -1388,6 +1402,9 @@ $(document).on('click', '.project-results .suggestion-item', function (e) {
    FLOATING CONTACT BUTTONS
 ========================== */
 
+.floating-email-icon{
+font-size: 24px;
+}
     .floating-contact-buttons {
       position: fixed;
       left: 0;
