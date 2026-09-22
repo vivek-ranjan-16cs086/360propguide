@@ -1,6 +1,6 @@
 @extends('frontend.layouts.app')
 @section('skipAos', true)
-@section('title', "Real Estate Consultant in Noida | Buy Flats, Projects in Delhi NCR")
+@section('title', "Best Real Estate Consultant in Noida — Buy, Sell, Invest")
 @section('description', "Trusted Real Estate Consultant in Noida & Delhi NCR. Buy, Sell or Invest in top residential &
 commercial projects. Expert guidance, home loans. Call Now!")
 @section('keywords', "360 PropGuide, Real Estate Services, Delhi NCR Properties, Real Estate, real estate company, noida
@@ -89,7 +89,7 @@ property, real estate company in noida, property greater noida, property in grea
                 return $count . '+';
                 };
                 @endphp
-                <h1 class="hero-title">Best Real Estate Consultant in Noida — Buy, Sell, Invest</h1>
+                <h1 class="hero-title">Best Real Estate Consultant in Noida-Buy, Sell, Invest </h1>
                 <p class="hero-lead" id="heroLead"
                     data-lead-projects="{{ $heroCountLabel($heroProjectCount) }} verified projects and 100% RERA checked listings"
                     data-lead-properties="{{ $heroCountLabel($heroPropertyCount) }} listings added across Delhi NCR"

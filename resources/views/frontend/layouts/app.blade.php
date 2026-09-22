@@ -1069,26 +1069,85 @@
       });
     }
 
-    function suggestionUrl(item) {
-      if (item.url) return item.url;
-      if (item.type === 'property') {
-        return '/properties/' + item.slug;
-      }
-      if (item.type === 'custom' || item.type === 'locality' || item.type === 'city') {
-        return item.slug && item.slug.charAt(0) === '/' ? item.slug : '/' + item.slug;
-      }
-      return '/projects/' + item.slug;
+
+function makeSlug(value) {
+    return String(value || '')
+        .toLowerCase()
+        .trim()
+        .replace(/&/g, 'and')
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '');
+}
+
+function suggestionMarkup(item, bhkType) {
+    const label = item.label || (item.type === 'project' ? 'Project' : '');
+    const city = item.subtitle || item.city || '';
+
+    const name = (item.name || '').trim();
+    const type = (item.type || '').trim().toLowerCase();
+
+    let slug = '';
+
+    // CITY
+    // Noida => /flats-in-noida
+    // 3 BHK + Noida => /3-bhk-flats-in-noida
+    if (type === 'city') {
+
+        const bhkSlug = makeSlug(bhkType);
+
+        if (bhkSlug) {
+            slug = bhkSlug + '-flats-in-' + makeSlug(name);
+        } else {
+            slug = 'flats-in-' + makeSlug(name);
+        }
+
+    }
+    // LOCALITY / SECTOR
+    // Sector 1 Noida Extension => /sector-1-noida-extension
+    else if (
+        type === 'locality' ||
+        type === 'location' ||
+        type === 'custom'
+    ) {
+
+        slug = makeSlug(name);
+
+    }
+    // PROJECT
+    else {
+
+        slug = makeSlug(name);
+
     }
 
-    function suggestionMarkup(item) {
-      const label = item.label || (item.type === 'project' ? 'Project' : '');
-      const city = item.subtitle || (label === 'City' ? item.name : '');
-      const cityAttribute = city ? ' data-city="' + escapeHtml(city) + '"' : '';
-      return '<li><a href="' + escapeHtml(suggestionUrl(item)) + '"' + cityAttribute +
-        '><span class="project-name">' + escapeHtml(item.name) + '</span>' +
-        (label ? '<span class="project-meta">' + escapeHtml(label) + '</span>' : '') + '</a></li>';
-    }
+    const url = '/' + slug;
 
+    return `
+        <li>
+            <a href="${url}"
+               class="suggestion-item"
+               data-name="${escapeHtml(name)}"
+               data-type="${escapeHtml(type)}"
+               data-city="${escapeHtml(city)}">
+
+                <span class="project-name">
+                    ${escapeHtml(name)}
+                </span>
+
+                ${label ? `
+                    <span class="project-meta">
+                        ${escapeHtml(label)}
+                    </span>
+                ` : ''}
+            </a>
+        </li>
+    `;
+}
+
+
+    
     // Show project results when the input field is focused
     $(document).on('focus', '.keyword', function() {
       const $parent = $(this).closest('.searchboxs');
@@ -1112,8 +1171,8 @@
             const items = (data && data.data) ? data.data : [];
             if (items.length > 0) {
               let results = '';
-              $.each(items, function(index, item) {
-                results += suggestionMarkup(item);
+              $.each(items, function (index, item) {
+                results += suggestionMarkup(item, bhkType);
               });
               $results.html(results);
             } else {
@@ -1132,22 +1191,19 @@
       }
     });
 
-    // Prevent blur hiding on clicking results
-    $(document).on('mousedown', '.project-results', function(event) {
-      if (event.target.tagName === 'A') event.preventDefault();
-    });
-
+    
     // Hide results on blur (if not clicking result)
-    $(document).on('blur', '.keyword', function(e) {
-      const $parent = $(this).closest('.searchboxs');
-      const $results = $parent.find('.project-results');
-      if (!$(e.relatedTarget).is('.project-results a')) $results.hide();
-    });
+  $(document).on('blur', '.keyword', function () {
+    const $parent = $(this).closest('.searchboxs');
 
+    setTimeout(function () {
+        if (!$parent.find('.project-results:hover').length) {
+            $parent.find('.project-results').hide();
+        }
+    }, 200);
+});
     // Stop propagation on result click
-    $(document).on('click', '.project-results a', function(e) {
-      e.stopPropagation();
-    });
+  
 
     // On keyup: search by keyword + filters
     $(document).on('keyup', '.keyword', function() {
@@ -1182,8 +1238,8 @@
             const items = (data && data.data) ? data.data : [];
             if (items.length > 0) {
               let results = '';
-              $.each(data.data, function(index, item) {
-                results += suggestionMarkup(item);
+              $.each(data.data, function (index, item) {
+               results += suggestionMarkup(item, bhkType);
               });
               $results.html(results).show();
             } else {
@@ -1198,33 +1254,83 @@
         });
       }, 400);
     });
+$(document).on('click', '.project-results .suggestion-item', function (e) {
+    e.preventDefault();
+    e.stopPropagation();
 
+    const $item = $(this);
+    const $parent = $item.closest('.searchboxs');
 
-    // Search button click
-    $(document).on('click', '.searchBtn', function() {
-      const $parent = $(this).closest('.searchboxs');
-      const keyword = $parent.find('.keyword').val().trim();
-      const location = $parent.find('select[name="location"]').val();
-      const bhkType = $parent.find('select[name="bhkType"]').val();
+    const name = ($item.attr('data-name') || '').trim();
+    const type = ($item.attr('data-type') || '').trim().toLowerCase();
 
-      let slugParts = [];
+    const $keyword = $parent.find('.keyword');
+    const $location = $parent.find('select[name="location"]');
 
-      if (bhkType) slugParts.push(bhkType.toLowerCase().replace(/\s+/g, '-'));
-      if (location) slugParts.push("projects-in-" + location.toLowerCase().replace(/\s+/g, '-'));
-      if (bhkType && !location) slugParts.push("projects");
-      if (!location && keyword && !bhkType) slugParts.push("projects");
-
-      const finalSlug = slugParts.join('-');
-      if (!finalSlug) {
-        window.location.href = keyword ? '/projects?q=' + encodeURIComponent(keyword) : '/projects';
-        return;
-      }
-      if (keyword !== '') {
-        window.location.href = "/" + finalSlug + "?keyword=" + encodeURIComponent(keyword);
-      } else {
-        window.location.href = "/" + finalSlug;
-      }
+    console.log('SUGGESTION:', {
+        name: name,
+        type: type
     });
+
+    // CITY
+    // Example: Noida
+    // Result: /flats-in-noida
+    if (type === 'city') {
+
+        let matched = false;
+
+        $location.find('option').each(function () {
+
+            const optionText = $(this).text().trim().toLowerCase();
+            const optionValue = ($(this).val() || '').trim().toLowerCase();
+
+            if (
+                optionText === name.toLowerCase() ||
+                optionValue === name.toLowerCase()
+            ) {
+                $location.val($(this).val()).trigger('change');
+                matched = true;
+                return false;
+            }
+        });
+
+        if (!matched) {
+            console.log('City option not found:', name);
+            $location.val('');
+        }
+
+        $keyword.val('');
+
+    }
+
+    // LOCALITY / SECTOR
+    // Example: Sector 1 Noida Extension
+    // Result: /sector-1-noida-extension
+    else if (
+        type === 'locality' ||
+        type === 'location' ||
+        type === 'custom'
+    ) {
+
+        $keyword.val(name);
+
+        // Locality ko city dropdown mein mat daalo
+        $location.val('');
+
+    }
+
+    // PROJECT
+    else {
+
+        $keyword.val(name);
+        $location.val('');
+    }
+
+    $parent.find('.project-results').hide();
+
+    // Search button trigger
+    $parent.find('.searchBtn').trigger('click');
+});
   </script>
   @yield('customJS')
   <!-- Floating Contact Buttons -->
@@ -1566,3 +1672,4 @@
 </body>
 
 </html>
+
