@@ -2,13 +2,24 @@
 <html lang="en">
 
 <head>
-	<!-- Google Tag Manager -->
-	<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-	new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-	j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-	'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-	})(window,document,'script','dataLayer','GTM-PWVX37VL');</script>
-	<!-- End Google Tag Manager -->
+  <!-- Google Tag Manager -->
+  <script>
+    (function(w, d, s, l, i) {
+      w[l] = w[l] || [];
+      w[l].push({
+        'gtm.start': new Date().getTime(),
+        event: 'gtm.js'
+      });
+      var f = d.getElementsByTagName(s)[0],
+        j = d.createElement(s),
+        dl = l != 'dataLayer' ? '&l=' + l : '';
+      j.async = true;
+      j.src =
+        'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
+      f.parentNode.insertBefore(j, f);
+    })(window, document, 'script', 'dataLayer', 'GTM-PWVX37VL');
+  </script>
+  <!-- End Google Tag Manager -->
   @yield('priority')
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -120,22 +131,22 @@
 
   <!-- Marketing tags load after the first real interaction, outside initial rendering. -->
   <script>
-    
+
   </script>
 
 </head>
 
 <body class="{{ request()->routeIs('frontend.project-details1') ? 'hide-floating-buttons' : '' }}">
-	 <!-- Google Tag Manager (noscript) -->
-	<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PWVX37VL"
-	height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-	<!-- End Google Tag Manager (noscript) -->
-	@include('frontend.layouts.header1')
-	@yield('content')
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PWVX37VL" height="0" width="0"
+      style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+  @include('frontend.layouts.header1')
+  @yield('content')
 
-	@if (!isset($hideCustomLinks))
-	@include('frontend.partials.custom-links')
-	@endif
+  @if (!isset($hideCustomLinks))
+  @include('frontend.partials.custom-links')
+  @endif
 
   <footer>@include('frontend.layouts.footer')</footer>
 
@@ -162,8 +173,9 @@
     <div class="modal-dialog popupFormHome">
       <div class="modal-content p-3">
         <div class="modal-header border-0">
-          <img src="{{asset('frontend/360logo.webp')}}" alt="360 PropGuide" class="mx-auto popup-logo-img" width="180"
-            height="70" style="max-width: 180px; height: auto; object-fit: contain; display: block;" loading="lazy"
+          <img src="{{asset('frontend/360logo.webp')}}" alt="360 PropGuide" class="mx-auto popup-logo-img"
+            width="180" height="70"
+            style="max-width: 180px; height: auto; object-fit: contain; display: block;" loading="lazy"
             decoding="async">
 
           <button type="button" class="btn-close align-self-start ms-0 shadow-none" data-bs-dismiss="modal"
@@ -179,22 +191,26 @@
             <input type="hidden" name="formName" value="popup">
             <div class="mb-3">
 
-              <input id="name" type="text" class="form-control shadow-none name" name="name" placeholder="Name*">
+              <input id="name" type="text" class="form-control shadow-none name" name="name"
+                placeholder="Name*">
               <span class="text-danger error-name"></span>
             </div>
             <div class="mb-3">
 
-              <input id="mobile" type="tel" class="form-control shadow-none mobile" name="mobile" placeholder="Mobile*">
+              <input id="mobile" type="tel" class="form-control shadow-none mobile" name="mobile"
+                placeholder="Mobile*">
               <span class="text-danger error-mobile"></span>
             </div>
             <div class="mb-3">
 
-              <input id="email" type="email" class="form-control shadow-none email" name="email" placeholder="Email*">
+              <input id="email" type="email" class="form-control shadow-none email" name="email"
+                placeholder="Email*">
               <span class="text-danger error-email"></span>
             </div>
             <div class="mb-3">
 
-              <textarea name="message" id="message" class="form-control shadow-none  " placeholder="Message"></textarea>
+              <textarea name="message" id="message" class="form-control shadow-none  "
+                placeholder="Message"></textarea>
 
             </div>
             <div class="mb-3">
@@ -269,11 +285,16 @@
   @endif
   @include('frontend.layouts.sidebar')
   <script type="module">
-    window.enablePushNotifications = async function () {
+    window.enablePushNotifications = async function() {
       if (!('Notification' in window) || !('serviceWorker' in navigator)) return;
       if (Notification.permission !== 'granted') return;
 
-      const [{ initializeApp }, { getMessaging, getToken }] = await Promise.all([
+      const [{
+        initializeApp
+      }, {
+        getMessaging,
+        getToken
+      }] = await Promise.all([
         import('https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js'),
         import('https://www.gstatic.com/firebasejs/11.9.1/firebase-messaging.js')
       ]);
@@ -298,14 +319,19 @@
           'Content-Type': 'application/json',
           'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
         },
-        body: JSON.stringify({ token })
+        body: JSON.stringify({
+          token
+        })
       });
     };
 
     if ('Notification' in window && Notification.permission === 'granted') {
-      window.addEventListener('pointerdown', function () {
-        window.enablePushNotifications().catch(() => { });
-      }, { once: true, passive: true });
+      window.addEventListener('pointerdown', function() {
+        window.enablePushNotifications().catch(() => {});
+      }, {
+        once: true,
+        passive: true
+      });
     }
   </script>
   <script>
@@ -319,9 +345,11 @@
       document.body.appendChild(script);
     }
     document.querySelectorAll("input, textarea").forEach(el => {
-      el.addEventListener("focus", loadRecaptcha, { once: true });
+      el.addEventListener("focus", loadRecaptcha, {
+        once: true
+      });
     });
-    document.addEventListener("DOMContentLoaded", function () {
+    document.addEventListener("DOMContentLoaded", function() {
       // Check if the consent cookie is already stored
       if (!localStorage.getItem('cookieConsent')) {
         // Show the consent popup if consent is not stored
@@ -329,22 +357,22 @@
       }
 
       // Handle consent acceptance
-      document.getElementById('acceptCookies').addEventListener('click', function () {
+      document.getElementById('acceptCookies').addEventListener('click', function() {
         localStorage.setItem('cookieConsent', 'true');
         document.getElementById('cookieConsentPopup').style.display = 'none';
       });
 
       // Handle consent decline
-      document.getElementById('declineCookies').addEventListener('click', function () {
+      document.getElementById('declineCookies').addEventListener('click', function() {
         localStorage.setItem('cookieConsent', 'false');
         document.getElementById('cookieConsentPopup').style.display = 'none';
       });
     });
   </script>
   <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      document.querySelectorAll('.load-more-btn').forEach(function (button) {
-        button.addEventListener('click', function () {
+    document.addEventListener('DOMContentLoaded', function() {
+      document.querySelectorAll('.load-more-btn').forEach(function(button) {
+        button.addEventListener('click', function() {
           const type = button.getAttribute('data-target');
           const container = document.getElementById(`${type}-container`);
           const currentPage = parseInt(container.getAttribute('data-page'), 10) || 1;
@@ -354,16 +382,20 @@
           button.disabled = true;
           button.textContent = 'Loading...';
 
-          fetch(`/api/load-more-links?type=${type}&page=${nextPage}&path=${encodeURIComponent(path)}`)
+          fetch(
+              `/api/load-more-links?type=${type}&page=${nextPage}&path=${encodeURIComponent(path)}`
+            )
             .then(res => res.json())
             .then(data => {
               (data.links || []).forEach(link => {
                 const div = document.createElement('div');
-                div.className = `col-12 col-sm-6 col-md-4 col-lg-3 ${type}-item`;
+                div.className =
+                  `col-12 col-sm-6 col-md-4 col-lg-3 ${type}-item`;
                 const a = document.createElement('a');
                 a.href = link.url;
                 a.className = 'custom-link-item';
-                a.innerHTML = '<i class="fa-solid fa-location-arrow link-icon"></i>';
+                a.innerHTML =
+                  '<i class="fa-solid fa-location-arrow link-icon"></i>';
                 const span = document.createElement('span');
                 span.className = 'link-text';
                 span.textContent = link.text || '';
@@ -374,7 +406,8 @@
 
               container.setAttribute('data-page', data.currentPage);
               button.disabled = false;
-              button.innerHTML = '<i class="fa-solid fa-plus me-1"></i> View More Links';
+              button.innerHTML =
+                '<i class="fa-solid fa-plus me-1"></i> View More Links';
 
               if (!data.hasMore) {
                 const footer = button.closest('.custom-links-footer');
@@ -384,7 +417,8 @@
             })
             .catch(() => {
               button.disabled = false;
-              button.innerHTML = '<i class="fa-solid fa-plus me-1"></i> View More Links';
+              button.innerHTML =
+                '<i class="fa-solid fa-plus me-1"></i> View More Links';
             });
         });
       });
@@ -412,15 +446,16 @@
       return null;
     }
 
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function() {
       if (!getCookie("cookieForm")) {
-        setTimeout(function () {
-          var contactModalPopup = new bootstrap.Modal(document.getElementById('contactModalPopup'), {});
+        setTimeout(function() {
+          var contactModalPopup = new bootstrap.Modal(document.getElementById(
+            'contactModalPopup'), {});
           contactModalPopup.show();
 
           // When user closes the modal, set cookie for 1 day
           var modalEl = document.getElementById('contactModalPopup');
-          modalEl.addEventListener('hidden.bs.modal', function () {
+          modalEl.addEventListener('hidden.bs.modal', function() {
             setCookie('cookieForm', 'true', 1);
           });
         }, 10000);
@@ -431,7 +466,7 @@
     const formPopup = document.getElementById('formPopup');
 
     if (closeBtn && formPopup) {
-      closeBtn.addEventListener('click', function () {
+      closeBtn.addEventListener('click', function() {
         formPopup.style.display = 'none';
       });
     }
@@ -439,8 +474,8 @@
 
 
   <script>
-    $(document).ready(function () {
-      $(".popupForm").submit(function (e) {
+    $(document).ready(function() {
+      $(".popupForm").submit(function(e) {
         e.preventDefault();
         let form = $(this);
 
@@ -495,7 +530,7 @@
           processData: false,
           contentType: false,
 
-          success: function (response) {
+          success: function(response) {
             if (response.success) {
 
               form[0].reset();
@@ -507,14 +542,16 @@
             }
           },
 
-          error: function (xhr) {
+          error: function(xhr) {
             submitButton.prop('disabled', false).html('Submit');
             let errors = xhr.responseJSON.errors;
             if (errors) {
               if (errors.name) form.find(".error-name").text(errors.name[0]);
               if (errors.email) form.find(".error-email").text(errors.email[0]);
-              if (errors.mobile) form.find(".error-mobile").text(errors.mobile[0]);
-              if (errors['g-recaptcha-response']) form.find(".error-recaptcha").text(errors['g-recaptcha-response'][0]);
+              if (errors.mobile) form.find(".error-mobile").text(errors.mobile[
+                0]);
+              if (errors['g-recaptcha-response']) form.find(".error-recaptcha")
+                .text(errors['g-recaptcha-response'][0]);
             }
           }
         });
@@ -522,25 +559,25 @@
     });
   </script>
   <script defer>
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function() {
       // Use event delegation to support dynamically loaded images
-      document.body.addEventListener('click', function (e) {
+      document.body.addEventListener('click', function(e) {
         if (e.target.classList.contains('remove-existing')) {
           const imagePath = e.target.dataset.path;
           const propertyId = e.target.dataset.propertyId;
 
           if (confirm('Are you sure you want to delete this image?')) {
             fetch("{{ route('postproperty.image.json.delete') }}", {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-              },
-              body: JSON.stringify({
-                image: imagePath,
-                property_id: propertyId
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                  image: imagePath,
+                  property_id: propertyId
+                })
               })
-            })
               .then(response => response.json())
               .then(data => {
                 if (data.success) {
@@ -556,7 +593,6 @@
     });
   </script>
   <script defer>
-
     const input = document.getElementById('galleries');
     const dropArea = document.getElementById('drop-area');
     const previewContainer = document.getElementById('preview');
@@ -613,7 +649,7 @@
 
       selectedFiles.forEach((file, i) => {
         const reader = new FileReader();
-        reader.onload = function (e) {
+        reader.onload = function(e) {
           const div = document.createElement('div');
           div.className = 'position-relative mb-3 me-2';
           div.style.width = '120px';
@@ -626,7 +662,8 @@
 
           const closeBtn = document.createElement('span');
           closeBtn.innerHTML = '&times;';
-          closeBtn.className = 'position-absolute top-0 end-0 bg-danger text-white rounded-circle small imageX';
+          closeBtn.className =
+            'position-absolute top-0 end-0 bg-danger text-white rounded-circle small imageX';
           closeBtn.style.cursor = 'pointer';
           closeBtn.style.transform = 'translate(50%, -50%)';
           closeBtn.style.zIndex = '2';
@@ -649,7 +686,7 @@
   </script>
   <script>
     //add overlay on scroll up
-    $(window).scroll(function () {
+    $(window).scroll(function() {
       let position = $(this).scrollTop();
       if (position >= 100) {
         $("#navbar").addClass("scrolled");
@@ -695,7 +732,7 @@
       });
     });
 
-    window.addEventListener('load', function () {
+    window.addEventListener('load', function() {
       setTimeout(() => {
         if (window.AOS) AOS.init();
       }, 2000);
@@ -705,7 +742,7 @@
     const scrollToTopBtn = document.getElementById("scrollToTopBtn");
 
     // Show the button when scrolling down
-    window.onscroll = function () {
+    window.onscroll = function() {
       if (
         document.body.scrollTop > 20 ||
         document.documentElement.scrollTop > 20
@@ -717,13 +754,13 @@
     };
 
     // Scroll to the top when the button is clicked
-    scrollToTopBtn.addEventListener("click", function () {
+    scrollToTopBtn.addEventListener("click", function() {
       window.scrollTo({
         top: 0,
         behavior: "smooth", // Smooth scroll animation
       });
     });
-    scrollToTopBtn.addEventListener("keydown", function (event) {
+    scrollToTopBtn.addEventListener("keydown", function(event) {
       if (event.key === "Enter" || event.key === " ") {
         event.preventDefault();
         scrollToTopBtn.click();
@@ -766,7 +803,7 @@
       return number.toString();
     }
 
-    document.addEventListener("DOMContentLoaded", function () {
+    document.addEventListener("DOMContentLoaded", function() {
       const priceInput = document.getElementById("PropertyPrice");
       const formattedLabel = document.getElementById("formattedPrice");
 
@@ -784,10 +821,10 @@
   </script>
 
   <script>
-    $(document).ready(function () {
+    $(document).ready(function() {
       let debounceTimer;
 
-      $('#project_search').on('input', function () {
+      $('#project_search').on('input', function() {
         clearTimeout(debounceTimer);
 
         const query = $(this).val();
@@ -797,13 +834,13 @@
           return;
         }
 
-        debounceTimer = setTimeout(function () {
+        debounceTimer = setTimeout(function() {
           fetchProjects(query);
         }, 300);
       });
 
       //New: Fetch all on focus/click
-      $('#project_search').on('focus click', function () {
+      $('#project_search').on('focus click', function() {
         const query = $(this).val();
 
         // Fetch all projects if query is empty or too short
@@ -825,13 +862,14 @@
             location: "{{ $property->city ?? '' }}",
             projectType: "{{ $property->property_type ?? '' }}"
           },
-          success: function (response) {
+          success: function(response) {
             const suggestions = response.data;
             let html = '';
 
             if (suggestions.length > 0) {
-              suggestions.forEach(function (project) {
-                html += `<a href="#" class="list-group-item list-group-item-action" data-id="${project.id}" data-name="${project.name}">${project.name}</a>`;
+              suggestions.forEach(function(project) {
+                html +=
+                  `<a href="#" class="list-group-item list-group-item-action" data-id="${project.id}" data-name="${project.name}">${project.name}</a>`;
               });
             } else {
               html = `<div class="list-group-item disabled">No results</div>`;
@@ -844,7 +882,7 @@
 
 
       // Select project from dropdown
-      $(document).on('click', '#project_suggestions a', function (e) {
+      $(document).on('click', '#project_suggestions a', function(e) {
         e.preventDefault();
         const id = $(this).data('id');
         const name = $(this).data('name');
@@ -857,7 +895,7 @@
 
 
       // Hide dropdown when clicking outside
-      $(document).click(function (e) {
+      $(document).click(function(e) {
         if (!$(e.target).closest('#project_search, #project_suggestions').length) {
           $('#project_suggestions').hide();
         }
@@ -868,7 +906,7 @@
     const numberInputs = document.querySelectorAll('.only-numeric');
 
     numberInputs.forEach(input => {
-      input.addEventListener('input', function () {
+      input.addEventListener('input', function() {
         // Remove anything that's not a digit
         let cleaned = this.value.replace(/\D/g, '');
 
@@ -889,16 +927,15 @@
       });
 
       // Prevent typing of "-" or "e"
-      input.addEventListener('keydown', function (e) {
+      input.addEventListener('keydown', function(e) {
         if (['-', 'e', '+'].includes(e.key)) {
           e.preventDefault();
         }
       });
     });
-
   </script>
   <script>
-    $(document).on('submit', '#stepForm', function (e) {
+    $(document).on('submit', '#stepForm', function(e) {
       console.log('Form submitted');
 
       e.preventDefault();
@@ -914,7 +951,7 @@
       $form.find('.invalid-feedback').text('');
 
       //FRONTEND VALIDATION START
-      $form.find('[name]').each(function () {
+      $form.find('[name]').each(function() {
         const $input = $(this);
         const name = $input.attr('name');
         const value = $input.val();
@@ -954,7 +991,7 @@
         data: formData,
         contentType: false,
         processData: false,
-        success: function (res) {
+        success: function(res) {
           if (res.html && res.redirect_url) {
             window.history.pushState({}, '', res.redirect_url); // Push step URL
             $('#stepContent').html(res.html); // Replace form content
@@ -964,14 +1001,15 @@
             }); // Scroll to top after loading new content
           }
         },
-        error: function (xhr) {
+        error: function(xhr) {
           if (xhr.status === 422) {
             const errors = xhr.responseJSON.errors;
 
             // Show server-side validation errors
-            $.each(errors, function (field, messages) {
+            $.each(errors, function(field, messages) {
               const $input = $form.find(`[name="${field}"]`);
-              const $errorContainer = $input.closest('.mb-3, .mb-4').find('.invalid-feedback');
+              const $errorContainer = $input.closest('.mb-3, .mb-4').find(
+                '.invalid-feedback');
 
               if ($input.length && $errorContainer.length) {
                 $input.addClass('is-invalid');
@@ -985,7 +1023,7 @@
       });
     });
 
-    window.addEventListener('popstate', function (event) {
+    window.addEventListener('popstate', function(event) {
       const stepContent = document.getElementById('stepContent');
 
       // Only run on multi-step form pages
@@ -996,7 +1034,7 @@
       $.ajax({
         url: url,
         type: 'GET',
-        success: function (res) {
+        success: function(res) {
           stepContent.innerHTML = res;
 
           window.scrollTo({
@@ -1004,8 +1042,9 @@
             behavior: 'smooth'
           });
         },
-        error: function () {
-          stepContent.innerHTML = '<p class="text-danger">Failed to load previous step. Please refresh.</p>';
+        error: function() {
+          stepContent.innerHTML =
+            '<p class="text-danger">Failed to load previous step. Please refresh.</p>';
         }
       });
     });
@@ -1019,32 +1058,98 @@
     let searchDebounceTimer = null;
 
     function escapeHtml(value) {
-      return String(value || '').replace(/[&<>"']/g, function (character) {
-        return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character];
+      return String(value || '').replace(/[&<>"']/g, function(character) {
+        return ({
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#39;'
+        })[character];
       });
     }
 
-    function suggestionUrl(item) {
-      if (item.url) return item.url;
-      if (item.type === 'property') {
-        return '/properties/' + item.slug;
-      }
-      if (item.type === 'custom' || item.type === 'locality' || item.type === 'city') {
-        return item.slug && item.slug.charAt(0) === '/' ? item.slug : '/' + item.slug;
-      }
-      return '/projects/' + item.slug;
+
+function makeSlug(value) {
+    return String(value || '')
+        .toLowerCase()
+        .trim()
+        .replace(/&/g, 'and')
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '');
+}
+
+function suggestionMarkup(item, bhkType) {
+    const label = item.label || (item.type === 'project' ? 'Project' : '');
+    const city = item.subtitle || item.city || '';
+
+    const name = (item.name || '').trim();
+    const type = (item.type || '').trim().toLowerCase();
+
+    let slug = '';
+
+    // CITY
+    // Noida => /flats-in-noida
+    // 3 BHK + Noida => /3-bhk-flats-in-noida
+    if (type === 'city') {
+
+        const bhkSlug = makeSlug(bhkType);
+
+        if (bhkSlug) {
+            slug = bhkSlug + '-flats-in-' + makeSlug(name);
+        } else {
+            slug = 'flats-in-' + makeSlug(name);
+        }
+
+    }
+    // LOCALITY / SECTOR
+    // Sector 1 Noida Extension => /sector-1-noida-extension
+    else if (
+        type === 'locality' ||
+        type === 'location' ||
+        type === 'custom'
+    ) {
+
+        slug = makeSlug(name);
+
+    }
+    // PROJECT
+    else {
+
+        slug = makeSlug(name);
+
     }
 
-    function suggestionMarkup(item) {
-      const label = item.label || (item.type === 'project' ? 'Project' : '');
-      const city = item.subtitle || (label === 'City' ? item.name : '');
-      const cityAttribute = city ? ' data-city="' + escapeHtml(city) + '"' : '';
-      return '<li><a href="' + escapeHtml(suggestionUrl(item)) + '"' + cityAttribute + '><span class="project-name">' + escapeHtml(item.name) + '</span>' +
-        (label ? '<span class="project-meta">' + escapeHtml(label) + '</span>' : '') + '</a></li>';
-    }
+    const url = '/' + slug;
 
+    return `
+        <li>
+            <a href="${url}"
+               class="suggestion-item"
+               data-name="${escapeHtml(name)}"
+               data-type="${escapeHtml(type)}"
+               data-city="${escapeHtml(city)}">
+
+                <span class="project-name">
+                    ${escapeHtml(name)}
+                </span>
+
+                ${label ? `
+                    <span class="project-meta">
+                        ${escapeHtml(label)}
+                    </span>
+                ` : ''}
+            </a>
+        </li>
+    `;
+}
+
+
+    
     // Show project results when the input field is focused
-    $(document).on('focus', '.keyword', function () {
+    $(document).on('focus', '.keyword', function() {
       const $parent = $(this).closest('.searchboxs');
       const $results = $parent.find('.project-results');
 
@@ -1058,21 +1163,27 @@
           url: "{{ route('projects.search', [], false) }}",
           method: "GET",
           dataType: "json",
-          data: { location, bhkType },
-          success: function (data) {
+          data: {
+            location,
+            bhkType
+          },
+          success: function(data) {
             const items = (data && data.data) ? data.data : [];
             if (items.length > 0) {
               let results = '';
               $.each(items, function (index, item) {
-                results += suggestionMarkup(item);
+                results += suggestionMarkup(item, bhkType);
               });
               $results.html(results);
             } else {
-              $results.html('<li><a>No projects available for selected configuration</a></li>');
+              $results.html(
+                '<li><a>No projects available for selected configuration</a></li>');
             }
           },
-          error: function () {
-            $results.html('<li><a>There was an error with the search request. Please try again.</a></li>');
+          error: function() {
+            $results.html(
+              '<li><a>There was an error with the search request. Please try again.</a></li>'
+            );
           }
         });
       } else {
@@ -1080,25 +1191,22 @@
       }
     });
 
-    // Prevent blur hiding on clicking results
-    $(document).on('mousedown', '.project-results', function (event) {
-      if (event.target.tagName === 'A') event.preventDefault();
-    });
-
+    
     // Hide results on blur (if not clicking result)
-    $(document).on('blur', '.keyword', function (e) {
-      const $parent = $(this).closest('.searchboxs');
-      const $results = $parent.find('.project-results');
-      if (!$(e.relatedTarget).is('.project-results a')) $results.hide();
-    });
+  $(document).on('blur', '.keyword', function () {
+    const $parent = $(this).closest('.searchboxs');
 
+    setTimeout(function () {
+        if (!$parent.find('.project-results:hover').length) {
+            $parent.find('.project-results').hide();
+        }
+    }, 200);
+});
     // Stop propagation on result click
-    $(document).on('click', '.project-results a', function (e) {
-      e.stopPropagation();
-    });
+  
 
     // On keyup: search by keyword + filters
-    $(document).on('keyup', '.keyword', function () {
+    $(document).on('keyup', '.keyword', function() {
       const $input = $(this);
       const $parent = $input.closest('.searchboxs');
       const $results = $parent.find('.project-results');
@@ -1116,57 +1224,113 @@
 
       $results.show().html('<li><a>Searching Projects...</a></li>');
 
-      searchDebounceTimer = setTimeout(function () {
+      searchDebounceTimer = setTimeout(function() {
         $.ajax({
           url: "{{ route('projects.search', [], false) }}",
           method: "GET",
           dataType: "json",
-          data: { keyword, location, bhkType },
-          success: function (data) {
+          data: {
+            keyword,
+            location,
+            bhkType
+          },
+          success: function(data) {
             const items = (data && data.data) ? data.data : [];
             if (items.length > 0) {
               let results = '';
               $.each(data.data, function (index, item) {
-                results += suggestionMarkup(item);
+               results += suggestionMarkup(item, bhkType);
               });
               $results.html(results).show();
             } else {
               $results.html('<li><a>No results found</a></li>').show();
             }
           },
-          error: function () {
-            $results.html('<li><a>There was an error with the search request. Please try again.</a></li>');
+          error: function() {
+            $results.html(
+              '<li><a>There was an error with the search request. Please try again.</a></li>'
+            );
           }
         });
       }, 400);
     });
+$(document).on('click', '.project-results .suggestion-item', function (e) {
+    e.preventDefault();
+    e.stopPropagation();
 
+    const $item = $(this);
+    const $parent = $item.closest('.searchboxs');
 
-    // Search button click
-    $(document).on('click', '.searchBtn', function () {
-      const $parent = $(this).closest('.searchboxs');
-      const keyword = $parent.find('.keyword').val().trim();
-      const location = $parent.find('select[name="location"]').val();
-      const bhkType = $parent.find('select[name="bhkType"]').val();
+    const name = ($item.attr('data-name') || '').trim();
+    const type = ($item.attr('data-type') || '').trim().toLowerCase();
 
-      let slugParts = [];
+    const $keyword = $parent.find('.keyword');
+    const $location = $parent.find('select[name="location"]');
 
-      if (bhkType) slugParts.push(bhkType.toLowerCase().replace(/\s+/g, '-'));
-      if (location) slugParts.push("projects-in-" + location.toLowerCase().replace(/\s+/g, '-'));
-      if (bhkType && !location) slugParts.push("projects");
-      if (!location && keyword && !bhkType) slugParts.push("projects");
-
-      const finalSlug = slugParts.join('-');
-      if (!finalSlug) {
-        window.location.href = keyword ? '/projects?q=' + encodeURIComponent(keyword) : '/projects';
-        return;
-      }
-      if (keyword !== '') {
-        window.location.href = "/" + finalSlug + "?keyword=" + encodeURIComponent(keyword);
-      } else {
-        window.location.href = "/" + finalSlug;
-      }
+    console.log('SUGGESTION:', {
+        name: name,
+        type: type
     });
+
+    // CITY
+    // Example: Noida
+    // Result: /flats-in-noida
+    if (type === 'city') {
+
+        let matched = false;
+
+        $location.find('option').each(function () {
+
+            const optionText = $(this).text().trim().toLowerCase();
+            const optionValue = ($(this).val() || '').trim().toLowerCase();
+
+            if (
+                optionText === name.toLowerCase() ||
+                optionValue === name.toLowerCase()
+            ) {
+                $location.val($(this).val()).trigger('change');
+                matched = true;
+                return false;
+            }
+        });
+
+        if (!matched) {
+            console.log('City option not found:', name);
+            $location.val('');
+        }
+
+        $keyword.val('');
+
+    }
+
+    // LOCALITY / SECTOR
+    // Example: Sector 1 Noida Extension
+    // Result: /sector-1-noida-extension
+    else if (
+        type === 'locality' ||
+        type === 'location' ||
+        type === 'custom'
+    ) {
+
+        $keyword.val(name);
+
+        // Locality ko city dropdown mein mat daalo
+        $location.val('');
+
+    }
+
+    // PROJECT
+    else {
+
+        $keyword.val(name);
+        $location.val('');
+    }
+
+    $parent.find('.project-results').hide();
+
+    // Search button trigger
+    $parent.find('.searchBtn').trigger('click');
+});
   </script>
   @yield('customJS')
   <!-- Floating Contact Buttons -->
@@ -1174,7 +1338,7 @@
   <div class="floating-contact-buttons">
 
     <!-- WhatsApp -->
-    <a href="https://wa.me/919643020020" target="_blank" rel="noopener noreferrer"
+    <a href="https://wa.me/+919643020020" target="_blank" rel="noopener noreferrer"
       class="floating-contact whatsapp-contact-btn" aria-label="WhatsApp">
 
       <span class="floating-icon">
