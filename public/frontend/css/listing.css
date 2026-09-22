@@ -839,8 +839,11 @@
     color: var(--projects-navy);
     cursor: pointer;
     font-size: 0.88rem;
-    font-weight: 700;
+    font-weight: 450;
     list-style: none;
+}
+.projects-description span{
+    font-weight: 700;
 }
 
 .projects-description summary::-webkit-details-marker {
@@ -866,7 +869,12 @@ a.project-empty-state__reset {
     font-style: italic;
 }
 
-/* --------------------------------------------------------------------------
+
+.projects-description summary { cursor: pointer; } 
+.projects-description__preview { margin-top:8px; }
+ .projects-description[open] .projects-description__preview { display: none; } .projects-description__body { margin-top: 10px; }
+
+/* --------------------------------------------------------------------------.projects-description summary
    Results Grid (3 Columns, 22px Gap)
    -------------------------------------------------------------------------- */
 .projects-results {

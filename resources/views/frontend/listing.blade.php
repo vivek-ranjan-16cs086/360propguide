@@ -160,13 +160,17 @@ $resultCount = isset($projects) ? $projects->total() : 0;
                     <a class="projects-active-filters__clear" href="{{ route('projects') }}">Clear all</a>
                 </div>
                 @endif
+@if(!empty($links_description))
+ <details class="projects-description">
+     <summary>
+         <span class="projects-description__title">About these projects</span>
+          <div class="projects-description__preview"> {{ Str::limit(strip_tags($links_description), 110) }} </div>
+         </summary>
+           <div class="projects-description__body"> {!! $links_description !!} 
 
-                @if(!empty($links_description))
-                <details class="projects-description">
-                    <summary>About these projects</summary>
-                    <div class="projects-description__body">{!! $links_description !!}</div>
-                </details>
-                @endif
+          </div>
+         </details>
+          @endif
 
                 <div class="projects-grid">
                     @include('frontend.partials._project-list', ['projects' => $projects])
@@ -217,45 +221,29 @@ $resultCount = isset($projects) ? $projects->total() : 0;
             });
         }
 
-        function syncLocalities() {
-            var cities = selectedCities();
-            var list = form.querySelector('#localityList');
-            if (!list) return;
-            var search = form.querySelector('[data-filter-search="localityList"]');
-            var query = search ? search.value.trim().toLowerCase() : '';
-            var expanded = list.classList.contains('is-expanded');
-            var matchingCount = 0;
-            form.querySelectorAll('#localityList [data-city]').forEach(function(row) {
-                var city = (row.getAttribute('data-city') || '').toLowerCase();
-                var matchesCity = !cities.length || !city || cities.indexOf(city) !== -1;
-                var label = row.getAttribute('data-filter-label') || '';
-                var matchesQuery = !query || label.indexOf(query) !== -1;
-                if (matchesCity) matchingCount++;
-                // Collapse visually without disabling selected localities on submission.
-                row.style.display = matchesCity && !query && !expanded && matchingCount > 5 ? 'none' : '';
-                row.hidden = !matchesCity || !matchesQuery;
-                if (!matchesCity) {
-                    var checkbox = row.querySelector('input[type="checkbox"]');
-                    if (checkbox) checkbox.checked = false;
-                }
-            });
-            var button = form.querySelector('[data-toggle-more="localityList"]');
-            if (button) {
-                button.hidden = matchingCount <= 5 || !!query;
-                button.textContent = expanded ? 'Show less' : 'Show more';
-            }
-        }
-
-        form.addEventListener('change', function(event) {
-            if (event.target.matches('input[name="location[]"]')) {
-                var localityList = form.querySelector('#localityList');
-                if (localityList) localityList.classList.remove('is-expanded');
-                syncLocalities();
-            }
-            if (event.target.matches('input[type="checkbox"], select[name="sort"]')) {
-                form.requestSubmit();
+    function syncLocalities() {
+        var cities = selectedCities();
+        form.querySelectorAll('#localityList [data-city]').forEach(function (row) {
+            var city = (row.getAttribute('data-city') || '').toLowerCase();
+            var matchesCity = !cities.length || !city || cities.indexOf(city) !== -1;
+            if (!matchesCity) {
+                row.hidden = true;
+                var checkbox = row.querySelector('input[type="checkbox"]');
+                if (checkbox) checkbox.checked = false;
+            } else if (!row.hasAttribute('data-search-hidden')) {
+                row.hidden = false;
             }
         });
+    }
+
+    form.addEventListener('change', function (event) {
+        if (event.target.matches('input[name="location[]"]')) {
+            syncLocalities();
+        }
+        if (event.target.matches('input[type="checkbox"], select[name="sort"]')) {
+            form.requestSubmit();
+        }
+    });
 
         form.addEventListener('submit', function() {
             form.querySelectorAll('input[name="q"], input[name="min_price"], input[name="max_price"]').forEach(
@@ -270,45 +258,39 @@ $resultCount = isset($projects) ? $projects->total() : 0;
             });
         });
 
-        form.querySelectorAll('[data-filter-search]').forEach(function(input) {
-            input.addEventListener('input', function() {
-                var query = input.value.trim().toLowerCase();
-                var list = document.getElementById(input.getAttribute('data-filter-search'));
-                if (!list) return;
-                if (list.id === 'localityList') {
-                    syncLocalities();
-                    return;
+    form.querySelectorAll('[data-filter-search]').forEach(function (input) {
+        input.addEventListener('input', function () {
+            var query = input.value.trim().toLowerCase();
+            var list = document.getElementById(input.getAttribute('data-filter-search'));
+            if (!list) return;
+            list.querySelectorAll('[data-filter-label]').forEach(function (row) {
+                var label = row.getAttribute('data-filter-label') || '';
+                var matchesQuery = !query || label.indexOf(query) !== -1;
+                if (matchesQuery) {
+                    row.removeAttribute('data-search-hidden');
+                } else {
+                    row.setAttribute('data-search-hidden', '1');
                 }
-                list.querySelectorAll('[data-filter-label]').forEach(function(row) {
-                    var label = row.getAttribute('data-filter-label') || '';
-                    var matchesQuery = !query || label.indexOf(query) !== -1;
-                    if (matchesQuery) {
-                        row.removeAttribute('data-search-hidden');
-                    } else {
-                        row.setAttribute('data-search-hidden', '1');
-                    }
-                    if (list.id === 'localityList') {
-                        var cities = selectedCities();
-                        var city = (row.getAttribute('data-city') || '').toLowerCase();
-                        var matchesCity = !cities.length || !city || cities.indexOf(city) !== -
-                            1;
-                        row.hidden = !matchesCity || !matchesQuery;
-                    } else {
-                        row.hidden = !matchesQuery;
-                    }
-                });
+                if (list.id === 'localityList') {
+                    var cities = selectedCities();
+                    var city = (row.getAttribute('data-city') || '').toLowerCase();
+                    var matchesCity = !cities.length || !city || cities.indexOf(city) !== -1;
+                    row.hidden = !matchesCity || !matchesQuery;
+                } else {
+                    row.hidden = !matchesQuery;
+                }
             });
         });
+    });
 
-        form.querySelectorAll('[data-toggle-more]').forEach(function(button) {
-            button.addEventListener('click', function() {
-                var list = document.getElementById(button.getAttribute('data-toggle-more'));
-                if (!list) return;
-                list.classList.toggle('is-expanded');
-                button.textContent = list.classList.contains('is-expanded') ? 'Show less' : 'Show more';
-                if (list.id === 'localityList') syncLocalities();
-            });
+    form.querySelectorAll('[data-toggle-more]').forEach(function (button) {
+        button.addEventListener('click', function () {
+            var list = document.getElementById(button.getAttribute('data-toggle-more'));
+            if (!list) return;
+            list.classList.toggle('is-expanded');
+            button.textContent = list.classList.contains('is-expanded') ? 'Show less' : 'Show more';
         });
+    });
 
         syncLocalities();
 
