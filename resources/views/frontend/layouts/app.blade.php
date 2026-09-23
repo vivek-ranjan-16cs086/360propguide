@@ -1082,47 +1082,71 @@ function makeSlug(value) {
 }
 
 function suggestionMarkup(item, bhkType) {
+
     const label = item.label || (item.type === 'project' ? 'Project' : '');
     const city = item.subtitle || item.city || '';
-
     const name = (item.name || '').trim();
     const type = (item.type || '').trim().toLowerCase();
 
-    let slug = '';
+    let url = '';
 
-    // CITY
-    // Noida => /flats-in-noida
-    // 3 BHK + Noida => /3-bhk-flats-in-noida
+    // =========================
+    // CITY / LOCATION
+    // =========================
+    // Noida
+    // /flats-in-noida
+    //
+    // 3 BHK + Noida
+    // /3-bhk-flats-in-noida
+    //
     if (type === 'city') {
 
         const bhkSlug = makeSlug(bhkType);
 
         if (bhkSlug) {
-            slug = bhkSlug + '-flats-in-' + makeSlug(name);
+            url = '/' + bhkSlug + '-flats-in-' + makeSlug(name);
         } else {
-            slug = 'flats-in-' + makeSlug(name);
+            url = '/flats-in-' + makeSlug(name);
         }
 
     }
+
+    // =========================
     // LOCALITY / SECTOR
-    // Sector 1 Noida Extension => /sector-1-noida-extension
+    // =========================
+    // Sector 100 Noida
+    // /sector-100-noida
+    //
     else if (
         type === 'locality' ||
         type === 'location' ||
         type === 'custom'
     ) {
 
-        slug = makeSlug(name);
+        url = '/' + makeSlug(name);
 
     }
+
+    // =========================
     // PROJECT
+    // =========================
+    // ATS Pristine
+    // /projects/ats-pristine
+    //
+    else if (type === 'project') {
+
+        url = '/projects/' + makeSlug(name);
+
+    }
+
+    // =========================
+    // FALLBACK
+    // =========================
     else {
 
-        slug = makeSlug(name);
+        url = '/' + makeSlug(name);
 
     }
-
-    const url = '/' + slug;
 
     return `
         <li>
@@ -1146,6 +1170,109 @@ function suggestionMarkup(item, bhkType) {
     `;
 }
 
+
+$(document).on('click', '.project-results .suggestion-item', function (e) {
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    const $item = $(this);
+
+    const $parent = $item.closest('.searchboxs');
+
+    const name = ($item.attr('data-name') || '').trim();
+    const type = ($item.attr('data-type') || '').trim().toLowerCase();
+
+    const $keyword = $parent.find('.keyword');
+    const $location = $parent.find('select[name="location"]');
+
+    console.log('SUGGESTION:', {
+        name: name,
+        type: type
+    });
+
+
+    // =========================
+    // CITY
+    // =========================
+
+    if (type === 'city') {
+
+        let matched = false;
+
+        $location.find('option').each(function () {
+
+            const optionText = $(this).text().trim().toLowerCase();
+            const optionValue = ($(this).val() || '').trim().toLowerCase();
+
+            if (
+                optionText === name.toLowerCase() ||
+                optionValue === name.toLowerCase()
+            ) {
+
+                $location.val($(this).val()).trigger('change');
+
+                matched = true;
+
+                return false;
+            }
+        });
+
+        if (!matched) {
+            console.log('City option not found:', name);
+            $location.val('');
+        }
+
+        $keyword.val('');
+
+        $parent.find('.project-results').hide();
+
+        // Location search
+        $parent.find('.searchBtn').trigger('click');
+
+        return;
+    }
+
+
+    // =========================
+    // LOCALITY / SECTOR
+    // =========================
+
+    if (
+        type === 'locality' ||
+        type === 'location' ||
+        type === 'custom'
+    ) {
+
+        $keyword.val(name);
+
+        // Locality ko city dropdown mein mat daalo
+        $location.val('');
+
+        $parent.find('.project-results').hide();
+
+        // Location search
+        $parent.find('.searchBtn').trigger('click');
+
+        return;
+    }
+
+
+    // =========================
+    // PROJECT
+    // =========================
+
+    if (type === 'project') {
+
+        const projectSlug = makeSlug(name);
+
+        // Direct project URL
+        window.location.href = '/projects/' + projectSlug;
+
+        return;
+    }
+
+});
 
     
     // Show project results when the input field is focused
@@ -1254,83 +1381,7 @@ function suggestionMarkup(item, bhkType) {
         });
       }, 400);
     });
-$(document).on('click', '.project-results .suggestion-item', function (e) {
-    e.preventDefault();
-    e.stopPropagation();
 
-    const $item = $(this);
-    const $parent = $item.closest('.searchboxs');
-
-    const name = ($item.attr('data-name') || '').trim();
-    const type = ($item.attr('data-type') || '').trim().toLowerCase();
-
-    const $keyword = $parent.find('.keyword');
-    const $location = $parent.find('select[name="location"]');
-
-    console.log('SUGGESTION:', {
-        name: name,
-        type: type
-    });
-
-    // CITY
-    // Example: Noida
-    // Result: /flats-in-noida
-    if (type === 'city') {
-
-        let matched = false;
-
-        $location.find('option').each(function () {
-
-            const optionText = $(this).text().trim().toLowerCase();
-            const optionValue = ($(this).val() || '').trim().toLowerCase();
-
-            if (
-                optionText === name.toLowerCase() ||
-                optionValue === name.toLowerCase()
-            ) {
-                $location.val($(this).val()).trigger('change');
-                matched = true;
-                return false;
-            }
-        });
-
-        if (!matched) {
-            console.log('City option not found:', name);
-            $location.val('');
-        }
-
-        $keyword.val('');
-
-    }
-
-    // LOCALITY / SECTOR
-    // Example: Sector 1 Noida Extension
-    // Result: /sector-1-noida-extension
-    else if (
-        type === 'locality' ||
-        type === 'location' ||
-        type === 'custom'
-    ) {
-
-        $keyword.val(name);
-
-        // Locality ko city dropdown mein mat daalo
-        $location.val('');
-
-    }
-
-    // PROJECT
-    else {
-
-        $keyword.val(name);
-        $location.val('');
-    }
-
-    $parent.find('.project-results').hide();
-
-    // Search button trigger
-    $parent.find('.searchBtn').trigger('click');
-});
   </script>
   @yield('customJS')
   <!-- Floating Contact Buttons -->
