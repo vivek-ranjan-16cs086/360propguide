@@ -63,37 +63,278 @@ $selectedDevelopers = array_map('strval', $selected['developer'] ?? []);
             </div>
         </details>
 
-        <details class="filter-section" open>
-            <summary class="filter-section__trigger">
-                <span class="filter-section__title">Locality</span>
-                <i class="fa-solid fa-chevron-down filter-section__chevron" aria-hidden="true"></i>
-            </summary>
-            <div class="filter-section__body">
-                <div class="filter-search-box">
-                    <i class="fa-solid fa-magnifying-glass filter-search-icon" aria-hidden="true"></i>
-                    <input type="search" class="filter-search-input" data-filter-search="localityList"
-                        placeholder="Search locality" autocomplete="off">
-                </div>
-                <div class="filter-checkbox-list" id="localityList">
-                    @foreach ($locality as $index => $localityName)
-                    @php
+
+<details class="filter-section" open>
+    <summary class="filter-section__trigger">
+        <span class="filter-section__title">Locality</span>
+        <i class="fa-solid fa-chevron-down filter-section__chevron" aria-hidden="true"></i>
+    </summary>
+
+    <div class="filter-section__body">
+
+        <div class="filter-search-box">
+            <i class="fa-solid fa-magnifying-glass filter-search-icon" aria-hidden="true"></i>
+
+            <input
+                type="search"
+                class="filter-search-input"
+                data-filter-search="localityList"
+                placeholder="Search locality"
+                autocomplete="off"
+            >
+        </div>
+
+        <div class="filter-checkbox-list" id="localityList">
+
+            @foreach ($locality as $index => $localityName)
+
+                @php
                     $id = 'filter-locality-' . \Illuminate\Support\Str::slug($localityName) . '-' . $index;
                     $parentCity = $localityCityMap[$localityName] ?? '';
-                    @endphp
-                    <label class="filter-custom-checkbox filter-limited__item" for="{{ $id }}"
-                        data-city="{{ $parentCity }}" data-filter-label="{{ strtolower($localityName) }}">
-                        <input type="checkbox" id="{{ $id }}" name="locality[]" value="{{ $localityName }}"
-                            {{ in_array($localityName, $selectedLocalities, true) ? 'checked' : '' }}>
-                        <span class="custom-check-box"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
-                        <span class="custom-check-text">{{ $localityName }}</span>
-                    </label>
-                    @endforeach
-                </div>
-                @if(count($locality) > 5)
-                <button type="button" class="filter-more-btn" data-toggle-more="localityList">Show more</button>
-                @endif
-            </div>
-        </details>
+                @endphp
+
+                <label
+                    class="filter-custom-checkbox locality-item"
+                    for="{{ $id }}"
+                    data-city="{{ strtolower(trim($parentCity)) }}"
+                    data-filter-label="{{ strtolower($localityName) }}"
+                >
+                    <input
+                        type="checkbox"
+                        id="{{ $id }}"
+                        name="locality[]"
+                        value="{{ $localityName }}"
+                        {{ in_array($localityName, $selectedLocalities, true) ? 'checked' : '' }}
+                    >
+
+                    <span class="custom-check-box">
+                        <i class="fa-solid fa-check" aria-hidden="true"></i>
+                    </span>
+
+                    <span class="custom-check-text">
+                        {{ $localityName }}
+                    </span>
+                </label>
+
+            @endforeach
+
+        </div>
+
+        <button
+            type="button"
+            id="localityShowMore"
+            class="filter-more-btn"
+            style="display:none;"
+        >
+            Show more
+        </button>
+
+    </div>
+</details>
+
+
+<style>
+    #localityList .locality-item {
+        display: none;
+    }
+
+    #localityList .locality-item.locality-visible {
+        display: flex !important;
+    }
+
+    #localityShowMore {
+        border: 0;
+        background: transparent;
+        color: #007bff;
+        font-weight: 600;
+        cursor: pointer;
+        padding: 8px 0;
+    }
+</style>
+
+
+<script>
+(function () {
+
+    let localityExpanded = false;
+
+    function updateLocalityList() {
+
+        const list = document.getElementById('localityList');
+        const button = document.getElementById('localityShowMore');
+
+        if (!list) return;
+
+        const items = Array.from(
+            list.querySelectorAll('.locality-item')
+        );
+
+        const searchInput = document.querySelector(
+            '[data-filter-search="localityList"]'
+        );
+
+        const searchText = searchInput
+            ? searchInput.value.trim().toLowerCase()
+            : '';
+
+        /*
+         * Current selected city
+         * Aapke city checkbox/select ke according ye
+         * existing checked city ko detect karega.
+         */
+        const selectedCityInputs = document.querySelectorAll(
+            'input[name="location[]"]:checked'
+        );
+
+        let selectedCities = [];
+
+        selectedCityInputs.forEach(function (input) {
+            selectedCities.push(
+                (input.value || '').trim().toLowerCase()
+            );
+        });
+
+        /*
+         * First matching localities nikalo
+         */
+        let matchingItems = [];
+
+        items.forEach(function (item) {
+
+            const city = (
+                item.getAttribute('data-city') || ''
+            ).trim().toLowerCase();
+
+            const label = (
+                item.getAttribute('data-filter-label') || ''
+            ).trim().toLowerCase();
+
+            /*
+             * City filter
+             */
+            let cityMatch = true;
+
+            if (selectedCities.length > 0) {
+                cityMatch = selectedCities.includes(city);
+            }
+
+            /*
+             * Search filter
+             */
+            let searchMatch = true;
+
+            if (searchText !== '') {
+                searchMatch = label.includes(searchText);
+            }
+
+            if (cityMatch && searchMatch) {
+                matchingItems.push(item);
+            }
+        });
+
+        /*
+         * Sabko pehle hide karo
+         */
+        items.forEach(function (item) {
+            item.classList.remove('locality-visible');
+        });
+
+        /*
+         * Sirf first 5 dikhao
+         * Show more ke baad sab dikhao
+         */
+        const limit = localityExpanded
+            ? matchingItems.length
+            : 5;
+
+        matchingItems.forEach(function (item, index) {
+
+            if (index < limit) {
+                item.classList.add('locality-visible');
+            }
+
+        });
+
+        /*
+         * Show more button
+         */
+        if (button) {
+
+            if (matchingItems.length > 5) {
+
+                button.style.display = 'inline-block';
+
+                button.innerText = localityExpanded
+                    ? 'Show less'
+                    : 'Show more';
+
+            } else {
+
+                button.style.display = 'none';
+
+            }
+        }
+    }
+
+
+    /*
+     * Show more / Show less
+     */
+    document.addEventListener('click', function (e) {
+
+        if (e.target && e.target.id === 'localityShowMore') {
+
+            localityExpanded = !localityExpanded;
+
+            updateLocalityList();
+        }
+
+    });
+
+
+    /*
+     * Locality search
+     */
+    document.addEventListener('input', function (e) {
+
+        if (
+            e.target &&
+            e.target.matches(
+                '[data-filter-search="localityList"]'
+            )
+        ) {
+            localityExpanded = false;
+            updateLocalityList();
+        }
+
+    });
+
+
+    /*
+     * City/location checkbox change
+     */
+    document.addEventListener('change', function (e) {
+
+        if (
+            e.target &&
+            e.target.matches('input[name="location[]"]')
+        ) {
+            localityExpanded = false;
+            updateLocalityList();
+        }
+
+    });
+
+
+    /*
+     * Page load
+     */
+    document.addEventListener('DOMContentLoaded', function () {
+        updateLocalityList();
+    });
+
+})();
+</script>
 
         <details class="filter-section" open>
             <summary class="filter-section__trigger">
