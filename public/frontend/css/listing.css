@@ -462,6 +462,51 @@
     transform: rotate(180deg);
 }
 
+
+
+.location-hidden {
+    display: none;
+}
+
+.location-show-more {
+    border: 0;
+    background: transparent;
+    padding: 8px 0 0;
+    color: #007bff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.location-show-more:hover {
+    text-decoration: underline;
+}
+
+
+
+
+.location-hidden {
+    display: none;
+}
+
+.location-show-more {
+    border: 0;
+    background: transparent;
+    padding: 8px 0 0;
+    color: #007bff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.location-show-more:hover {
+    text-decoration: underline;
+}
+
+
+
+
+
 .filter-section__trigger {
     width: 100%;
     display: flex;
@@ -843,7 +888,7 @@
     list-style: none;
 }
 .projects-description span{
-    font-weight: 700;
+    font-weight: 690;
 }
 
 .projects-description summary::-webkit-details-marker {
