@@ -1154,7 +1154,7 @@
                                 {{ $errors->first('recaptchaform5') }}
                             </div>
                             @endif
-                            <div class="w-full"> <button type="submit"
+                            <div class="w-full"> <button type="submit" id="contact-mail-submit"
                                     class="btn orange text-white mb-2 w-100 submitButton">Submit</button> </div>
                             <div class="w-full d-flex justify-content-between gap-2">
 
@@ -1233,7 +1233,7 @@
 
                                 <span class="text-danger error-recaptcha"></span>
 
-                                <button type="submit" class="btn customBtn w-100 submitButton">
+                                <button type="submit" class="btn customBtn w-100 submitButton" id="contact-mail-submit">
                                     Submit
                                 </button>
 
@@ -1311,7 +1311,7 @@
                         </div>
                         @endif
 
-                        <button type="submit" class="btn customBtn w-100 mb-3 py-2 fw-semibold submitButton">
+                        <button type="submit" class="btn customBtn w-100 mb-3 py-2 fw-semibold submitButton"id="contact-mail-submit" >
                             <i class="fa-solid fa-paper-plane me-2"></i> Request Callback
                         </button>
 
@@ -1421,7 +1421,7 @@
                         </div>
                         @endif
                         <div class="text-center pt-3 mb-3">
-                            <button type="submit" class="btn customBtn w-100 submitButton">
+                            <button type="submit" class="btn customBtn w-100 submitButton" id="contact-mail-submit">
                                 Submit
                             </button>
                         </div>
