@@ -117,12 +117,15 @@ class ProjectController extends Controller
 
 			$statusBtn = $record->status == 1 ? 'btn-info' : 'alert alert-info mb-0';
 
-			$statusText = $record->status == 1 ? ' Active ' : ' Inactive ';
+			$statusText = $record->status == 1 ? 'Active' : 'Inactive';
 
-			$statusConfirm = 'return myConfirm("projects/status/' . base64_encode($record->id) . '")';
+$url = 'projects/status/' . base64_encode($record->id);
 
-			$status = "<a href='javascript:void(0)' class='btn btn-xs {$statusBtn}' onclick='{$statusConfirm}'>{$statusText}</a>";
-
+$status = "<a href=\"javascript:void(0)\"
+    class=\"btn btn-xs {$statusBtn}\"
+    onclick=\"return myConfirm('{$url}')\">
+    {$statusText}
+</a>";
 			$edit = "<a href='projects/edit/" . base64_encode($record->id) . "' class='btn btn-xs btn-info'><i class='fas fa-pen'></i></a>";
 
 			$deleteConfirm = 'return myConfirm("projects/delete/' . base64_encode($record->id) . '")';
@@ -191,17 +194,24 @@ class ProjectController extends Controller
     public function store(Request $request)
     {
 		
-        $request->validate([
+
+
+              $request->validate([
+            'project_type' => 'required|in:residential,commercial,mixed',
+        
             'faqs_data' => 'required',
-            'floor_plans' => 'required',
+            'floor_plans' => 'required|array',
+        
             'location' => 'required',
             'cities' => 'required',
+        
             'location_id' => 'nullable|exists:locations,id',
             'sublocation_id' => 'nullable|exists:locations,id',
+        
             'rera_no' => 'required',
-			'price' => 'required|numeric',
-			
-        ]);
+            'price' => 'required|numeric',
+            ]);
+        
         
         if (!empty($request->floor_plans) && is_array($request->floor_plans)) {
             $floorPlans = [];
@@ -283,6 +293,7 @@ class ProjectController extends Controller
 			$project->project_status = $request->project_status;
             $this->syncProjectLocation($project, $request);
             $project->project_type = $request->project_type;
+           
 			
 			//sqft price
 			$project->sqft_price = $encodedSqftPrice;
@@ -365,16 +376,17 @@ class ProjectController extends Controller
             
            if ($project->save()) {
 
-    // Project create hone ke baad event fire hoga
-    event(new ProjectCreated($project));
+              // Project create hone ke baad event fire hoga
+  
+        event(new ProjectCreated($project));
 
-    return redirect()
+        return redirect()
         ->route('projects.index')
         ->with(
             'success',
             'projects uploaded successfully!'
         );
-} else {
+           } else {
 
 			return redirect()
 				->route('projects.index')
@@ -383,13 +395,22 @@ class ProjectController extends Controller
 					'projects could not uploaded!'
 				);
 		}
-        } catch (\Exception $e) {
-            Log::error('Error fetching: ' . $e->getMessage());
-            return response()->json([
-                'message' => 'Internal Server Error',
-                'status' => false
-            ], 500);
-        }
+      } catch (\Exception $e) {
+
+    Log::error('Project Store Error', [
+        'message' => $e->getMessage(),
+        'file' => $e->getFile(),
+        'line' => $e->getLine(),
+        'trace' => $e->getTraceAsString(),
+    ]);
+
+    return response()->json([
+        'message' => $e->getMessage(),
+        'file' => $e->getFile(),
+        'line' => $e->getLine(),
+        'status' => false
+    ], 500);
+}
     }
 
     private function processBase64Images($content)
@@ -415,257 +436,872 @@ class ProjectController extends Controller
 
         return $content;
     }
-    public function edit($id)
-    {
+   public function edit($id)
+{
+    try {
 
-        try {
-            $title = 'Update Projects Details';
-            $breadcrumbs = [
-                'dashboard' => 'Dashboard',
-                'projects.index' => 'projects Page',
-                'javascript:void(0);' => 'Edit projects Page'
-            ];
-            $breadcrumbHtml = view('admin.partials.breadcrumbs', compact('breadcrumbs', 'title'))->render();
+        $title = 'Update Projects Details';
 
-            $projects = Project::findOrFail(base64_decode($id));
-            $projects->seo_data = json_decode($projects->seo_data, true);
-			//$projects->sqft_price = json_decode($projects->sqft_price, true);
-            $aminityLists = AminityList::get();
-            $developerDetails = Developer::get();
-            $parentLocations = Location::parents()->active()->orderBy('city')->get();
-            $sublocations = $projects->location_id
-                ? Location::where('parent_id', $projects->location_id)->active()->orderBy('city')->get()
-                : collect();
-            return view('admin.projects.edit', compact('title', 'projects', 'breadcrumbHtml', 'aminityLists', 'developerDetails', 'parentLocations', 'sublocations'));
-        } catch (ModelNotFoundException $e) {
-            Log::error('Model not found: ' . $e->getMessage());
-            return response()->json([
-                'message' => 'Model not found.',
-                'status' => false
-            ], 404);
-        } catch (\Exception $e) {
-            Log::error('Error fetching: ' . $e->getMessage());
-            return response()->json([
-                'message' => 'Internal Server Error',
-                'status' => false
-            ], 500);
-        }
+        $breadcrumbs = [
+            'dashboard' => 'Dashboard',
+            'projects.index' => 'projects Page',
+            'javascript:void(0);' => 'Edit projects Page'
+        ];
+
+        $breadcrumbHtml = view(
+            'admin.partials.breadcrumbs',
+            compact('breadcrumbs', 'title')
+        )->render();
+
+        $projects = Project::findOrFail(base64_decode($id));
+
+        $projects->seo_data = json_decode(
+            $projects->seo_data,
+            true
+        );
+
+        $aminityLists = AminityList::get();
+
+        $developerDetails = Developer::get();
+
+        $parentLocations = Location::parents()
+            ->active()
+            ->orderBy('city')
+            ->get();
+
+        $sublocations = $projects->location_id
+            ? Location::where('parent_id', $projects->location_id)
+                ->active()
+                ->orderBy('city')
+                ->get()
+            : collect();
+
+        return view(
+            'admin.projects.edit',
+            compact(
+                'title',
+                'projects',
+                'breadcrumbHtml',
+                'aminityLists',
+                'developerDetails',
+                'parentLocations',
+                'sublocations'
+            )
+        );
+
+    } catch (ModelNotFoundException $e) {
+
+        Log::error(
+            'Model not found: ' . $e->getMessage()
+        );
+
+        return response()->json([
+            'message' => 'Model not found.',
+            'status' => false
+        ], 404);
+
+    } catch (\Exception $e) {
+
+        Log::error(
+            'Error fetching: ' . $e->getMessage()
+        );
+
+        return response()->json([
+            'message' => 'Internal Server Error',
+            'status' => false
+        ], 500);
     }
-    public function update(Request $request)
-    {
-        //dd($request->all());
-        try {
-            $id = base64_decode($request->id);
-            //dd($request->id);
-            $project = Project::findOrFail($id);
-            $project->project_name = $request->project_name;
-            $project_name = Str::slug($request->project_name);
-            $project->slug = $project_name;
-            $project->rera_no = $request->rera_no;
-            $project->launch_date = $request->launch_date;
-            $project->developer_name = $request->developer_name;
-            $project->property_size = $request->property_size;
-            $project->typology = json_encode($request->typology ?? []);;
-            $project->project_status = $request->project_status;
-            $this->syncProjectLocation($project, $request);
+}
 
-			//sqft price
-            $project->sqft_price = json_encode($request->sqft_price);
-            $project->price = $request->price;
-			$project->max_price = $request->max_price;
-            $project->about_description = $request->about_description;
-            $project->key_insights = $request->key_insights;
-            $project->location_description = $request->location_description;
-            $project->site_plans_description = $request->site_plans_description;
-            $project->possession_description = $request->possession_description;
-            $project->amenities_description = json_encode(array_values($request->input('amenities', [])));
-            $project->floor_plans_description = json_encode(array_values($request->input('details', [])));
-            $project->developer_background_dscp = $request->developer_background_dscp;
-            $project->seo_data = json_encode($request->seo_data);
-            $project->youtube_links = $request->youtube_links;
 
-            //to update the FAQ Data
-            if (!empty($request->faqs_data) && count($request->faqs_data) > 0) {
-                $newFaqData = [];
-                foreach ($request->faqs_data as $key => $faqData) {
-                    $newFaqData[$key]['question'] = $faqData['question'];
-                    $newFaqData[$key]['answer'] = $faqData['answer'];
+public function update(Request $request)
+{
+    try {
 
-                }
-                $project->faqs_data = json_encode($newFaqData);
+        // =====================================================
+        // VALIDATION
+        // =====================================================
+
+        $request->validate([
+            'project_type' => 'required|in:residential,commercial,mixed',
+           
+            'floor_plans' => 'required|array',
+        ]);
+
+
+        // =====================================================
+        // PROJECT
+        // =====================================================
+
+        $id = base64_decode($request->id);
+
+        $project = Project::findOrFail($id);
+
+
+        // =====================================================
+        // PROJECT TYPE
+        // =====================================================
+
+        $project->project_type = $request->project_type;
+
+
+        // =====================================================
+        // AREA TYPE
+        // Commercial = NULL
+        // Residential / Mixed = apartment / plots
+        // =====================================================
+
+      
+
+
+        // =====================================================
+        // BASIC PROJECT DETAILS
+        // =====================================================
+
+        $project->project_name = $request->project_name;
+
+        $project_name = Str::slug(
+            $request->project_name
+        );
+
+        $project->slug = $project_name;
+
+        $project->rera_no = $request->rera_no;
+
+        $project->launch_date = $request->launch_date;
+
+        $project->developer_name =
+            $request->developer_name;
+
+        $project->property_size =
+            $request->property_size;
+
+        $project->typology = json_encode(
+            $request->typology ?? []
+        );
+
+        $project->project_status =
+            $request->project_status;
+
+
+        // =====================================================
+        // LOCATION
+        // =====================================================
+
+        $this->syncProjectLocation(
+            $project,
+            $request
+        );
+
+
+        // =====================================================
+        // SQFT PRICE
+        // =====================================================
+
+        $project->sqft_price = json_encode(
+            $request->sqft_price ?? []
+        );
+
+        $project->price =
+            $request->price;
+
+        $project->max_price =
+            $request->max_price;
+
+
+        // =====================================================
+        // DESCRIPTIONS
+        // =====================================================
+
+        $project->about_description =
+            $request->about_description;
+
+        $project->key_insights =
+            $request->key_insights;
+
+        $project->location_description =
+            $request->location_description;
+
+        $project->site_plans_description =
+            $request->site_plans_description;
+
+        $project->possession_description =
+            $request->possession_description;
+
+        $project->developer_background_dscp =
+            $request->developer_background_dscp;
+
+
+        // =====================================================
+        // AMENITIES
+        // =====================================================
+
+        $project->amenities_description =
+            json_encode(
+                array_values(
+                    $request->input(
+                        'amenities',
+                        []
+                    )
+                )
+            );
+
+
+        // =====================================================
+        // FLOOR PLANS DESCRIPTION
+        // =====================================================
+
+        $project->floor_plans_description =
+            json_encode(
+                array_values(
+                    $request->input(
+                        'details',
+                        []
+                    )
+                )
+            );
+
+
+        // =====================================================
+        // SEO
+        // =====================================================
+
+        $project->seo_data =
+            json_encode(
+                $request->seo_data
+            );
+
+
+        // =====================================================
+        // YOUTUBE
+        // =====================================================
+
+        $project->youtube_links =
+            $request->youtube_links;
+
+
+        // =====================================================
+        // FAQ DATA
+        // =====================================================
+
+        if (
+            !empty($request->faqs_data) &&
+            count($request->faqs_data) > 0
+        ) {
+
+            $newFaqData = [];
+
+            foreach (
+                $request->faqs_data
+                as $key => $faqData
+            ) {
+
+                $newFaqData[$key]['question'] =
+                    $faqData['question'];
+
+                $newFaqData[$key]['answer'] =
+                    $faqData['answer'];
             }
 
-            
-            $oldFloorData = json_decode($project->floor_plans_data, true) ?? [];
-            $newFloorData = [];
+            $project->faqs_data =
+                json_encode($newFaqData);
+        }
 
-            foreach ($request->floor_plans as $index => $floorPlan) {
-                $tempPlan = [];
 
-                foreach ($floorPlan as $key => $value) {
-                    if ($key === 'feature_image') {
-                        if ($value instanceof \Illuminate\Http\UploadedFile && $value->isValid()) {
-                            if (!empty($oldFloorData[$index]['image'])) {
-                                removeFile($oldFloorData[$index]['image']);
-                            }
-                            $tempPlan['image'] = uploadFile(
-                                $value,
-                                'projects/' . createSlug($request->project_name ?? $request->name) . '/BHKPlans'
+        // =====================================================
+        // FLOOR PLANS
+        // =====================================================
+
+        $oldFloorData = json_decode(
+            $project->floor_plans_data,
+            true
+        ) ?? [];
+
+        $newFloorData = [];
+
+        $requestFloorPlans =
+            $request->input(
+                'floor_plans',
+                []
+            );
+
+
+        foreach (
+            $requestFloorPlans
+            as $index => $floorPlan
+        ) {
+
+            $tempPlan = [];
+
+
+            foreach (
+                $floorPlan
+                as $key => $value
+            ) {
+
+                // ---------------------------------------------
+                // FLOOR PLAN IMAGE
+                // ---------------------------------------------
+
+                if ($key === 'feature_image') {
+
+                    if (
+                        $value instanceof
+                        \Illuminate\Http\UploadedFile
+                        &&
+                        $value->isValid()
+                    ) {
+
+                        // Remove old image
+                        if (
+                            !empty(
+                                $oldFloorData[$index]['image']
+                            )
+                        ) {
+
+                            removeFile(
+                                $oldFloorData[$index]['image']
                             );
                         }
-                    } else {
-                        $tempPlan[$key] = $value;
+
+
+                        // Upload new image
+                        $tempPlan['image'] =
+                            uploadFile(
+                                $value,
+                                'projects/' .
+                                createSlug(
+                                    $request->project_name
+                                    ?? $request->name
+                                ) .
+                                '/BHKPlans'
+                            );
                     }
-                }
 
-                if (!isset($tempPlan['image']) && isset($oldFloorData[$index]['image'])) {
-                    $tempPlan['image'] = $oldFloorData[$index]['image'];
-                }
+                } else {
 
-                $tempPlan['image'] = $tempPlan['image'] ?? null;
+                    // -----------------------------------------
+                    // NORMAL FLOOR PLAN DATA
+                    // -----------------------------------------
 
-                $newFloorData[] = $tempPlan;
-            }
-
-            if (count($oldFloorData) > count($request->floor_plans)) {
-                for ($i = count($request->floor_plans); $i < count($oldFloorData); $i++) {
-                    if (isset($oldFloorData[$i]['image'])) {
-                        removeFile($oldFloorData[$i]['image']);
-                    }
+                    $tempPlan[$key] = $value;
                 }
             }
 
-            $project->floor_plans_data = json_encode($newFloorData);
 
+            // ---------------------------------------------
+            // KEEP OLD IMAGE
+            // If user didn't upload a new image
+            // ---------------------------------------------
 
-            if (isset($request->hero_images)) {
-                $oldPath = $project->hero_images;
-                if (removeFile($oldPath)) {
-                    $heroImage = uploadFile($request->file('hero_images'), 'projects' . '/' . createSlug($request->project_name) . '/');
-                    $project->hero_images = $heroImage;
-                }
+            if (
+                !isset($tempPlan['image']) &&
+                !empty(
+                    $oldFloorData[$index]['image']
+                )
+            ) {
+
+                $tempPlan['image'] =
+                    $oldFloorData[$index]['image'];
             }
 
-            if (isset($request->amenities_images)) {
-                $oldPath = $project->amenities_images;
-                if (removeFile($oldPath)) {
-                    $amenitiesImage = uploadFile($request->file('amenities_images'), 'projects' . '/' . createSlug($request->project_name) . '/');
-                    $project->amenities_images = $amenitiesImage;
-                }
-            }
 
-            
-			if ($request->hasFile('site_plans_images')) {
-                $sitePlanImages = uploadFile($request->file('site_plans_images'), 'projects');
-                $project->site_plans_images = $sitePlanImages;
-            }
+            // ---------------------------------------------
+            // IMAGE DEFAULT
+            // ---------------------------------------------
 
-            if ($request->hasFile('floor_plans_images')) {
-                $floorPlanImages = uploadFile($request->file('floor_plans_images'), 'projects');
-                $project->floor_plans_images = $floorPlanImages;
-            }
-			
-			if ($request->hasFile('location_video')) {
-                $locationVideo = uploadFile($request->file('location_video'), 'projects');
-                $project->location_video = $locationVideo;
-            }
+            $tempPlan['image'] =
+                $tempPlan['image'] ?? null;
 
-            if ($request->hasFile('price_list')) {
-                $priceList = uploadFile($request->file('price_list'), 'projects');
-                $project->price_list = $priceList;
-            }
 
-            // to store the sanctioned_map
-            if ($request->hasFile('sanctioned_map')) {
-                $sanctionedMap = uploadFile($request->file('sanctioned_map'), 'projects');
-                $project->sanctioned_map = $sanctionedMap;
-            }
-			
-			// to store the lease_deed
-            if ($request->hasFile('lease_deed')) {
-                $leaseDeed = uploadFile($request->file('lease_deed'), 'projects');
-                $project->lease_deed = $leaseDeed;
-            }
+            // ---------------------------------------------
+            // ADD PLAN
+            // ---------------------------------------------
 
-			if ($request->hasFile('feature_image')) {
-                $featureImage = uploadFile($request->file('feature_image'), 'projects');
-                $project->feature_image = $featureImage;
-            }
-
-            if (isset($request->logo_image)) {
-                $oldPath = $project->logo_image;
-                if (removeFile($oldPath)) {
-                    $logoImage = uploadFile($request->file('logo_image'), 'projects' . '/' . createSlug($request->project_name) . '/');
-                    $project->logo_image = $logoImage;
-                }
-            }
-
-			if ($request->hasFile('developer_background_image')) {
-                $developerBackgroundImage = uploadFile($request->file('developer_background_image'), 'projects');
-                $project->developer_background_image = $developerBackgroundImage;
-            }
-			
-			
-			// UPDATE RERA DATA
-			
-			$oldReraData = json_decode($project->rera_data, true) ?? [];
-			$newReraData = [];
-
-			if (!empty($request->rera_data) && is_array($request->rera_data)) {
-
-				foreach ($request->rera_data as $index => $rera) {
-
-					$qrImage = $oldReraData[$index]['qr_image'] ?? null;
-
-					// If new QR uploaded
-					if (isset($rera['qr_image']) && $rera['qr_image'] instanceof \Illuminate\Http\UploadedFile) {
-
-						// Remove old QR
-						if ($qrImage) {
-							removeFile($qrImage);
-						}
-
-						$qrImage = uploadFile(
-							$rera['qr_image'],
-							'projects/' . createSlug($request->project_name) . '/rera'
-						);
-					}
-
-					$newReraData[] = [
-						'phase'    => $rera['phase'],
-						'rera_no'  => $rera['rera_no'],
-						'qr_image' => $qrImage,
-					];
-				}
-			}
-			if (count($oldReraData) > count($newReraData)) {
-				for ($i = count($newReraData); $i < count($oldReraData); $i++) {
-					if (!empty($oldReraData[$i]['qr_image'])) {
-						removeFile($oldReraData[$i]['qr_image']);
-					}
-				}
-			}
-
-			$project->rera_data = json_encode($newReraData);
-
-			
-            //dd($project);
-            if ($project->save()) {
-			
-				// $customLinkObj = new CustomLinkController;
-				// $customLinkObj->storeOnProjectAddEvent();
-                return redirect()->route('projects.index')->with('success', 'Projects updated successfully!');
-            } else {
-                return redirect()->route('projects.index')->with('error', 'Projects could not updated!');
-            }
-        } catch (\Exception $e) {
-            Log::error('Error fetching: ' . $e->getMessage());
-            return response()->json([
-                'message' => 'Internal Server Error',
-                'status' => false
-            ], 500);
+            $newFloorData[] = $tempPlan;
         }
+
+
+        // =====================================================
+        // REMOVE OLD DELETED FLOOR PLAN IMAGES
+        // =====================================================
+
+        if (
+            count($oldFloorData) >
+            count($requestFloorPlans)
+        ) {
+
+            for (
+                $i = count($requestFloorPlans);
+                $i < count($oldFloorData);
+                $i++
+            ) {
+
+                if (
+                    !empty(
+                        $oldFloorData[$i]['image']
+                    )
+                ) {
+
+                    removeFile(
+                        $oldFloorData[$i]['image']
+                    );
+                }
+            }
+        }
+
+
+        // =====================================================
+        // SAVE FLOOR PLANS
+        // =====================================================
+
+        $project->floor_plans_data =
+            json_encode($newFloorData);
+
+
+        // =====================================================
+        // HERO IMAGE
+        // =====================================================
+
+        if (
+            $request->hasFile('hero_images')
+        ) {
+
+            $oldPath =
+                $project->hero_images;
+
+            if (removeFile($oldPath)) {
+
+                $heroImage =
+                    uploadFile(
+                        $request->file(
+                            'hero_images'
+                        ),
+                        'projects/' .
+                        createSlug(
+                            $request->project_name
+                        ) .
+                        '/'
+                    );
+
+                $project->hero_images =
+                    $heroImage;
+            }
+        }
+
+
+        // =====================================================
+        // AMENITIES IMAGE
+        // =====================================================
+
+        if (
+            $request->hasFile('amenities_images')
+        ) {
+
+            $oldPath =
+                $project->amenities_images;
+
+            if (removeFile($oldPath)) {
+
+                $amenitiesImage =
+                    uploadFile(
+                        $request->file(
+                            'amenities_images'
+                        ),
+                        'projects/' .
+                        createSlug(
+                            $request->project_name
+                        ) .
+                        '/'
+                    );
+
+                $project->amenities_images =
+                    $amenitiesImage;
+            }
+        }
+
+
+        // =====================================================
+        // SITE PLAN IMAGES
+        // =====================================================
+
+        if (
+            $request->hasFile(
+                'site_plans_images'
+            )
+        ) {
+
+            $sitePlanImages =
+                uploadFile(
+                    $request->file(
+                        'site_plans_images'
+                    ),
+                    'projects'
+                );
+
+            $project->site_plans_images =
+                $sitePlanImages;
+        }
+
+
+        // =====================================================
+        // FLOOR PLAN IMAGES
+        // =====================================================
+
+        if (
+            $request->hasFile(
+                'floor_plans_images'
+            )
+        ) {
+
+            $floorPlanImages =
+                uploadFile(
+                    $request->file(
+                        'floor_plans_images'
+                    ),
+                    'projects'
+                );
+
+            $project->floor_plans_images =
+                $floorPlanImages;
+        }
+
+
+        // =====================================================
+        // LOCATION VIDEO
+        // =====================================================
+
+        if (
+            $request->hasFile(
+                'location_video'
+            )
+        ) {
+
+            $locationVideo =
+                uploadFile(
+                    $request->file(
+                        'location_video'
+                    ),
+                    'projects'
+                );
+
+            $project->location_video =
+                $locationVideo;
+        }
+
+
+        // =====================================================
+        // PRICE LIST
+        // =====================================================
+
+        if (
+            $request->hasFile(
+                'price_list'
+            )
+        ) {
+
+            $priceList =
+                uploadFile(
+                    $request->file(
+                        'price_list'
+                    ),
+                    'projects'
+                );
+
+            $project->price_list =
+                $priceList;
+        }
+
+
+        // =====================================================
+        // SANCTIONED MAP
+        // =====================================================
+
+        if (
+            $request->hasFile(
+                'sanctioned_map'
+            )
+        ) {
+
+            $sanctionedMap =
+                uploadFile(
+                    $request->file(
+                        'sanctioned_map'
+                    ),
+                    'projects'
+                );
+
+            $project->sanctioned_map =
+                $sanctionedMap;
+        }
+
+
+        // =====================================================
+        // LEASE DEED
+        // =====================================================
+
+        if (
+            $request->hasFile(
+                'lease_deed'
+            )
+        ) {
+
+            $leaseDeed =
+                uploadFile(
+                    $request->file(
+                        'lease_deed'
+                    ),
+                    'projects'
+                );
+
+            $project->lease_deed =
+                $leaseDeed;
+        }
+
+
+        // =====================================================
+        // FEATURE IMAGE
+        // =====================================================
+
+        if (
+            $request->hasFile(
+                'feature_image'
+            )
+        ) {
+
+            $featureImage =
+                uploadFile(
+                    $request->file(
+                        'feature_image'
+                    ),
+                    'projects'
+                );
+
+            $project->feature_image =
+                $featureImage;
+        }
+
+
+        // =====================================================
+        // LOGO IMAGE
+        // =====================================================
+
+        if (
+            $request->hasFile(
+                'logo_image'
+            )
+        ) {
+
+            $oldPath =
+                $project->logo_image;
+
+            if (removeFile($oldPath)) {
+
+                $logoImage =
+                    uploadFile(
+                        $request->file(
+                            'logo_image'
+                        ),
+                        'projects/' .
+                        createSlug(
+                            $request->project_name
+                        ) .
+                        '/'
+                    );
+
+                $project->logo_image =
+                    $logoImage;
+            }
+        }
+
+
+        // =====================================================
+        // DEVELOPER BACKGROUND IMAGE
+        // =====================================================
+
+        if (
+            $request->hasFile(
+                'developer_background_image'
+            )
+        ) {
+
+            $developerBackgroundImage =
+                uploadFile(
+                    $request->file(
+                        'developer_background_image'
+                    ),
+                    'projects'
+                );
+
+            $project->developer_background_image =
+                $developerBackgroundImage;
+        }
+
+
+        // =====================================================
+        // UPDATE RERA DATA
+        // =====================================================
+
+        $oldReraData = json_decode(
+            $project->rera_data,
+            true
+        ) ?? [];
+
+        $newReraData = [];
+
+
+        if (
+            !empty($request->rera_data) &&
+            is_array($request->rera_data)
+        ) {
+
+            foreach (
+                $request->rera_data
+                as $index => $rera
+            ) {
+
+                // Existing QR
+                $qrImage =
+                    $oldReraData[$index]['qr_image']
+                    ?? null;
+
+
+                // ---------------------------------------------
+                // New QR uploaded
+                // ---------------------------------------------
+
+                if (
+                    isset($rera['qr_image']) &&
+                    $rera['qr_image']
+                    instanceof \Illuminate\Http\UploadedFile &&
+                    $rera['qr_image']->isValid()
+                ) {
+
+                    // Remove old QR
+                    if ($qrImage) {
+
+                        removeFile(
+                            $qrImage
+                        );
+                    }
+
+
+                    // Upload new QR
+                    $qrImage =
+                        uploadFile(
+                            $rera['qr_image'],
+                            'projects/' .
+                            createSlug(
+                                $request->project_name
+                            ) .
+                            '/rera'
+                        );
+                }
+
+
+                $newReraData[] = [
+
+                    'phase' =>
+                        $rera['phase'] ?? null,
+
+                    'rera_no' =>
+                        $rera['rera_no'] ?? null,
+
+                    'qr_image' =>
+                        $qrImage,
+                ];
+            }
+        }
+
+
+        // =====================================================
+        // REMOVE DELETED RERA QR IMAGES
+        // =====================================================
+
+        if (
+            count($oldReraData) >
+            count($newReraData)
+        ) {
+
+            for (
+                $i = count($newReraData);
+                $i < count($oldReraData);
+                $i++
+            ) {
+
+                if (
+                    !empty(
+                        $oldReraData[$i]['qr_image']
+                    )
+                ) {
+
+                    removeFile(
+                        $oldReraData[$i]['qr_image']
+                    );
+                }
+            }
+        }
+
+
+        // =====================================================
+        // SAVE RERA DATA
+        // =====================================================
+
+        $project->rera_data =
+            json_encode($newReraData);
+
+
+        // =====================================================
+        // SAVE PROJECT
+        // =====================================================
+
+        if ($project->save()) {
+
+            return redirect()
+                ->route('projects.index')
+                ->with(
+                    'success',
+                    'Projects updated successfully!'
+                );
+
+        } else {
+
+            return redirect()
+                ->route('projects.index')
+                ->with(
+                    'error',
+                    'Projects could not updated!'
+                );
+        }
+
+
+    } catch (\Exception $e) {
+
+        Log::error(
+            'Error fetching: ' .
+            $e->getMessage(),
+            [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]
+        );
+
+        return response()->json([
+            'message' =>
+                'Internal Server Error',
+
+            'status' =>
+                false,
+
+            'error' =>
+                $e->getMessage(),
+
+        ], 500);
     }
+}
+
+
+
 
     public function changeStatus1($id)
     {
@@ -737,101 +1373,43 @@ class ProjectController extends Controller
 		}
 	}
 	
-	public function changeStatus(
-    $id,
-    FirebaseNotificationService $firebaseService,
-    IndexNowService $indexNowService
-	) {
-		\Log::info('changeStatus Called'); 
-		try {
+	public function changeStatus($id)
+{
+    try {
 
-			$id = base64_decode($id);
-			$project = Project::findOrFail($id);
+        $decodedId = base64_decode($id);
 
-			$oldStatus = $project->status;
+        $project = Project::findOrFail($decodedId);
 
-			// Toggle status
-			$project->status = !$project->status;
-			$project->save();
+        $oldStatus = $project->status;
 
-			// Send notification only once when status changes 0 -> 1
-			if (
-				$oldStatus == 0 &&
-				$project->status == 1 &&
-				!$project->is_notified
-			) {
+        $project->status = !$project->status;
 
-				$tokens = FcmToken::pluck('token')->toArray();
-                $price = '₹' . rtrim(rtrim(number_format($project->price / 10000000, 2), '0'), '.') . ' Cr';
-				
-				// Dynamic Title & Body
-				switch ($project->project_status) {
+        $project->save();
 
-					case 'ready_to_move':
-						$title = 'Ready to Move: ' . $project->project_name;
-						$body = 'Ready-to-move homes from' . $price . ', ' . $project->location . '.';
-						break;
+        return response()->json([
+            'message' => 'Status changed successfully',
+            'status' => true,
+            'old_status' => $oldStatus,
+            'new_status' => $project->status,
+        ]);
 
-					case 'new_launch':
-						$title = 'Just Launched: ' . $project->project_name;
-						$body = 'Launching from' . $price . ', ' . $project->location . '. Book your site visit today!';
-						break;
+    } catch (\Exception $e) {
 
-					case 'under_construction':
-						$title = 'Now Selling: ' . $project->project_name;
-						$body = 'Premium homes from' . $price . ', ' . $project->location . '. Explore floor plans & offers.';
-						break;
+        Log::error('Project Status Error: ' . $e->getMessage(), [
+            'id' => $id,
+            'decoded_id' => base64_decode($id),
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+        ]);
 
-					case 'completed':
-						$title = 'Completed: ' . $project->project_name;
-						$body = 'Ready homes from' . $price . ', ' . $project->location . '. Explore now!';
-						break;
-
-					default:
-						$title = 'Find Your Perfect Home';
-						$body = 'Explore ' . $project->project_name . ' and find your dream home.';
-						break;
-				}
-
-				if (!empty($tokens)) {
-
-					$firebaseService->send(
-						$tokens,
-						$title,
-						$body,
-						url('/projects/' . $project->slug)
-					);
-				}
-
-				// IndexNow
-				try {
-					$indexNowService->notifySearchEngines(
-						route('projects.details', $project->slug)
-					);
-				} catch (\Exception $e) {
-					\Log::error('IndexNow Error: ' . $e->getMessage());
-				}
-
-				// Mark as notified
-				$project->is_notified = 1;
-				$project->save();
-			}
-
-			return response()->json([
-				"message" => "Status changed successfully",
-				"status" => true
-			]);
-
-		} catch (\Exception $e) {
-
-			Log::error($e->getMessage());
-
-			return back()->withInput()->withErrors([
-				'error' => 'Something went wrong.'
-			]);
-		}
-	}
-
+        return response()->json([
+            'message' => 'Something went wrong.',
+            'status' => false,
+            'error' => $e->getMessage(),
+        ], 500);
+    }
+}
     public function moveToBin($id)
     {
         try {
