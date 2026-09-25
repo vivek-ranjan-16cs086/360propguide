@@ -1257,29 +1257,56 @@ You can use this page to discover and compare <strong>{$configurationText}{$prop
 			$keyword = trim((string) $req->input('keyword', ''));
 			$location = trim((string) $req->input('location', ''));
 			$bhkType = trim((string) $req->input('bhkType', ''));
+
 			$like = '%' . addcslashes($keyword, '%_\\') . '%';
 			$hasLocationColumn = Schema::hasColumn('projects', 'location');
+
 			$results = [];
 			$seen = [];
 
+			/*
+        |--------------------------------------------------------------------------
+        | Helper: Add unique result
+        |--------------------------------------------------------------------------
+        */
 			$push = static function (array $item) use (&$results, &$seen) {
 				$name = trim((string) ($item['name'] ?? ''));
 				$url = trim((string) ($item['url'] ?? ''));
+				$type = trim((string) ($item['type'] ?? ''));
+
 				if ($name === '' || $url === '') {
 					return;
 				}
-				$key = strtolower($item['type'] . '|' . $name . '|' . $url);
+
+				$key = strtolower($type . '|' . $name . '|' . $url);
+
 				if (isset($seen[$key])) {
 					return;
 				}
+
 				$seen[$key] = true;
 				$results[] = $item;
 			};
 
+			/*
+        |--------------------------------------------------------------------------
+        | Search suggestions
+        |--------------------------------------------------------------------------
+        */
 			if ($keyword !== '') {
+
+				// ---------------------------------------------------------------
+				// 1. Cities
+				// ---------------------------------------------------------------
 				$cities = Location::parents()
 					->active()
 					->where('city', 'LIKE', $like)
+					->whereExists(function ($q) {
+						$q->selectRaw('1')
+							->from('projects')
+							->whereColumn('projects.location_id', 'locations.id')
+							->where('projects.status', true);
+					})
 					->orderBy('city')
 					->limit(6)
 					->pluck('city');
@@ -1287,30 +1314,63 @@ You can use this page to discover and compare <strong>{$configurationText}{$prop
 				foreach ($cities as $cityName) {
 					$push([
 						'name' => $cityName,
-						'slug' => ltrim(route('projects', ['location' => [$cityName]], false), '/'),
-						'url' => route('projects', ['location' => [$cityName]]),
+						'slug' => ltrim(
+							route(
+								'projects',
+								['location' => [$cityName]],
+								false
+							),
+							'/'
+						),
+						'url' => route(
+							'projects',
+							['location' => [$cityName]]
+						),
 						'type' => 'custom',
 						'label' => 'City',
 					]);
 				}
 
+				// ---------------------------------------------------------------
+				// 2. Localities
+				// ---------------------------------------------------------------
 				$localities = Location::query()
 					->whereNotNull('parent_id')
 					->active()
 					->where('city', 'LIKE', $like)
+					->whereExists(function ($q) {
+						$q->selectRaw('1')
+							->from('projects')
+							->whereColumn(
+								'projects.sublocation_id',
+								'locations.id'
+							)
+							->where('projects.status', true);
+					})
 					->with('parent:id,city')
 					->orderBy('city')
 					->limit(8)
 					->get();
 
 				foreach ($localities as $locality) {
-					$params = ['locality' => [$locality->city]];
+
+					$localityName = trim((string) $locality->city);
+
+					$params = [
+						'locality' => [$localityName],
+						'q' => $keyword,
+					];
+
 					if ($locality->parent?->city) {
 						$params['location'] = [$locality->parent->city];
 					}
+
 					$push([
-						'name' => $locality->city,
-						'slug' => ltrim(route('projects', $params, false), '/'),
+						'name' => $localityName,
+						'slug' => ltrim(
+							route('projects', $params, false),
+							'/'
+						),
 						'url' => route('projects', $params),
 						'type' => 'locality',
 						'label' => 'Locality',
@@ -1318,39 +1378,9 @@ You can use this page to discover and compare <strong>{$configurationText}{$prop
 					]);
 				}
 
-				if ($hasLocationColumn) {
-					$projectLocalities = Project::query()
-						->where('status', true)
-						->whereNotNull('location')
-						->where('location', 'LIKE', $like)
-						->when($location !== '', function ($q) use ($location) {
-							$q->whereRaw('LOWER(TRIM(cities)) = ?', [strtolower($location)]);
-						})
-						->select('location', 'cities')
-						->limit(12)
-						->get()
-						->unique(function ($row) {
-							return strtolower(trim((string) $row->location));
-						})
-						->take(8);
-
-					foreach ($projectLocalities as $row) {
-						$localityName = trim((string) $row->location);
-						$params = ['locality' => [$localityName], 'q' => $keyword];
-						if (!empty($row->cities)) {
-							$params['location'] = [$row->cities];
-						}
-						$push([
-							'name' => $localityName,
-							'slug' => ltrim(route('projects', $params, false), '/'),
-							'url' => route('projects', $params),
-							'type' => 'locality',
-							'label' => 'Locality',
-							'subtitle' => $row->cities,
-						]);
-					}
-				}
-
+				// ---------------------------------------------------------------
+				// 3. Custom Links
+				// ---------------------------------------------------------------
 				$customLinks = CustomLink::query()
 					->where('is_active', 1)
 					->where(function ($q) use ($like) {
@@ -1362,10 +1392,13 @@ You can use this page to discover and compare <strong>{$configurationText}{$prop
 					->get();
 
 				foreach ($customLinks as $link) {
+
 					$slug = ltrim((string) $link->slug, '/');
+
 					if ($slug === '') {
 						continue;
 					}
+
 					$push([
 						'name' => $link->name ?: $link->title,
 						'slug' => $slug,
@@ -1376,49 +1409,80 @@ You can use this page to discover and compare <strong>{$configurationText}{$prop
 				}
 			}
 
+			/*
+        |--------------------------------------------------------------------------
+        | Project Search
+        |--------------------------------------------------------------------------
+        */
 			if ($keyword !== '' || $location !== '' || $bhkType !== '') {
-				$query = Project::query()->where('status', true);
 
+				$query = Project::query()
+					->where('status', true);
+
+				// Keyword filter
 				if ($keyword !== '') {
 					$query->where(function ($q) use ($like, $hasLocationColumn) {
+
 						$q->where('project_name', 'LIKE', $like)
 							->orWhere('cities', 'LIKE', $like)
 							->orWhere('developer_name', 'LIKE', $like);
+
 						if ($hasLocationColumn) {
 							$q->orWhere('location', 'LIKE', $like);
 						}
 					});
 				}
 
+				// Location filter
 				if ($location !== '') {
-					$query->where(function ($q) use ($location) {
-						$q->whereRaw('LOWER(TRIM(cities)) = ?', [strtolower($location)]);
-						if (Schema::hasColumn('projects', 'location_id')) {
-							$parentId = Location::parents()
-								->active()
-								->whereRaw('LOWER(TRIM(city)) = ?', [strtolower($location)])
-								->value('id');
-							if ($parentId) {
-								$q->orWhere('location_id', $parentId);
-							}
-						}
-					});
+
+					$parentId = Location::parents()
+						->active()
+						->whereRaw(
+							'LOWER(TRIM(city)) = ?',
+							[strtolower($location)]
+						)
+						->value('id');
+
+					if ($parentId) {
+						$query->where('location_id', $parentId);
+					} else {
+						$query->whereRaw(
+							'LOWER(TRIM(cities)) = ?',
+							[strtolower($location)]
+						);
+					}
 				}
 
-				if ($bhkType !== '' && $bhkType !== 'Shops') {
-					$bhkLike = '%' . addcslashes($bhkType, '%_\\') . '%';
-					$query->where('typology', 'LIKE', $bhkLike);
-				} elseif ($bhkType === 'Shops') {
-					$query->where('typology', 'LIKE', '%Shop%');
+				// BHK / Typology filter
+				if ($bhkType !== '') {
+
+					if ($bhkType === 'Shops') {
+						$query->where('typology', 'LIKE', '%Shop%');
+					} else {
+						$bhkLike = '%' . addcslashes($bhkType, '%_\\') . '%';
+
+						$query->where(
+							'typology',
+							'LIKE',
+							$bhkLike
+						);
+					}
 				}
 
-				$projects = $query->orderByDesc('id')->limit(12)->get();
+				$projects = $query
+					->orderByDesc('id')
+					->limit(12)
+					->get();
 
 				foreach ($projects as $project) {
+
 					$slug = trim((string) $project->slug);
+
 					if ($slug === '') {
 						continue;
 					}
+
 					$push([
 						'name' => $project->project_name,
 						'slug' => $slug,
@@ -1430,27 +1494,46 @@ You can use this page to discover and compare <strong>{$configurationText}{$prop
 				}
 			}
 
+			/*
+        |--------------------------------------------------------------------------
+        | Property Search
+        |--------------------------------------------------------------------------
+        */
 			if ($keyword !== '') {
+
 				$properties = Property::query()
 					->where('status', 'approved')
 					->where(function ($q) use ($like) {
+
 						$q->where('title', 'LIKE', $like)
 							->orWhere('city', 'LIKE', $like)
 							->orWhere('property_type', 'LIKE', $like)
 							->orWhere('configuration', 'LIKE', $like);
 					})
 					->when($location !== '', function ($q) use ($location) {
-						$q->whereRaw('LOWER(TRIM(city)) = ?', [strtolower($location)]);
+
+						$q->whereRaw(
+							'LOWER(TRIM(city)) = ?',
+							[strtolower($location)]
+						);
 					})
 					->orderByDesc('id')
 					->limit(8)
-					->get(['id', 'title', 'slug', 'city']);
+					->get([
+						'id',
+						'title',
+						'slug',
+						'city',
+					]);
 
 				foreach ($properties as $property) {
+
 					$slug = trim((string) $property->slug);
+
 					if ($slug === '') {
 						continue;
 					}
+
 					$push([
 						'name' => $property->title,
 						'slug' => $slug,
@@ -1462,11 +1545,17 @@ You can use this page to discover and compare <strong>{$configurationText}{$prop
 				}
 			}
 
+			/*
+        |--------------------------------------------------------------------------
+        | Response
+        |--------------------------------------------------------------------------
+        */
 			return response()->json([
 				'status' => true,
 				'data' => array_values($results),
 			]);
 		} catch (\Throwable $e) {
+
 			report($e);
 
 			return response()->json([
@@ -1476,7 +1565,6 @@ You can use this page to discover and compare <strong>{$configurationText}{$prop
 			], 200);
 		}
 	}
-
 
 
 	// to get property listing page
