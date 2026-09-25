@@ -83,6 +83,7 @@ class MailController extends Controller
 			session(['form_submitted' => $request->formName]);
 
 			
+			
 			if ($request->ajax()) {
 				return response()->json([
 					'success' => true,
