@@ -231,7 +231,7 @@
                 class="fas fa-phone me-2"></i>Call Us</a>
 
             <!-- WhatsApp Button (right) -->
-            <a href="https://wa.me/919643020020?text={{ urlencode($whatsappMessage) }}" target="_blank"
+            <a href="https://wa.me/+919643020020?text={{ urlencode($whatsappMessage) }}" target="_blank"
               class=" whatsapp text-white w-50 d-flex justify-content-center align-items-center">
               <i class="fab fa-whatsapp me-2"></i> WhatsApp
             </a>
