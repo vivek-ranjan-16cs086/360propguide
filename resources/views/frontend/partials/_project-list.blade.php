@@ -8,7 +8,8 @@ $hasRera = !empty($project->rera_no) && strtoupper(trim($project->rera_no)) !== 
 $projectTypologies = json_decode($project->typology, true);
 $projectTypologies = is_array($projectTypologies) ? $projectTypologies : explode(',', (string) $project->typology);
 $isShopsProject = collect($projectTypologies)->contains(fn ($typology) => strcasecmp(trim((string) $typology), 'Shops') === 0);
-$projectUrl = $isShopsProject
+$isCommercialProject = strtolower(trim((string) $project->project_type)) === 'commercial' || $isShopsProject;
+$projectUrl = $isCommercialProject
     ? route('projects.commercial', ['slug' => $project->slug])
     : route('projects.details', $project->slug);
 @endphp

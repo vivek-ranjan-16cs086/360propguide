@@ -937,13 +937,14 @@ You can use this page to discover and compare <strong>{$configurationText}{$prop
 		$typologies = json_decode($project->typology, true);
 		$typologies = is_array($typologies) ? $typologies : explode(',', (string) $project->typology);
 		$isShopsProject = collect($typologies)->contains(fn ($typology) => strcasecmp(trim((string) $typology), 'Shops') === 0);
+		$isCommercialProject = strtolower(trim((string) $project->project_type)) === 'commercial' || $isShopsProject;
 
-		abort_unless($isShopsProject, 404);
+		abort_unless($isCommercialProject, 404);
 
 		return $this->getProjectDetails($project->slug, false);
 	}
 
-	public function getProjectDetails($slug, $redirectShops = true)
+	public function getProjectDetails($slug, $redirectCommercial = true)
 	{
 		// projects
 		$projects = Project::where('slug', $slug)
@@ -953,8 +954,9 @@ You can use this page to discover and compare <strong>{$configurationText}{$prop
 		$typologies = json_decode($projects->typology, true);
 		$typologies = is_array($typologies) ? $typologies : explode(',', (string) $projects->typology);
 		$isShopsProject = collect($typologies)->contains(fn ($typology) => strcasecmp(trim((string) $typology), 'Shops') === 0);
+		$isCommercialProject = strtolower(trim((string) $projects->project_type)) === 'commercial' || $isShopsProject;
 
-		if ($redirectShops && $isShopsProject) {
+		if ($redirectCommercial && $isCommercialProject) {
 			return redirect()->route('projects.commercial', ['slug' => $projects->slug]);
 		}
 
@@ -1112,7 +1114,7 @@ You can use this page to discover and compare <strong>{$configurationText}{$prop
 				'recommendedProjects',
 				'faqSchema',
 				'customLinks',
-				'isShopsProject'
+				'isCommercialProject'
 			)
 		);
 	}
