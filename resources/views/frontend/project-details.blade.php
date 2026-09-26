@@ -549,6 +549,45 @@
     @endif
 
             </div>-->
+                @if ($isShopsProject)
+                <div class="price section project-section" id="price">
+                    <div class="project-details-card mb-4">
+                        <div class="commercial-price-intro pb-4 mb-4">
+                            <p class="commercial-price-label small fw-bold text-uppercase mb-2">Commercial Spaces</p>
+                            <h3 class="h4 fw-bold text-dark mb-2">{{ $projects->project_name }} <span class="text-primary">Spaces &amp; Prices</span></h3>
+                            <p class="text-muted mb-0">Indicative rates per sq ft &middot; before a unit-specific cost sheet</p>
+                        </div>
+                        @php
+                        $commercialFloors = [
+                            ['floor' => 'Lower Ground', 'format' => 'Retail & anchor spaces', 'rate' => '18,000'],
+                            ['floor' => 'Ground', 'format' => 'Retail & anchor spaces', 'rate' => '32,000'],
+                            ['floor' => 'First', 'format' => 'Retail & anchor spaces', 'rate' => '25,000'],
+                            ['floor' => 'Second', 'format' => 'Retail & anchor spaces', 'rate' => '18,000'],
+                            ['floor' => 'Third', 'format' => 'F&B spaces', 'rate' => '18,000'],
+                        ];
+                        @endphp
+                        <div class="commercial-price-table">
+                            <div class="commercial-price-head p-3">
+                                <span>Floor</span><span>Format &amp; Position</span><span>Rate / Sq Ft</span><span>Explore</span>
+                            </div>
+                            @foreach ($commercialFloors as $floorIndex => $floor)
+                            <div class="commercial-price-row p-3 p-lg-4">
+                                <strong class="text-dark">{{ $floor['floor'] }}</strong>
+                                <strong class="commercial-price-row__format text-dark">{{ $floor['format'] }}</strong>
+                                <div><strong class="commercial-price-rate fs-5">&#8377;{{ $floor['rate'] }}</strong><span class="d-block small text-muted">per sq ft</span></div>
+                                <div class="commercial-price-row__action">
+                                    <a href="#floor" class="commercial-position-link" data-floor-index="{{ $floorIndex }}">
+                                        View position <span aria-hidden="true">&#8599;</span>
+                                    </a>
+                                    <button type="button" class="btn customBtn rounded-3 px-3 py-2 fw-semibold" data-bs-toggle="modal" data-bs-target="#contactModal">Ask about this floor</button>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+                @else
+                {{-- Dynamic Pricing & Plans remains intact below and is disabled only for Shops projects. --}}
                 @if (request()->path() != 'projects/prestige-bougainvillea-gardens')
                 @php
                 $floorPlans = json_decode($projects->floor_plans_data, true) ?? [];
@@ -770,6 +809,7 @@
 
                     </div>
                 </div>
+                @endif
                 @endif
                 @endif
                 <!-- location -->
@@ -1558,6 +1598,18 @@ let swiper2 = new Swiper(".floorSwiper", {
         swiper: swiper,
     },
 });
+
+document.querySelectorAll('.commercial-position-link').forEach(link => {
+    link.addEventListener('click', function() {
+        const floorIndex = Number.parseInt(this.dataset.floorIndex, 10);
+
+        if (Number.isInteger(floorIndex) && swiper2.slides.length > floorIndex) {
+            swiper2.slideTo(floorIndex);
+            swiper.slideTo(floorIndex);
+        }
+    });
+});
+
 swiper2.on("slideChange", function() {
     let activeIndex = swiper2.activeIndex;
     swiper.slideTo(activeIndex); // shift thumbs to keep active one visible
