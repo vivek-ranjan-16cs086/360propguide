@@ -43,10 +43,18 @@ class GenerateSitemap extends Command
             ];
         }
 
-        // Projects
+		// Projects
 		foreach (Project::where('status', '1')->get() as $project) {
+            $typologies = json_decode($project->typology, true);
+            $typologies = is_array($typologies) ? $typologies : explode(',', (string) $project->typology);
+            $isShopsProject = collect($typologies)->contains(
+                fn ($typology) => strcasecmp(trim((string) $typology), 'Shops') === 0
+            );
+            $isCommercialProject = strtolower(trim((string) $project->project_type)) === 'commercial'
+                || $isShopsProject;
+
             $items[] = [
-                'loc' => (string) url('/projects/' . $project->slug),
+                'loc' => (string) url(($isCommercialProject ? '/commercial-projects/' : '/projects/') . $project->slug),
                 'lastmod' => Carbon::parse($project->updated_at)->toAtomString(),
                 'priority' => '0.9',
             ];
@@ -78,6 +86,8 @@ class GenerateSitemap extends Command
 				'priority' => '0.6',
 			];
 		} 
+
+        $items = collect($items)->unique('loc')->values()->all();
 
         // Save the rendered XML view to file
         $xml = view('sitemap', ['items' => $items])->render();
