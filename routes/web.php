@@ -75,7 +75,7 @@ Route::get('thankyou', [FrontendPageController::class, 'getThankYouPage'])->name
 // Dynamic frontend pages
 Route::get('/', [FrontendPageController::class, 'getHomePageData']);
 
-Route::prefix('careers')->group(function () {
+Route::prefix('careers')->group(function () { 
     Route::get('/', [FrontendPageController::class, 'getCareerPageData']);
     Route::get('/{slug}', [FrontendPageController::class, 'getCareerDetails']);
 });
