@@ -5,7 +5,13 @@ $typologyDisplay = !empty($project->typology_text) ? $project->typology_text : (
 is_string($project->typology) ? $project->typology : 'Details on request');
 $statusClean = !empty($project->project_status) ? ucfirst(str_replace('_', ' ', clean($project->project_status))) : '';
 $hasRera = !empty($project->rera_no) && strtoupper(trim($project->rera_no)) !== 'N/A';
-$projectUrl = route('projects.details', $project->slug);
+$projectTypologies = json_decode($project->typology, true);
+$projectTypologies = is_array($projectTypologies) ? $projectTypologies : explode(',', (string) $project->typology);
+$isShopsProject = collect($projectTypologies)->contains(fn ($typology) => strcasecmp(trim((string) $typology), 'Shops') === 0);
+$isCommercialProject = strtolower(trim((string) $project->project_type)) === 'commercial' || $isShopsProject;
+$projectUrl = $isCommercialProject
+    ? route('projects.commercial', ['slug' => $project->slug])
+    : route('projects.details', $project->slug);
 @endphp
 <article class="projects-grid__item">
     <a href="{{ $projectUrl }}" class="project-card" aria-label="View {{ $project->project_name }}">

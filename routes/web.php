@@ -67,12 +67,15 @@ Route::get('commercial/epic', function () {
     return view('frontend.commercial-details');
 })->name('commercial.epic');
 
+Route::get('commercial-projects/{slug}', [FrontendPageController::class, 'getCommercialProjectDetails'])
+    ->name('projects.commercial');
+
 Route::get('thankyou', [FrontendPageController::class, 'getThankYouPage'])->name('thankyou');
 
 // Dynamic frontend pages
 Route::get('/', [FrontendPageController::class, 'getHomePageData']);
 
-Route::prefix('careers')->group(function () {
+Route::prefix('careers')->group(function () { 
     Route::get('/', [FrontendPageController::class, 'getCareerPageData']);
     Route::get('/{slug}', [FrontendPageController::class, 'getCareerDetails']);
 });
