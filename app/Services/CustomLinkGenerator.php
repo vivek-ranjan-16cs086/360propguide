@@ -51,6 +51,25 @@ class CustomLinkGenerator
 
         return $saved;
     }
+    private function getPossessionsForLocation(Location $location): array
+    {
+        return Project::query()
+            ->where(function ($q) use ($location) {
+                $q->where('location_id', $location->id)
+                    ->orWhereHas('sublocation', function ($q) use ($location) {
+                        $q->where('parent_id', $location->id);
+                    });
+            })
+            ->whereNotNull('project_status')
+            ->whereIn('project_status', array_keys(self::POSSESSIONS))
+            ->pluck('project_status')
+            ->unique()
+            ->filter(fn($status) => isset(self::POSSESSIONS[$status]))
+            ->mapWithKeys(fn($status) => [
+                $status => self::POSSESSIONS[$status],
+            ])
+            ->all();
+    }
     private function removeStaleBhkLinks(
         Location $location,
         array $payloads
@@ -97,19 +116,31 @@ class CustomLinkGenerator
             ])
             ->delete();
     }
-    public function syncLocation(Location $location): int
-    {
-        if (!$location->status) {
-            return 0;
-        }
-
-        $location->loadMissing('parent:id,city');
-        $payloads = $this->locationPayloads($location);
-        $this->removeStaleBhkLinks($location, $payloads);
-        $this->removeDisabledPossessionLinks($location);
-        return $this->save($payloads);
+   public function syncLocation(Location $location): int
+{
+    if (!$location->status) {
+        return 0;
     }
 
+    $location->loadMissing('parent:id,city');
+
+    $payloads = $this->locationPayloads($location);
+
+    $this->removeStaleBhkLinks($location, $payloads);
+    $this->removeDisabledPossessionLinks($location);
+
+    // Remove old child-location slug
+    if ($location->parent_id !== null) {
+        $oldSlug = $location->slug ?: Str::slug($location->city);
+
+        CustomLink::query()
+            ->where('type', 'sublocation')
+            ->where('slug', 'flats-in-' . $oldSlug)
+            ->delete();
+    }
+
+    return $this->save($payloads);
+}
     public function syncDeveloper(Developer $developer): int
     {
         $name = trim((string) $developer->developer_name);
@@ -169,70 +200,60 @@ class CustomLinkGenerator
 
     private function getBhkTypesForLocation(Location $location): array
     {
+        // Typology links ONLY for major cities
+        if ($location->parent_id !== null) {
+            return [];
+        }
+
         $query = Project::query()
-            ->whereNotNull('typology');
-
-
-        if ($location->parent_id === null) {
-
-
-            $query->where(function ($q) use ($location) {
-
+            ->whereNotNull('typology')
+            ->where(function ($q) use ($location) {
                 $q->where('location_id', $location->id)
                     ->orWhereHas('sublocation', function ($q) use ($location) {
                         $q->where('parent_id', $location->id);
                     });
             });
-        } else {
+        // $query = Project::query()
+        //     ->whereNotNull('typology')
+        //     ->whereRaw(
+        //         'LOWER(TRIM(cities)) = ?',
+        //         [strtolower(trim($location->city))]
+        //     );
 
-            // This is a sublocation like Sector 168.
-            $query->where('sublocation_id', $location->id);
-        }
-
-        $bhks = [];
+        $typologies = [];
 
         $query
             ->select(['id', 'typology'])
-            ->chunkById(100, function ($projects) use (&$bhks) {
+            ->chunkById(100, function ($projects) use (&$typologies) {
 
                 foreach ($projects as $project) {
 
+                    $values = $project->typology;
 
+                    if (is_string($values)) {
 
-                    $typologies = $project->typology;
-
-
-
-                    if (is_string($typologies)) {
-
-                        $decoded = json_decode($typologies, true);
+                        $decoded = json_decode($values, true);
 
                         if (
-                            json_last_error() === JSON_ERROR_NONE
-                            && is_array($decoded)
+                            json_last_error() === JSON_ERROR_NONE &&
+                            is_array($decoded)
                         ) {
-                            $typologies = $decoded;
+                            $values = $decoded;
                         } else {
-
-                            // Fallback if value is something like:
-                            // "2 BHK, 3 BHK"
-
-                            $typologies = array_filter(
+                            $values = array_filter(
                                 array_map(
                                     'trim',
-                                    explode(',', $typologies)
+                                    explode(',', $values)
                                 )
                             );
                         }
                     }
 
-
-                    if (!is_array($typologies)) {
+                    if (!is_array($values)) {
                         continue;
                     }
 
-
-                    foreach ($typologies as $typology) {
+                    foreach ($values as $typology) {
 
                         $typology = trim((string) $typology);
 
@@ -240,81 +261,86 @@ class CustomLinkGenerator
                             continue;
                         }
 
-
-                        if (preg_match('/^\d+\s*BHK$/i', $typology)) {
-
-                            $bhks[] = strtoupper(
-                                preg_replace('/\s+/', ' ', $typology)
-                            );
-                        }
+                        // Keep every typology:
+                        // 2 BHK, 3 BHK, Plot, Villa, Studio, etc.
+                        $typologies[] = preg_replace(
+                            '/\s+/',
+                            ' ',
+                            $typology
+                        );
                     }
                 }
             });
 
-        return collect($bhks)
-            ->unique()
-            ->sortBy(fn($bhk) => (int) $bhk)
+        return collect($typologies)
+            ->filter()
+            ->unique(fn($type) => strtolower($type))
             ->values()
             ->all();
     }
 
 
-    private function locationPayloads(Location $location): array
-    {
-        $place = trim((string) $location->city);
-        if ($place === '') {
-            return [];
-        }
+   private function locationPayloads(Location $location): array
+{
+    $place = trim((string) $location->city);
 
+if ($location->parent_id !== null) {
+    $place = preg_replace('/\s*\([^)]*\)/', '', $place);
+    $place = trim($place);
+}
+
+if ($place === '') {
+    return [];
+}
+
+    $isChild = $location->parent_id !== null;
+
+    $type = $isChild ? 'sublocation' : 'location';
+
+    $parentName = $isChild
+        ? trim((string) ($location->parent?->city ?? ''))
+        : '';
+
+    $stateName = trim((string) $location->state);
+
+    if ($isChild && $stateName !== '') {
+        $placeSlug = Str::slug($place) . '-' . Str::slug($stateName);
+    } else {
         $placeSlug = $location->slug ?: Str::slug($place);
-        $isChild = $location->parent_id !== null;
-        $type = $isChild ? 'sublocation' : 'location';
-        $parentName = $isChild ? trim((string) ($location->parent?->city ?? '')) : '';
-        $payloads = [];
-
-        $payloads[] =
-            $this->make(
-                'flats-in-' . $placeSlug,
-                'Flats in ' . $place,
-                $type,
-                $place,
-                'Flats',
-                $parentName !== '' ? ' near ' . $parentName : ''
-            );
-
-
-
-        if (!$isChild) {
-            foreach (self::POSSESSIONS as $status => $label) {
-                $statusSlug = Str::slug(str_replace('_', ' ', $status));
-                $payloads[] =
-                    $this->make(
-                        $statusSlug . '-flats-in-' . $placeSlug,
-                        $label . ' Flats in ' . $place,
-                        'possession',
-                        $place,
-                        $label
-                    );
-            }
-        }
-        foreach ($this->getBhkTypesForLocation($location) as $bhk) {
-
-            $bhkSlug = Str::slug($bhk);
-
-            $payloads[] =
-                $this->make(
-                    $bhkSlug . '-flats-in-' . $placeSlug,
-                    $bhk . ' Flats in ' . $place,
-                    'bhk',
-                    $place,
-                    $bhk,
-                    $parentName !== '' ? ' near ' . $parentName : ''
-                );
-        }
-
-        return $payloads;
     }
 
+    $payloads = [];
+
+    // Main Flats link
+    $payloads[] = $this->make(
+        'flats-in-' . $placeSlug,
+        'Flats in ' . $place,
+        $type,
+        $place,
+        'Flats',
+        $parentName !== '' ? ' near ' . $parentName : ''
+    );
+
+    // Possession links only for parent locations
+    if (!$isChild) {
+        foreach (self::POSSESSIONS as $status => $label) {
+
+            $statusSlug = Str::slug(
+                str_replace('_', ' ', $status)
+            );
+
+            $payloads[] = $this->make(
+                $statusSlug . '-flats-in-' . $placeSlug,
+                $label . ' Flats in ' . $place,
+                'possession',
+                $place,
+                $label
+            );
+        }
+    }
+
+    return $payloads;
+}
     public function testPayloads(Location $location)
     {
         $val = $this->locationPayloads($location);

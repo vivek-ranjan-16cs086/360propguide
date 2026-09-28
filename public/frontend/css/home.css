@@ -1978,6 +1978,7 @@
 }
 
 .social-feed-card {
+    position: relative;
     background: #ffffff;
     border: 1px solid var(--slate-200);
     border-radius: var(--radius-md);
@@ -2002,6 +2003,20 @@
     padding: 0.65rem 0.85rem;
     border-bottom: 1px solid var(--slate-100);
     background: #ffffff;
+}
+
+.social-feed-card.has-image .social-feed-header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 2;
+    background: rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(4px);
+}
+
+.social-feed-card.has-image {
+    padding-top: 50px;
 }
 
 .social-author {
@@ -2056,6 +2071,7 @@
 
 .social-img-link {
     display: block;
+    width: 100%;
     text-decoration: none;
     background: #0f172a;
 }
@@ -2063,23 +2079,18 @@
 .social-feed-img-wrap {
     position: relative;
     width: 100%;
-    aspect-ratio: 4 / 3;
-    min-height: 200px;
+    min-height: 0;
     overflow: hidden;
     background: #0f172a;
 }
 
 .social-feed-img-wrap img {
     width: 100%;
-    height: 100%;
-    object-fit: cover;
+    height: auto;
+    object-fit: contain;
     object-position: center center;
     display: block;
     transition: transform 0.45s ease;
-}
-
-.social-feed-card:hover .social-feed-img-wrap img {
-    transform: scale(1.04);
 }
 
 .social-feed-img-wrap img.is-fallback {
@@ -2869,4 +2880,3 @@ img[src*="360logo.webp"],
         line-height: 1.3 !important;
     }
 }
-

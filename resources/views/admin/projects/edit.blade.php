@@ -457,127 +457,61 @@
                                     </div>
                                 </div>
 								
-                                <div class="col-12 mt-5">
-                                    <h5>
-                                        BHK Plans
-                                    </h5>
-                                    @php
-                                    $selectedType = $projects->project_type; // apartment type
-                                    @endphp
-                                    <div class="row">
-                                        <input name="project_type" value='{{$projects->project_type}}' type='hidden' id="project_type" class="col-6 form-control mb-3">
-                                        <button type="button" class="btn btn-success plusBtn ml-auto">
-                                            <i class="fa fa-plus"></i> Add Floor Plan
-                                        </button>
-                                    </div>
-                                    <div class="floors row p-3">
-                                        @if(
-                                        !empty(json_decode($projects->floor_plans_data)) &&
-                                        count(json_decode($projects->floor_plans_data)) > 0
-                                        )
-                                        @foreach(json_decode($projects->floor_plans_data) as $index => $floorPlan)
-                                        <div class="col-sm-12 col-lg-12 mt-2 pdfloorPlans" style="padding:0 30px">
-                                            <div class="row pt-5 pb-5" style="background:#1b577733">
-                                                <div class="col-2">
-                                                    <label for="title">Title:</label>
-                                                    <input name="floor_plans[{{@$index}}][title]" type="text"
-                                                        class="form-control"
-                                                        value="{{(@old('title')) ? (@old('title')) : (@$floorPlan->title)}}">
-                                                </div>
-                                                @if($selectedType === 'apartment')
-                                                <div class="col-2">
-                                                    <label for="super_area">Super Area:</label>
-                                                    <input name="floor_plans[{{@$index}}][super_area]" type="text"
-                                                        class="form-control"
-                                                        value="{{(@old('super_area')) ? (@old('super_area')) : (@$floorPlan->super_area)}}">
-                                                </div>
-                                                <div class="col-2">
-                                                    <label for="carpet_area">Carpet Area:</label>
-                                                    <input name="floor_plans[{{@$index}}][carpet_area]" type="text"
-                                                        class="form-control"
-                                                        value="{{(@old('carpet_area')) ? (@old('carpet_area')) : (@$floorPlan->carpet_area)}}">
-                                                </div>
-                                                <div class="col-2">
-                                                    <label for="built_area">Builtup Area:</label>
-                                                    <input name="floor_plans[{{@$index}}][built_area]" type="text"
-                                                        class="form-control"
-                                                        value="{{(@old('built_area')) ? (@old('built_area')) : (@$floorPlan->built_area)}}">
-                                                </div>
-                                                <div class="col-2">
-                                                    <label for="balcony_area">Balcony Area:</label>
-                                                    <input name="floor_plans[{{@$index}}][balcony_area]" type="text"
-                                                        class="form-control"
-                                                        value="{{(@old('balcony_area')) ? (@old('balcony_area')) : (@$floorPlan->balcony_area)}}">
-                                                </div>
-                                                @else
-                                                <div class="col-2">
-                                                    <label for="length">Length:</label>
-                                                    <input name="floor_plans[{{@$index}}][length]" type="text"
-                                                        class="form-control"
-                                                        value="{{(@old('length')) ? (@old('length')) : (@$floorPlan->length)}}">
-                                                </div>
-                                                <div class="col-2">
-                                                    <label for="width">Width:</label>
-                                                    <input name="floor_plans[{{@$index}}][width]" type="text"
-                                                        class="form-control"
-                                                        value="{{(@old('width')) ? (@old('width')) : (@$floorPlan->width)}}">
-                                                </div>
-                                                <div class="col-2">
-                                                    <label for="total_area">Total Area:</label>
-                                                    <input name="floor_plans[{{@$index}}][total_area]" type="text"
-                                                        class="form-control"
-                                                        value="{{(@old('total_area')) ? (@old('total_area')) : (@$floorPlan->total_area)}}">
-                                                </div>
-                                                @endif
-                                                <div class="col-2">
-                                                    <label for="feature_image">Image:</label>
-                                                    <input name="floor_plans[{{@$index}}][feature_image]" type="file"
-                                                        class="form-control">
-                                                </div>
-                                            </div>
-                                            <span class="bg-danger minusBtn">
-                                                <i class="fa fa-minus"></i>
-                                            </span>
-                                        </div>
-                                        @endforeach
-                                        @else
-                                        <div class="col-sm-12 col-lg-12 mt-2 pdfloorPlans" style="padding:0 30px">
-                                            <div class="row pt-5 pb-5" style="background:#1b577733">
-                                                <div class="col-2">
-                                                    <label for="title">Title:</label>
-                                                    <input name="floor_plans[0][title]" type="text" class="form-control"
-                                                        required>
-                                                </div>
-                                                <div class="col-2">
-                                                    <label for="super_area">Super Area:</label>
-                                                    <input name="floor_plans[0][super_area]" type="text"
-                                                        class="form-control" required>
-                                                </div>
-                                                <div class="col-2">
-                                                    <label for="carpet_area">Carpet Area:</label>
-                                                    <input name="floor_plans[0][carpet_area]" type="text"
-                                                        class="form-control" required>
-                                                </div>
-                                                <div class="col-2">
-                                                    <label for="built_area">Builtup Area:</label>
-                                                    <input name="floor_plans[0][built_area]" type="text"
-                                                        class="form-control" required>
-                                                </div>
-                                                <div class="col-2">
-                                                    <label for="balcony_area">Balcony Area:</label>
-                                                    <input name="floor_plans[0][balcony_area]" type="text"
-                                                        class="form-control" required>
-                                                </div>
-                                                <div class="col-2">
-                                                    <label for="feature_image">Image:</label>
-                                                    <input name="floor_plans[0][feature_image]" type="file"
-                                                        class="form-control" required>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        @endif
-                                    </div>
-                                </div>
+                             <div class="col-12 mt-5">
+
+    <div class="row">
+
+        {{-- Property Type --}}
+        <div class="col-md-4">
+
+            <h5>Property Type</h5>
+
+            <select name="project_type"
+                id="project_type"
+                class="form-control mt-3">
+
+                <option value="residential"
+                    {{ old('project_type', $projects->project_type ?? 'residential') === 'residential' ? 'selected' : '' }}>
+                    Residential
+                </option>
+
+                <option value="commercial"
+                    {{ old('project_type', $projects->project_type ?? '') === 'commercial' ? 'selected' : '' }}>
+                    Commercial
+                </option>
+
+                <option value="mixed"
+                    {{ old('project_type', $projects->project_type ?? '') === 'mixed' ? 'selected' : '' }}>
+                    Mixed
+                </option>
+
+            </select>
+
+        </div>
+
+    </div>
+    <div class="row  align-items-end mt-3">
+
+    {{-- Residential / BHK Type - LEFT --}}
+    <div id="residentialFloorSectionWrapper"
+        class="col-md-10">
+    </div>
+
+    {{-- Add Floor Plan - RIGHT --}}
+    <div id="floorPlanButtonWrapper"
+        class="col-md-2 text-right">
+    </div>
+
+</div>
+
+
+    {{-- Floor Plans --}}
+    <div id="floorPlansWrapper"
+        class="col-12 ">
+
+    </div>
+
+</div>
                                 <div class="col-12 mb-3">
                                     <h5>
                                         SEO Section
@@ -928,116 +862,475 @@
     $(document).on('change select2:select', '#sublocation_id', syncLocationHiddenFields);
     $('form').on('submit', syncLocationHiddenFields);
 
-    let selectedAreaType = $('#project_type').val();
+ let selectedAreaType = @json(old('area_type', $projects->area_type ?? 'apartment'));
+function generateFloorPlanFields(type, index) {
 
-    function generateFloorPlanFields(type, index) {
-        let html = '';
+    let html = '';
 
-        if (type === 'apartment') {
-            html = `<div class="col-sm-12 col-lg-12 mt-2 pdfloorPlans" style="padding:0 30px">
-            <div class="row pt-5 pb-5" style="background:#1b577733">
+    if (type === 'apartment') {
+
+        html = `
+        <div class="col-sm-12 col-lg-12 mt-2 pdfloorPlans"
+             style="padding:0 30px">
+
+            <div class="row pt-5 pb-5"
+                 style="background:#1b577733">
+
                 <div class="col">
-                    <label for="title">Title:</label>
-                    <input name="floor_plans[${index}][title]" type="text" class="form-control" required>
+                    <label>Title:</label>
+
+                    <input
+                        name="floor_plans[${index}][title]"
+                        type="text"
+                        class="form-control"
+                        required>
                 </div>
+
                 <div class="col-2">
-                    <label for="super_area">Super Area:</label>
-                    <input name="floor_plans[${index}][super_area]" type="text" class="form-control" required>
+                    <label>Super Area:</label>
+
+                    <input
+                        name="floor_plans[${index}][super_area]"
+                        type="text"
+                        class="form-control"
+                        required>
                 </div>
+
                 <div class="col-2">
-                    <label for="carpet_area">Carpet Area:</label>
-                    <input name="floor_plans[${index}][carpet_area]" type="text" class="form-control" required>
+                    <label>Carpet Area:</label>
+
+                    <input
+                        name="floor_plans[${index}][carpet_area]"
+                        type="text"
+                        class="form-control"
+                        required>
                 </div>
+
                 <div class="col-2">
-                    <label for="built_area">Builtup Area:</label>
-                    <input name="floor_plans[${index}][built_area]" type="text" class="form-control" required>
+                    <label>Builtup Area:</label>
+
+                    <input
+                        name="floor_plans[${index}][built_area]"
+                        type="text"
+                        class="form-control"
+                        required>
                 </div>
+
                 <div class="col-2">
-                    <label for="balcony_area">Balcony Area:</label>
-                    <input name="floor_plans[${index}][balcony_area]" type="text" class="form-control" required>
+                    <label>Balcony Area:</label>
+
+                    <input
+                        name="floor_plans[${index}][balcony_area]"
+                        type="text"
+                        class="form-control"
+                        required>
                 </div>
+
                 <div class="col-2">
-                    <label for="feature_image">Image:</label>
-                    <input name="floor_plans[${index}][feature_image]" type="file" class="form-control" required>
+                    <label>Image:</label>
+
+                    <input
+                        name="floor_plans[${index}][feature_image]"
+                        type="file"
+                        class="form-control">
                 </div>
+
             </div>
+
             <span class="bg-danger minusBtn">
                 <i class="fa fa-minus"></i>
             </span>
+
         </div>`;
-        } else if (type === 'plots') {
-            html = `<div class="col-sm-12 col-lg-12 mt-2 pdfloorPlans" style="padding:0 30px">
-            <div class="row pt-5 pb-5" style="background:#1b577733">
+    }
+
+    else if (type === 'plots') {
+
+        html = `
+        <div class="col-sm-12 col-lg-12 mt-2 pdfloorPlans"
+             style="padding:0 30px">
+
+            <div class="row pt-5 pb-5"
+                 style="background:#1b577733">
+
                 <div class="col">
-                    <label for="title">Title:</label>
-                    <input name="floor_plans[${index}][title]" type="text" class="form-control" required>
+                    <label>Title:</label>
+
+                    <input
+                        name="floor_plans[${index}][title]"
+                        type="text"
+                        class="form-control"
+                        required>
                 </div>
+
                 <div class="col-2">
-                    <label for="length">Length:</label>
-                    <input name="floor_plans[${index}][length]" type="text" class="form-control" required>
+                    <label>Length:</label>
+
+                    <input
+                        name="floor_plans[${index}][length]"
+                        type="text"
+                        class="form-control"
+                        required>
                 </div>
+
                 <div class="col-2">
-                    <label for="width">Width:</label>
-                    <input name="floor_plans[${index}][width]" type="text" class="form-control" required>
+                    <label>Width:</label>
+
+                    <input
+                        name="floor_plans[${index}][width]"
+                        type="text"
+                        class="form-control"
+                        required>
                 </div>
+
                 <div class="col-2">
-                    <label for="total_area">Total Area:</label>
-                    <input name="floor_plans[${index}][total_area]" type="text" class="form-control" required>
+                    <label>Total Area:</label>
+
+                    <input
+                        name="floor_plans[${index}][total_area]"
+                        type="text"
+                        class="form-control"
+                        required>
                 </div>
+
                 <div class="col-2">
-                    <label for="feature_image">Image:</label>
-                    <input name="floor_plans[${index}][feature_image]" type="file" class="form-control" required>
+                    <label>Image:</label>
+
+                    <input
+                        name="floor_plans[${index}][feature_image]"
+                        type="file"
+                        class="form-control">
                 </div>
+
             </div>
+
             <span class="bg-danger minusBtn">
                 <i class="fa fa-minus"></i>
             </span>
+
         </div>`;
+    }
+
+    return html;
+}
+
+
+function generateCommercialFloorFields(index, data = {}) {
+
+    return `
+    <div class="col-sm-12 col-lg-12 mt-2 commercialFloorPlan"
+         style="padding:0 30px">
+
+        <div class="row pt-4 pb-4"
+             style="background:#1b577733">
+
+            <div class="col-md-3">
+                <label>Floor:</label>
+
+                <input
+                    name="floor_plans[${index}][floor]"
+                    type="text"
+                    class="form-control"
+                    value="${data.floor ?? ''}"
+                    placeholder="e.g. Lower Ground"
+                    required>
+            </div>
+
+
+            <div class="col-md-3">
+                <label>Floor Sub Label:</label>
+
+                <input
+                    name="floor_plans[${index}][floor_sub_label]"
+                    type="text"
+                    class="form-control"
+                    value="${data.floor_sub_label ?? ''}"
+                    placeholder="e.g. Basement 1">
+            </div>
+
+
+            <div class="col-md-3">
+                <label>Format & Position Title:</label>
+
+                <input
+                    name="floor_plans[${index}][format_position_title]"
+                    type="text"
+                    class="form-control"
+                    value="${data.format_position_title ?? ''}"
+                    placeholder="e.g. Retail & anchor spaces"
+                    required>
+            </div>
+
+
+            <div class="col-md-3">
+                <label>Rate / Sq Ft:</label>
+
+                <input
+                    name="floor_plans[${index}][rate_sq_ft]"
+                    type="text"
+                    class="form-control"
+                    value="${data.rate_sq_ft ?? ''}"
+                    placeholder="e.g. 18000"
+                    required>
+            </div>
+
+
+            <div class="col-md-8 mt-3">
+                <label>Format & Position Description:</label>
+
+                <textarea
+                    name="floor_plans[${index}][format_position_description]"
+                    class="form-control"
+                    placeholder="Position / layout notes">${data.format_position_description ?? ''}</textarea>
+            </div>
+
+
+            <div class="col-md-4 mt-3">
+                <label>Image (optional):</label>
+
+                <input
+                    name="floor_plans[${index}][feature_image]"
+                    type="file"
+                    class="form-control">
+            </div>
+
+        </div>
+
+
+        <span class="bg-danger commercialMinusBtn"
+              style="cursor:pointer; padding:5px 10px;">
+
+            <i class="fa fa-minus"></i>
+
+        </span>
+
+    </div>
+    `;
+}
+
+function loadExistingFloorPlans() {
+
+    const projectType =
+        $('#project_type').val();
+
+    const floorPlans =
+        @json(json_decode($projects->floor_plans_data ?? '[]'));
+
+    $('#residentialFloorSectionWrapper').html('');
+    $('#floorPlanButtonWrapper').html('');
+    $('#floorPlansWrapper').html('');
+
+
+
+    // =========================
+    // COMMERCIAL
+    // =========================
+
+    if (projectType === 'commercial') {
+
+        $('#residentialFloorSectionWrapper').html(`
+            <div id="commercialFloorSection"
+                 class="d-flex justify-content-between align-items-center">
+
+                <h5 class="mb-0">
+                    Commercial Floor Plans
+                </h5>
+
+            </div>
+        `);
+
+
+        $('#floorPlanButtonWrapper').html(`
+            <h5>&nbsp;</h5>
+
+            <button type="button"
+                class="btn btn-success commercialPlusBtn">
+
+                <i class="fa fa-plus"></i>
+                Add Floor Plan
+
+            </button>
+        `);
+
+
+        $('#floorPlansWrapper').html(`
+            <div id="commercialFloors"
+                 class="row mb-3">
+            </div>
+        `);
+
+
+        if (floorPlans.length > 0) {
+
+            floorPlans.forEach(function(plan, index) {
+
+                $('#commercialFloors').append(
+                    generateCommercialFloorFields(
+                        index,
+                        plan
+                    )
+                );
+
+            });
+
+        } else {
+
+            $('#commercialFloors').append(
+                generateCommercialFloorFields(0)
+            );
         }
 
-        return html;
+
+        return;
     }
 
-    // Function to reindex names properly
-    function reIndexFloorPlans() {
-        $('.pdfloorPlans').each(function(i) {
-            $(this).find('input').each(function() {
-                const name = $(this).attr('name');
-                if (name) {
-                    const updatedName = name.replace(/\[\d+\]/, `[${i}]`);
-                    $(this).attr('name', updatedName);
+
+    // =========================
+    // RESIDENTIAL / MIXED
+    // =========================
+
+    $('#residentialFloorSectionWrapper').html(`
+        <div id="residentialFloorSection">
+
+            <h5>BHK Plans</h5>
+
+            <select
+                name="area_type"
+                id="area_type"
+                class="form-control mt-3">
+
+                <option value="apartment">
+                    Apartments
+                </option>
+
+                <option value="plots">
+                    Plots
+                </option>
+
+            </select>
+
+        </div>
+    `);
+
+
+    $('#floorPlanButtonWrapper').html(`
+        <h5>&nbsp;</h5>
+
+        <button type="button"
+            class="btn btn-success plusBtn">
+
+            <i class="fa fa-plus"></i>
+            Add Floor Plan
+
+        </button>
+    `);
+
+
+    $('#floorPlansWrapper').html(`
+        <div id="residentialFloors"
+             class="floors row">
+        </div>
+    `);
+
+
+    // Existing area type determine karo
+    selectedAreaType = @json(old('area_type', $projects->area_type ?? 'apartment'));
+
+$('#area_type').val(selectedAreaType);
+
+    if (floorPlans.length > 0) {
+
+        floorPlans.forEach(function(plan, index) {
+
+            $('#residentialFloors').append(
+                generateFloorPlanFields(
+                    selectedAreaType,
+                    index
+                )
+            );
+
+            const $item =
+                $('#residentialFloors .pdfloorPlans').last();
+
+            Object.keys(plan).forEach(function(key) {
+
+                if (key === 'feature_image') {
+                    return;
                 }
+
+                $item
+                    .find(`[name="floor_plans[${index}][${key}]"]`)
+                    .val(plan[key] ?? '');
             });
+
         });
+
+    } else {
+
+        $('#residentialFloors').append(
+            generateFloorPlanFields(
+                selectedAreaType,
+                0
+            )
+        );
     }
+}
 
-    // Initial rendering based on selected option
-    function renderInitialFloorPlan() {
-        $('.floors').html(generateFloorPlanFields(selectedAreaType, 0));
-    }
+$(document).on('change', '#area_type', function () {
 
-    $(document).ready(function() {
-        // renderInitialFloorPlan();
+    selectedAreaType = $(this).val();
 
-        // Handle change of type dropdown
-        $('#project_type').on('change', function() {
-            selectedAreaType = $(this).val();
-            renderInitialFloorPlan();
-        });
+    $('#residentialFloors').html(
+        generateFloorPlanFields(
+            selectedAreaType,
+            0
+        )
+    );
 
-        // Add new floor plan
-        $('.plusBtn').click(function() {
-            const currentIndex = $('.floors .pdfloorPlans').length;
-            $('.floors').append(generateFloorPlanFields(selectedAreaType, currentIndex));
-            reIndexFloorPlans();
-        });
+});$(document).on('change', '#project_type', function () {
 
-        // Remove floor plan
-        $(document).on('click', '.minusBtn', function() {
-            $(this).closest('.pdfloorPlans').remove();
-            reIndexFloorPlans();
-        });
-    });
+    loadExistingFloorPlans();
+
+});
+$(document).on('click', '.plusBtn', function () {
+
+    const currentIndex =
+        $('#residentialFloors .pdfloorPlans').length;
+
+    $('#residentialFloors').append(
+        generateFloorPlanFields(
+            selectedAreaType,
+            currentIndex
+        )
+    );
+
+});
+$(document).on('click', '.commercialPlusBtn', function () {
+
+    const currentIndex =
+        $('#commercialFloors .commercialFloorPlan').length;
+
+    $('#commercialFloors').append(
+        generateCommercialFloorFields(currentIndex)
+    );
+
+});$(document).on('click', '.minusBtn', function () {
+
+    $(this)
+        .closest('.pdfloorPlans')
+        .remove();
+
+});$(document).on('click', '.commercialMinusBtn', function () {
+
+    $(this)
+        .closest('.commercialFloorPlan')
+        .remove();
+
+});$(document).ready(function () {
+
+    loadExistingFloorPlans();
+
+});
 
     function previewImage(input, previewId) {
         if (input.files && input.files[0]) {
