@@ -80,7 +80,7 @@
     </div>
 
     <!-- Submit -->
-    <div class="mb-3">
+    <div class="mb-2">
         <button type="submit" 
                 class="btn customBtn w-100 submitButton" id="contact-mail-submit">
             Submit

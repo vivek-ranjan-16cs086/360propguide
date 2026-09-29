@@ -284,14 +284,18 @@ class CustomLinkGenerator
 {
     $place = trim((string) $location->city);
 
-if ($location->parent_id !== null) {
-    $place = preg_replace('/\s*\([^)]*\)/', '', $place);
+    // Remove "Flats in" if it already exists in location name
+    $place = preg_replace('/^flats\s+in\s+/i', '', $place);
     $place = trim($place);
-}
 
-if ($place === '') {
-    return [];
-}
+    if ($location->parent_id !== null) {
+        $place = preg_replace('/\s*\([^)]*\)/', '', $place);
+        $place = trim($place);
+    }
+
+    if ($place === '') {
+        return [];
+    }
 
     $isChild = $location->parent_id !== null;
 
@@ -306,7 +310,8 @@ if ($place === '') {
     if ($isChild && $stateName !== '') {
         $placeSlug = Str::slug($place) . '-' . Str::slug($stateName);
     } else {
-        $placeSlug = $location->slug ?: Str::slug($place);
+        // IMPORTANT: Do not use $location->slug here
+        $placeSlug = Str::slug($place);
     }
 
     $payloads = [];
