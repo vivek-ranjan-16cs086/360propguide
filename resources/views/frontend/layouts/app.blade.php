@@ -495,91 +495,311 @@
   </script>
 
 
-  <script>
-    $(document).ready(function() {
-      $(".popupForm").submit(function(e) {
-        e.preventDefault();
-        let form = $(this);
+  
+  
+  
+<script>
+    $(document).ready(function () {
 
-        form.find(".error-name, .error-email, .error-mobile, .error-recaptcha").text('');
-        $('.success-message').addClass('d-none').text('');
+        $(".popupForm").submit(function (e) {
 
-        let name = (form.find('[name="name"]').val() || "").trim();
-        let email = (form.find('[name="email"]').val() || "").trim();
-        let mobile = (form.find('[name="mobile"]').val() || "").trim();
-        let recaptcha = (form.find('[name="g-recaptcha-response"]').val() || "").trim();
+            e.preventDefault();
 
-        let isValid = true;
+            let form = $(this);
 
-        if (name === "") {
-          form.find(".error-name").text("Name is required.");
-          isValid = false;
-        }
+            // Clear old errors
+            form.find(
+                ".error-name, .error-email, .error-mobile, .error-recaptcha"
+            ).text("");
 
-        if (email === "") {
-          form.find(".error-email").text("Email is required.");
-          isValid = false;
-        } else if (!/^\S+@\S+\.\S+$/.test(email)) {
-          form.find(".error-email").text("Invalid email format.");
-          isValid = false;
-        }
+            $('.success-message')
+                .addClass('d-none')
+                .text('');
 
-        if (mobile === "") {
-          form.find(".error-mobile").text("Mobile number is required.");
-          isValid = false;
-        } else if (!/^\d{10}$/.test(mobile)) {
-          form.find(".error-mobile").text("Enter a valid 10-digit mobile number.");
-          isValid = false;
-        }
+            let name = (form.find('[name="name"]').val() || "").trim();
+            let email = (form.find('[name="email"]').val() || "").trim();
+            let mobile = (form.find('[name="mobile"]').val() || "").trim();
 
-        if (form.find('[name="g-recaptcha-response"]').length > 0 && recaptcha === "") {
-          form.find(".error-recaptcha").text("Please validate Recaptcha");
-          isValid = false;
-        }
+            let recaptcha = (
+                form.find('[name="g-recaptcha-response"]').val() || ""
+            ).trim();
 
-        if (!isValid) return;
+            let isValid = true;
 
-        let formData = new FormData(this);
-        //formData.append('g-recaptcha-response', recaptcha);
 
-        let submitButton = form.find('.submitButton');
-        submitButton.prop('disabled', true).html('<div class="loader"></div>');
+            // =========================
+            // NAME
+            // =========================
 
-        $.ajax({
-          url: "{{ route('contact-mail') }}",
-          type: "POST",
-          data: formData,
-          processData: false,
-          contentType: false,
+            if (name === "") {
 
-          success: function(response) {
-            if (response.success) {
+                form.find(".error-name")
+                    .text("Name is required.");
 
-              form[0].reset();
-              grecaptcha.reset();
-              submitButton.prop('disabled', false).html('Submit');
-
-              //  Direct redirect to Thank You page
-              window.location.href = response.redirect_url;
+                isValid = false;
             }
-          },
 
-          error: function(xhr) {
-            submitButton.prop('disabled', false).html('Submit');
-            let errors = xhr.responseJSON.errors;
-            if (errors) {
-              if (errors.name) form.find(".error-name").text(errors.name[0]);
-              if (errors.email) form.find(".error-email").text(errors.email[0]);
-              if (errors.mobile) form.find(".error-mobile").text(errors.mobile[
-                0]);
-              if (errors['g-recaptcha-response']) form.find(".error-recaptcha")
-                .text(errors['g-recaptcha-response'][0]);
+
+            // =========================
+            // EMAIL
+            // =========================
+
+            if (email === "") {
+
+                form.find(".error-email")
+                    .text("Email is required.");
+
+                isValid = false;
+
+            } else if (!/^\S+@\S+\.\S+$/.test(email)) {
+
+                form.find(".error-email")
+                    .text("Invalid email format.");
+
+                isValid = false;
             }
-          }
+
+
+            // =========================
+            // MOBILE
+            // =========================
+
+            if (mobile === "") {
+
+                form.find(".error-mobile")
+                    .text("Mobile number is required.");
+
+                isValid = false;
+
+            } else if (!/^\d{10}$/.test(mobile)) {
+
+                form.find(".error-mobile")
+                    .text(
+                        "Enter a valid 10-digit mobile number."
+                    );
+
+                isValid = false;
+            }
+
+
+            // =========================
+            // RECAPTCHA
+            // =========================
+
+            if (
+                form.find(
+                    '[name="g-recaptcha-response"]'
+                ).length > 0 &&
+                recaptcha === ""
+            ) {
+
+                form.find(".error-recaptcha")
+                    .text("Please validate Recaptcha");
+
+                isValid = false;
+            }
+
+
+            // Stop if invalid
+            if (!isValid) {
+                return;
+            }
+
+
+            // =========================
+            // FORM DATA
+            // =========================
+
+            let formData = new FormData(this);
+
+            let submitButton = form.find('.submitButton');
+
+            submitButton
+                .prop('disabled', true)
+                .html('<div class="loader"></div>');
+
+
+            // =========================
+            // AJAX
+            // =========================
+
+            $.ajax({
+
+                url: "{{ route('contact-mail') }}",
+
+                type: "POST",
+
+                data: formData,
+
+                processData: false,
+
+                contentType: false,
+
+
+                // =========================
+                // SUCCESS
+                // =========================
+
+                success: function (response) {
+
+                    if (response.success) {
+
+                        form[0].reset();
+
+                        if (
+                            typeof grecaptcha !== "undefined"
+                        ) {
+                            grecaptcha.reset();
+                        }
+
+                        submitButton
+                            .prop('disabled', false)
+                            .html('Submit');
+
+                        window.location.href =
+                            response.redirect_url;
+                    }
+                },
+
+
+                // =========================
+                // SERVER ERRORS
+                // =========================
+
+                error: function (xhr) {
+
+                    submitButton
+                        .prop('disabled', false)
+                        .html('Submit');
+
+                    let errors =
+                        xhr.responseJSON &&
+                        xhr.responseJSON.errors;
+
+                    if (errors) {
+
+                        if (errors.name) {
+
+                            form.find(".error-name")
+                                .text(errors.name[0]);
+                        }
+
+                        if (errors.email) {
+
+                            form.find(".error-email")
+                                .text(errors.email[0]);
+                        }
+
+                        if (errors.mobile) {
+
+                            form.find(".error-mobile")
+                                .text(errors.mobile[0]);
+                        }
+
+                        if (
+                            errors['g-recaptcha-response']
+                        ) {
+
+                            form.find(".error-recaptcha")
+                                .text(
+                                    errors[
+                                        'g-recaptcha-response'
+                                    ][0]
+                                );
+                        }
+                    }
+                }
+
+            });
+
         });
-      });
+
+
+        // ==================================================
+        // ALL INPUT / TEXTAREA ERROR AUTO CLEAR
+        // ==================================================
+
+        $(".popupForm").on(
+            "input",
+            "input, textarea, select",
+            function () {
+
+                let input = $(this);
+
+                /*
+                 * Example:
+                 *
+                 * name    -> error-name
+                 * email   -> error-email
+                 * mobile  -> error-mobile
+                 *
+                 * Automatically field name se error class
+                 * find karega.
+                 */
+
+                let fieldName = input.attr("name");
+
+                if (!fieldName) {
+                    return;
+                }
+
+
+                // Special case for recaptcha
+                if (
+                    fieldName === "g-recaptcha-response"
+                ) {
+
+                    if (input.val().trim() !== "") {
+
+                        input
+                            .closest(".mb-3")
+                            .find(".error-recaptcha")
+                            .text("");
+                    }
+
+                    return;
+                }
+
+
+                // Generic error class
+                let errorClass =
+                    ".error-" + fieldName;
+
+
+                // Field mein kuch type hua hai
+                if (input.val().trim() !== "") {
+
+                    input
+                        .closest(".mb-3")
+                        .find(errorClass)
+                        .text("");
+                }
+
+            }
+        );
+
+
+        // ==================================================
+        // RECAPTCHA ERROR CLEAR
+        // ==================================================
+
+        $(document).on(
+            "change",
+            '[name="g-recaptcha-response"]',
+            function () {
+
+                if ($(this).val().trim() !== "") {
+
+                    $(".popupForm")
+                        .find(".error-recaptcha")
+                        .text("");
+                }
+            }
+        );
+
     });
-  </script>
+</script>
+
   <script defer>
     document.addEventListener('DOMContentLoaded', function() {
       // Use event delegation to support dynamically loaded images
