@@ -158,7 +158,9 @@ property, real estate company in noida, property greater noida, property in grea
                         </div>
 
                         <div class="hero-search__query">
-                            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                            <span class="hero-search__query-icon">
+                                <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                            </span>
                             <input type="text" id="keyword" name="keyword" class="form-control keyword"
                                 placeholder="Search for locality, landmark, project or builder" autocomplete="off">
                             <ul class="project-results"></ul>
