@@ -1509,69 +1509,26 @@
                     </div>
                     @endif
                 </div>
-                <div class="d-block d-lg-none ppc-form col-md-8 mx-auto col-lg-12">
-                    <div class="row p-4">
-                        <h3 class="h6 text-center mb-3 fw-bold">You can Count on us for Great Deals!</h3>
-                        <div class="alert alert-success success-message d-none">
-                            Your enquiry has been submitted successfully.
+               <div class="modal-content">
+
+            <div class="modal-header border-0">
+                            <img src="{{ asset('frontend/360logo.png') }}" alt="360propguide" class="w-50 mx-auto">
+
+                            <button type="button" class="btn-close align-self-start ms-0 shadow-none"
+                                data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <form method="POST" class="popupForm" action="{{ route('contact-mail') }}">
-                            @csrf
-                            <input type="hidden" name="formName" value="popup" />
-                            <div class="form-group input-group">
-                                <span class="input-group-text">
-                                    <i class="fa-solid fa-user"></i>
-                                </span>
-                                <input type="text" class="form-control error commonerr" name="name"
-                                    placeholder="Name" />
-                            </div>
-                            <span class="text-danger error-name"></span>
-                            <div class="form-group input-group">
-                                <span class="input-group-text">
-                                    <i class="fa-solid fa-envelope"></i>
-                                </span>
-                                <input type="email" placeholder="Email Address*" name="email" class="form-control" />
-                            </div>
-                            <span class="text-danger error-email"></span>
-                            <div class="form-group input-group">
-                                <span class="input-group-text">
-                                    <i class="fa-solid fa-phone"></i>
-                                </span>
-                                <input type="tel" class="form-control" name="mobile" placeholder="Mobile*"
-                                    maxlength="10" pattern="[0-9]{10}" inputmode="numeric" />
-                            </div>
-                            <span class="text-danger error-mobile"></span>
-                            <div class="form-group">
-                                <textarea type="text" placeholder="Message" name="message" class="form-control" row="5"
-                                    col="1"></textarea>
-                            </div>
-                            <div class="g-recaptcha mb-3" data-sitekey="{{ config('services.recaptcha.site_key') }}">
-                            </div>
-                            <span class="text-danger error-recaptcha"></span>
-                            @if ($errors->has('recaptchaform5'))
-                            <div class="alert alert-danger">
-                                {{ $errors->first('recaptchaform5') }}
-                            </div>
-                            @endif
-                            <div class="w-full"> <button type="submit" id="contact-mail-submit"
-                                    class="btn orange text-white mb-2 w-100 submitButton">Submit</button> </div>
-                            <div class="w-full d-flex justify-content-between gap-2">
 
-                                <!-- WhatsApp Button -->
-                                <a href="https://wa.me/+919643020020?text={{ urlencode('I want brochure of ' . $projects->project_name) }}"
-                                    target="_blank" id="whatsapp-btn-4"
-                                    class="btn whatsapp text-white w-50 d-flex justify-content-center align-items-center">
-                                    <i class="fab fa-whatsapp me-2"></i>WhatsApp
-                                </a>
+                        <h3 class="h6 text-center mb-3 fw-bold">
+                            Contact Us
+                        </h3>
 
-                                <a href="tel:919643020020"
-                                    class="btn orange text-white w-50 d-flex justify-content-center align-items-center">
-                                    <i class="fas fa-phone me-2"></i> Call
-                                </a>
-                            </div>
-                        </form>
-                    </div>
-                </div>
+            <div class="modal-body">
+
+                @include('frontend.partials.contact-mail-form')
+
+            </div>
+
+        </div>
             </div>
             <div class="modal fade" id="quoteModal" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog popupFormHome">
@@ -1775,74 +1732,26 @@
     </div>
     <div class="modal fade" id="contactModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog popupFormHome">
-            <div class="modal-content p-3">
-                <div class="modal-header border-0">
-                    <img src="{{ asset('frontend/360logo.png') }}" alt="360propguide" class="w-50 mx-auto">
+           <div class="modal-content">
 
-                    <button type="button" class="btn-close align-self-start ms-0 shadow-none" data-bs-dismiss="modal"
-                        aria-label="Close"></button>
-                </div>
-                <h3 class="h6 text-center mb-3 fw-bold">You can Count on us for Great Deals!</h3>
-                <div class="modal-body">
+            <div class="modal-header border-0">
+                            <img src="{{ asset('frontend/360logo.png') }}" alt="360propguide" class="w-50 mx-auto">
 
-                    <form method="POST" id="popupFormDownload" action="{{ route('popup.download') }}">
-                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                        <input type="hidden" name="project_id" value="{{ $projects->id }}">
-                        <input type="hidden" name="download_type" id="downloadType">
-                        <div class="mb-3">
-
-                            <input type="text" class="form-control shadow-none" name="name" placeholder="Name*">
-                            <span class="text-danger error-name"></span>
-                        </div>
-                        <div class="mb-3">
-
-                            <input type="tel" class="form-control shadow-none" name="mobile" placeholder="Mobile*">
-                            <span class="text-danger error-mobile"></span>
-                        </div>
-                        <div class="mb-3">
-
-                            <input type="email" class="form-control shadow-none " name="email" placeholder="Email*">
-                            <span class="text-danger error-email"></span>
-                        </div>
-                        <div class="mb-3">
-
-                            <textarea name="message" class="form-control shadow-none" placeholder="Message"></textarea>
-
-                        </div>
-                        <div class="mb-3">
-                            <div class="g-recaptcha" data-sitekey="{{ config('services.recaptcha.site_key') }}">
-                            </div>
-                            <span class="text-danger error-recaptcha"></span>
-                        </div>
-                        @if ($errors->has('recaptchaform2'))
-                        <div class="alert alert-danger">
-                            {{ $errors->first('recaptchaform2') }}
-                        </div>
-                        @endif
-                        <div class="text-center pt-3 mb-3">
-                            <button type="submit" class="btn customBtn w-100 submitButton" id="contact-mail-submit">
-                                Submit
-                            </button>
+                            <button type="button" class="btn-close align-self-start ms-0 shadow-none"
+                                data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
 
-                    </form>
-                    <div class="w-full d-flex justify-content-between gap-2">
-                        <!-- Submit Button (left) -->
+                        <h3 class="h6 text-center mb-3 fw-bold">
+                            Contact Us
+                        </h3>
 
-                        <a href="tel:+919643020020" class="btn customBtn orange text-white w-50"><i
-                                class="fas fa-phone me-2"></i>Call Us</a>
+            <div class="modal-body">
 
-                        <!-- WhatsApp Button (right) -->
-                        <a href="https://wa.me/+919643020020?text={{ urlencode('I want brochure of ' . $projects->project_name) }}"
-                            target="_blank"
-                            class="whatsapp text-white w-50 d-flex justify-content-center align-items-center"
-                            id="whatsapp-btn-2">
-                            <i class="fab fa-whatsapp me-2"></i> WhatsApp
-                        </a>
-                    </div>
-                </div>
+                @include('frontend.partials.contact-mail-form')
 
             </div>
+
+        </div>
         </div>
     </div>
 </div>
