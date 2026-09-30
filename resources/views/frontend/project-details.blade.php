@@ -1333,30 +1333,31 @@
 
     {{-- Desktop Quick Enquiry Form --}}
     <div class="d-none d-lg-block ppc-form col-md-8 mx-auto col-lg-12 mb-3"
-        id="sidebar-enquiry-form">
+    id="sidebar-enquiry-form"
+    style="max-height: 420px; overflow-y: auto;">
 
-        <div class="p-3 pt-2">
+    <div class="p-3 pt-2">
 
-            <div class="text-center mb-2">
-                <h3 class="h6 fw-bold text-dark mb-1">
-                    Get Best Pricing & Deals
-                </h3>
+        <div class="text-center mb-2">
+            <h3 class="h6 fw-bold text-dark mb-1">
+                Get Best Pricing & Deals
+            </h3>
 
-                <p class="text-muted small mb-1">
-                    Direct developer quote & instant callback
-                </p>
-            </div>
-
-            <div class="alert alert-success success-message d-none py-2 mb-2">
-                Your enquiry has been submitted successfully.
-            </div>
-
-            <div class="modal-body p-0">
-                @include('frontend.partials.contact-mail-form')
-            </div>
-
+            <p class="text-muted small mb-1">
+                Direct developer quote & instant callback
+            </p>
         </div>
+
+        <div class="alert alert-success success-message d-none py-2 mb-2">
+            Your enquiry has been submitted successfully.
+        </div>
+
+        <div class="modal-body p-0">
+            @include('frontend.partials.contact-mail-form')
+        </div>
+
     </div>
+</div>
 
 
     <div class="card shadow-sm border-0 rounded-3 p-3 d-none d-lg-block mt-0 sticky-recommended-card"
