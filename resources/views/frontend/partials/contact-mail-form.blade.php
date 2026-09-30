@@ -60,7 +60,8 @@
             <textarea placeholder="Message"
                       name="message"
                       class="form-control"
-                      rows="3"></textarea>
+                      rows="3
+                      "></textarea>
         </div>
     </div>
 
@@ -82,7 +83,7 @@
     <!-- Submit -->
     <div class="mb-2">
         <button type="submit" 
-                class="btn customBtn w-100 submitButton" id="contact-mail-submit">
+                class="btn customBtn w-100 submitButton" id="~">
             Submit
         </button>
     </div>
