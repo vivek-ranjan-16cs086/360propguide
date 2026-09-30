@@ -60,7 +60,8 @@
             <textarea placeholder="Message"
                       name="message"
                       class="form-control"
-                      rows="3"></textarea>
+                      rows="3
+                      "></textarea>
         </div>
     </div>
 

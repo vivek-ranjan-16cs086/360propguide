@@ -1291,23 +1291,11 @@
                 </div>
                <div class="modal-content">
 
-            <div class="modal-header border-0">
-                            <img src="{{ asset('frontend/360logo.png') }}" alt="360propguide" class="w-50 mx-auto">
+           
 
-                            <button type="button" class="btn-close align-self-start ms-0 shadow-none"
-                                data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
+                       
 
-                        <h3 class="h6 text-center mb-3 fw-bold">
-                            Contact Us
-                        </h3>
-
-            <div class="modal-body">
-
-                @include('frontend.partials.contact-mail-form')
-
-            </div>
-
+            
         </div>
             </div>
             <div class="modal fade" id="quoteModal" tabindex="-1" aria-hidden="true">
@@ -1331,49 +1319,9 @@
                                 Your enquiry has been submitted successfully.
                             </div>
 
-                            <form method="POST" class="popupForm" action="{{ route('contact-mail') }}">
-
-                                @csrf
-
-                                <input type="hidden" name="formName" value="popup">
-
-                                <input type="hidden" name="project_id" value="{{ $projects->id }}">
-
-                                <div class="mb-3">
-                                    <input type="text" class="form-control shadow-none" name="name" placeholder="Name*"
-                                        required>
-                                    <span class="text-danger error-name"></span>
-                                </div>
-
-                                <div class="mb-3">
-                                    <input type="email" class="form-control shadow-none" name="email"
-                                        placeholder="Email Address*" required>
-                                    <span class="text-danger error-email"></span>
-                                </div>
-
-                                <div class="mb-3">
-                                    <input type="tel" class="form-control shadow-none" name="mobile"
-                                        placeholder="Mobile Number*" maxlength="10" pattern="[0-9]{10}"
-                                        inputmode="numeric" required>
-                                    <span class="text-danger error-mobile"></span>
-                                </div>
-
-                                <div class="mb-3">
-                                    <textarea name="message" class="form-control shadow-none" rows="3"
-                                        placeholder="Message"></textarea>
-                                </div>
-
-                                <div class="g-recaptcha mb-3"
-                                    data-sitekey="{{ config('services.recaptcha.site_key') }}">
-                                </div>
-
-                                <span class="text-danger error-recaptcha"></span>
-
-                                <button type="submit" class="btn customBtn w-100 submitButton" id="contact-mail-submit">
-                                    Submit
-                                </button>
-
-                            </form>
+                           <div class="modal-body p-0">
+                @include('frontend.partials.contact-mail-form')
+            </div>
 
                         </div>
                     </div>
@@ -1916,11 +1864,18 @@ document.addEventListener('DOMContentLoaded', function() {
         const boundaryRect = boundarySection.getBoundingClientRect();
         const boundaryBottomDoc = boundaryRect.top + scrollY + boundarySection.offsetHeight;
 
-        const enquiryHeight = enquiryFormHeight || 500;
-        const stickyTriggerDoc = scrollY + topMargin;
-        const maxEnquiryTopDoc = boundaryBottomDoc - enquiryHeight;
-        const nextStage = stickyTriggerDoc < maxEnquiryTopDoc ? 'enquiry' : 'recommended';
+       const enquiryHeight = enquiryFormHeight || 500;
 
+// Form ko possession section ke baad bhi itna extra scroll karne do
+const extraScroll = 500;
+
+const stickyTriggerDoc = scrollY + topMargin;
+const maxEnquiryTopDoc = boundaryBottomDoc - enquiryHeight + extraScroll;
+
+const nextStage =
+    stickyTriggerDoc < maxEnquiryTopDoc
+        ? 'enquiry'
+        : 'recommended';
         // Styles only change at the handoff point. Re-applying display and
         // sticky properties on every scroll frame creates visible jitter.
         if (sidebarStage === nextStage) return;
@@ -1958,7 +1913,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         const currentNavbarHeight = document.getElementById('navbar')
                             ?.offsetHeight || 80;
                         const rect = overviewEl.getBoundingClientRect();
-                        if (rect.top <= currentNavbarHeight + 160) {
+                        if (rect.top <= currentNavbarHeight + 1060) {
                             navWrapper.classList.add('is-visible');
                         } else {
                             navWrapper.classList.remove('is-visible');
