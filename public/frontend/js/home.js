@@ -200,15 +200,19 @@ document.addEventListener("DOMContentLoaded", function () {
                     return;
                 }
 
-                if (mode === "projects") {
-                    const searchLocation = location || keyword;
-                    if (searchLocation) {
-                        window.location.href =
-                            "/flats-in-" + slugifyCity(searchLocation);
-                        return;
-                    }
-                }
+               if (mode === "projects") {
+    const searchLocation = location || keyword;
 
+    if (searchLocation) {
+        let slug = slugifyCity(searchLocation);
+
+        // Prevent duplicate flats-in- prefix
+        slug = slug.replace(/^flats-in-/, "");
+
+        window.location.href = "/flats-in-" + slug;
+        return;
+    }
+}
                 const params = new URLSearchParams();
                 if (location) {
                     params.append("location[]", location);

@@ -1769,6 +1769,8 @@ font-size: 24px;
 
     .call-contact-btn::before {
       background: rgba(30, 136, 229, 0.15);
+      margin-left: -23px;
+    margin-top: -23px;
     }
 
 
