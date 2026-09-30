@@ -1517,48 +1517,72 @@ $(document).on('click', '.project-results .suggestion-item', function (e) {
 
     
     // Show project results when the input field is focused
-    $(document).on('focus', '.keyword', function() {
-      const $parent = $(this).closest('.searchboxs');
-      const $results = $parent.find('.project-results');
+   // Show project results when user starts typing
+$(document).on('input', '.keyword', function () {
 
-      $results.show().html('<li>Searching...</li>');
+    const $keyword = $(this);
+    const $parent = $keyword.closest('.searchboxs');
+    const $results = $parent.find('.project-results');
 
-      const location = $parent.find('select[name="location"]').val();
-      const bhkType = $parent.find('select[name="bhkType"]').val();
+    const keyword = $.trim($keyword.val());
 
-      if (location) {
-        $.ajax({
-          url: "{{ route('projects.search', [], false) }}",
-          method: "GET",
-          dataType: "json",
-          data: {
-            location,
-            bhkType
-          },
-          success: function(data) {
+    // Input empty hai
+    if (keyword.length === 0) {
+        $results.empty().hide();
+        return;
+    }
+
+    // 2 characters se pehle search mat karo
+    if (keyword.length < 2) {
+        $results.empty().hide();
+        return;
+    }
+
+    $results.show().html('<li><a>Searching...</a></li>');
+
+    const location = $parent.find('select[name="location"]').val();
+    const bhkType = $parent.find('select[name="bhkType"]').val();
+
+    $.ajax({
+        url: "{{ route('projects.search', [], false) }}",
+        method: "GET",
+        dataType: "json",
+        data: {
+            keyword: keyword,
+            location: location,
+            bhkType: bhkType
+        },
+
+        success: function(data) {
+
             const items = (data && data.data) ? data.data : [];
-            if (items.length > 0) {
-              let results = '';
-              $.each(items, function (index, item) {
-                results += suggestionMarkup(item, bhkType);
-              });
-              $results.html(results);
-            } else {
-              $results.html(
-                '<li><a>No projects available for selected configuration</a></li>');
-            }
-          },
-          error: function() {
-            $results.html(
-              '<li><a>There was an error with the search request. Please try again.</a></li>'
-            );
-          }
-        });
-      } else {
-        $results.empty();
-      }
-    });
 
+            if (items.length > 0) {
+
+                let results = '';
+
+                $.each(items, function (index, item) {
+                    results += suggestionMarkup(item, bhkType);
+                });
+
+                $results.html(results).show();
+
+            } else {
+
+                $results.html(
+                    '<li><a>No results found</a></li>'
+                ).show();
+            }
+        },
+
+        error: function() {
+
+            $results.html(
+                '<li><a>There was an error with the search request. Please try again.</a></li>'
+            ).show();
+        }
+    });
+});
     
     // Hide results on blur (if not clicking result)
   $(document).on('blur', '.keyword', function () {
@@ -1678,7 +1702,7 @@ $(document).on('click', '.project-results .suggestion-item', function (e) {
    data-bs-target="#contactMailModal">
 
     <span class="floating-label">
-        Email Now
+        Contact Us
     </span>
 
     <span class="floating-icon floating-email-icon">
@@ -1769,6 +1793,8 @@ font-size: 24px;
 
     .call-contact-btn::before {
       background: rgba(30, 136, 229, 0.15);
+      margin-left: -23px;
+    margin-top: -23px;
     }
 
 

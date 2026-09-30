@@ -577,8 +577,16 @@
                                 <strong class="commercial-price-row__format text-dark">{{ $format }}</strong>
                                 <div>
                                     <strong class="commercial-price-rate fs-5">
-                                        {{ is_numeric($rate) ? '₹' . number_format((float) $rate) : '—' }}
-                                    </strong>
+    @if (!empty($rate))
+        {{ is_numeric($rate) ? '₹' . number_format((float) $rate) : $rate }}
+    @else
+        —
+    @endif
+</strong>
+
+@if (!empty($rate) && is_numeric($rate))
+    <span class="d-block small text-muted">per sq ft</span>
+@endif
                                     @if (is_numeric($rate))
                                     <span class="d-block small text-muted">per sq ft</span>
                                     @endif
