@@ -957,7 +957,7 @@ You can use this page to discover and compare <strong>{$configurationText}{$prop
 		$isCommercialProject = strtolower(trim((string) $projects->project_type)) === 'commercial' || $isShopsProject;
 
 		if ($redirectCommercial && $isCommercialProject) {
-			return redirect()->route('projects.commercial', ['slug' => $projects->slug]);
+			return redirect()->route('projects.commercial', ['slug' => $projects->slug], 301);
 		}
 
 		$projects->typology_string = is_array($typologies)
