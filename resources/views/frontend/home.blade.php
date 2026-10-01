@@ -89,7 +89,7 @@ property, real estate company in noida, property greater noida, property in grea
                 return $count . '+';
                 };
                 @endphp
-                <h1 class="hero-title">Best Real Estate Consultant in Noida-Buy, Sell, Invest </h1>
+                <h1 class="hero-title">Best Real Estate Consultant in Noida -Buy, Sell, Invest. </h1>
                 <p class="hero-lead" id="heroLead"
                     data-lead-projects="{{ $heroCountLabel($heroProjectCount) }} verified projects and 100% RERA checked listings"
                     data-lead-properties="{{ $heroCountLabel($heroPropertyCount) }} listings added across Delhi NCR"
@@ -158,7 +158,9 @@ property, real estate company in noida, property greater noida, property in grea
                         </div>
 
                         <div class="hero-search__query">
-                            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                            <span class="hero-search__query-icon">
+                                <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                            </span>
                             <input type="text" id="keyword" name="keyword" class="form-control keyword"
                                 placeholder="Search for locality, landmark, project or builder" autocomplete="off">
                             <ul class="project-results"></ul>
@@ -219,7 +221,7 @@ property, real estate company in noida, property greater noida, property in grea
 
                         <div>
                             <div class="metric-number">
-                                {{ $years }} <span class="metric-accent">+</span> Years
+                                {{ $years }}<span class="metric-accent">+</span> Years
                             </div>
                             <p class="metric-label">Of Proven Trust</p>
                         </div>
@@ -229,7 +231,7 @@ property, real estate company in noida, property greater noida, property in grea
                             <i class="fa-solid fa-chart-area"></i>
                         </div>
                         <div>
-                            <div class="metric-number">2.5 <span class="metric-accent">+</span> Mn. Sq. Ft.</div>
+                            <div class="metric-number">2.5<span class="metric-accent">+</span> M. Sq. Ft.</div>
                             <p class="metric-label">Area Transacted</p>
                         </div>
                     </div>
@@ -247,7 +249,7 @@ property, real estate company in noida, property greater noida, property in grea
                             <i class="fa-solid fa-people-roof"></i>
                         </div>
                         <div>
-                            <div class="metric-number">10,000<span class="metric-accent">+</span></div>
+                            <div class="metric-number">10<span class="metric-accent">+</span> K</div>
                             <p class="metric-label">Happy Families</p>
                         </div>
                     </div>

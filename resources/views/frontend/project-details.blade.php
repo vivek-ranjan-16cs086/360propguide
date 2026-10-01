@@ -75,7 +75,7 @@
 
 
 @section('customCSS')
-<link rel="stylesheet" href="{{ asset('frontend/css/details.css') }}" />
+<link rel="stylesheet" href="{{ url('frontend/css/project-details.css') }}" />
 @endSection
 @section('content')
 
@@ -549,6 +549,61 @@
     @endif
 
             </div>-->
+                @if ($isCommercialProject)
+                <div class="price section project-section" id="price">
+                    <div class="project-details-card mb-4">
+                        <div class="commercial-price-intro pb-4 mb-4">
+                            <p class="commercial-price-label small fw-bold text-uppercase mb-2">Commercial Spaces</p>
+                            <h3 class="h4 fw-bold text-dark mb-2">{{ $projects->project_name }} <span class="text-primary">Spaces &amp; Prices</span></h3>
+                            <p class="text-muted mb-0">Indicative rates per sq ft &middot; before a unit-specific cost sheet</p>
+                        </div>
+                        @php
+                        $floorPlans = json_decode($projects->floor_plans_data, true) ?? [];
+                        @endphp
+                        <div class="commercial-price-table">
+                            <div class="commercial-price-head p-3">
+                                <span>Floor</span><span>Format &amp; Position</span><span>Rate / Sq Ft</span><span>Explore</span>
+                            </div>
+                            @foreach ($floorPlans as $floorIndex => $plan)
+                            @php
+                            $floor = $plan['floor'] ?? '—';
+                            $format = $plan['format_position_title']
+                                ?? $plan['floor_sub_label']
+                                ?? '—';
+                            $rate = $plan['rate_sq_ft'] ?? null;
+                            @endphp
+                            <div class="commercial-price-row p-3 p-lg-4">
+                                <strong class="text-dark">{{ $floor }}</strong>
+                                <strong class="commercial-price-row__format text-dark">{{ $format }}</strong>
+                                <div>
+                                    <strong class="commercial-price-rate fs-5">
+    @if (!empty($rate))
+        {{ is_numeric($rate) ? '₹' . number_format((float) $rate) : $rate }}
+    @else
+        —
+    @endif
+</strong>
+
+@if (!empty($rate) && is_numeric($rate))
+    <span class="d-block small text-muted">per sq ft</span>
+@endif
+                                    {{-- @if (is_numeric($rate))
+                                    <span class="d-block small text-muted">per sq ft</span>
+                                    @endif --}}
+                                </div>
+                                <div class="commercial-price-row__action">
+                                    <a href="#floor" class="commercial-position-link" data-floor-index="{{ $floorIndex }}">
+                                        View position <span aria-hidden="true">&#8599;</span>
+                                    </a>
+                                    <button type="button" class="btn customBtn rounded-3 px-3 py-2 fw-semibold" data-bs-toggle="modal" data-bs-target="#contactModal">Ask about this floor</button>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+                @else
+                {{-- Residential Pricing & Plans remains intact below for non-commercial projects. --}}
                 @if (request()->path() != 'projects/prestige-bougainvillea-gardens')
                 @php
                 $floorPlans = json_decode($projects->floor_plans_data, true) ?? [];
@@ -563,213 +618,345 @@
                 $badgeColors = ['badge-blue', 'badge-purple', 'badge-green', 'badge-amber'];
                 @endphp
 
-                @if (!empty($floorPlans) || !empty($projects->sqft_price) || !empty($projects->price))
-                <div class="price section project-section" id="price">
-                    <div class="project-details-card mb-4">
-                        <h3 class="h4 mb-4 fw-bold text-dark">
-                            {{ $projects->project_name }} <span class="text-primary">Pricing & Plans</span>
-                        </h3>
+               @if (!empty($floorPlans) || !empty($projects->sqft_price) || !empty($projects->price))
+<div class="price section project-section" id="price">
+    <div class="project-details-card mb-4">
 
-                        {{-- Hidden data for JS --}}
-                        <div class="project-box" id="project_{{ $projects->id }}"
-                            data-floorplans='{{ $projects->floor_plans_data }}'
-                            data-sqftprice='{{ $projects->sqft_price }}'>
-                        </div>
+        <h3 class="h4 mb-4 fw-bold text-dark">
+            {{ $projects->project_name }}
+            <span class="text-primary">Pricing & Plans</span>
+        </h3>
 
-                        {{-- Desktop Table View --}}
-                        <div class="unit-table-container d-none d-md-block mb-4"
-                            style="overflow-x: auto; border-radius: 8px; border: 1px solid #e2e8f0;">
-                            <table class="unit-config-table mb-0 w-100">
-                                <thead>
-                                    <tr>
-                                        <th style="min-width: 180px;">Unit Configuration</th>
-                                        <th style="min-width: 130px;">Area (sq.ft)</th>
-                                        <th style="min-width: 150px;">Starting Price</th>
-                                        <th style="min-width: 120px; text-align: right;">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach ($floorPlans as $index => $plan)
-                                    @php
-                                    $planTitle = !empty($plan['title'])
-                                    ? $plan['title']
-                                    : 'Configuration ' . ($index + 1);
-                                    $planArea = !empty($plan['super_area'])
-                                    ? $plan['super_area'] . ' sq.ft'
-                                    : (!empty($plan['carpet_area'])
-                                    ? $plan['carpet_area'] . ' sq.ft'
-                                    : '—');
+        {{-- Hidden data for JS --}}
+        <div class="project-box"
+            id="project_{{ $projects->id }}"
+            data-floorplans='{{ $projects->floor_plans_data }}'
+            data-sqftprice='{{ $projects->sqft_price }}'>
+        </div>
 
-                                    if (!empty($plan['price'])) {
-                                    $planPrice = $plan['price'];
-                                    } elseif ($priceValue && !empty($plan['super_area'])) {
-                                    $calcVal = ($plan['super_area'] * $priceValue) / 10000000;
-                                    $planPrice = '₹' . number_format($calcVal, 2) . ' Cr';
-                                    } elseif (!empty($projects->price)) {
-                                    $planPrice =
-                                    '₹' . formatPrice($projects->price) . ' Onwards*';
-                                    } else {
-                                    $planPrice = '—';
-                                    }
 
-                                    $badgeClass = $badgeColors[$index % count($badgeColors)];
-                                    @endphp
-                                    <tr class="floor-btn clickable-row {{ $index == 0 ? 'active' : '' }}"
-                                        data-plan-index="{{ $index }}" data-super-area="{{ $plan['super_area'] ?? 0 }}"
-                                        data-plan-price="{{ $planPrice }}">
-                                        <td>
-                                            <span class="unit-type-badge {{ $badgeClass }}">
-                                                {{ $planTitle }}
-                                            </span>
-                                        </td>
-                                        <td class="fw-semibold text-dark">{{ $planArea }}</td>
-                                        <td class="price-text-bold text-primary ">
-                                            {{ $projects->id == 268 ? '-' : $planPrice }}
-                                        </td>
-                                        <td class="text-end text-nowrap">
-                                            <button type="button"
-                                                class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1 fw-semibold fs-13 "
-                                                data-bs-toggle="modal" data-bs-target="#quoteModal">
-                                                Get Quote
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
+        {{-- Desktop Residential Table --}}
+        <div class="unit-table-container d-none d-md-block mb-4"
+            style="overflow-x: auto; border-radius: 8px; border: 1px solid #e2e8f0;">
 
-                        {{-- Mobile Card View --}}
-                        <div class="mobile-unit-list d-md-none mb-4">
-                            @foreach ($floorPlans as $index => $plan)
-                            @php
-                            $planTitle = !empty($plan['title'])
-                            ? $plan['title']
-                            : 'Configuration ' . ($index + 1);
-                            $planArea = !empty($plan['super_area'])
-                            ? $plan['super_area'] . ' sq.ft'
-                            : (!empty($plan['carpet_area'])
+            <table class="unit-config-table mb-0 w-100">
+
+                <thead>
+                    <tr>
+                        <th style="min-width: 180px;">Unit Configuration</th>
+                        <th style="min-width: 130px;">Area (sq.ft)</th>
+                        <th style="min-width: 150px;">Starting Price</th>
+                        <th style="min-width: 120px; text-align: right;">Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @foreach ($floorPlans as $index => $plan)
+
+                    @php
+
+                    $planTitle = !empty($plan['title'])
+                        ? $plan['title']
+                        : 'Configuration ' . ($index + 1);
+
+                    $planArea = !empty($plan['super_area'])
+                        ? $plan['super_area'] . ' sq.ft'
+                        : (!empty($plan['carpet_area'])
                             ? $plan['carpet_area'] . ' sq.ft'
                             : '—');
 
-                            if (!empty($plan['price'])) {
-                            $planPrice = $plan['price'];
-                            } elseif ($priceValue && !empty($plan['super_area'])) {
-                            $calcVal = ($plan['super_area'] * $priceValue) / 10000000;
-                            $planPrice = '₹' . number_format($calcVal, 2) . ' Cr';
-                            } elseif (!empty($projects->price)) {
-                            $planPrice = '₹' . formatPrice($projects->price) . ' Onwards*';
-                            } else {
-                            $planPrice = '—';
-                            }
+                    if (!empty($plan['price'])) {
 
-                            $badgeClass = $badgeColors[$index % count($badgeColors)];
-                            @endphp
-                            <div class="mobile-unit-card floor-btn clickable-row {{ $index == 0 ? 'active' : '' }}"
-                                data-plan-index="{{ $index }}" data-super-area="{{ $plan['super_area'] ?? 0 }}"
-                                data-plan-price="{{ $planPrice }}">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <span class="unit-type-badge {{ $badgeClass }}">{{ $planTitle }}</span>
-                                    <span class="price-text-bold text-primary">{{ $planPrice }}</span>
-                                </div>
-                                <div
-                                    class="card-row-item d-flex justify-content-between align-items-center py-2 border-bottom border-light">
-                                    <span class="item-label text-muted fs-13">Area</span>
-                                    <span class="item-value fw-semibold text-dark fs-13">{{ $planArea }}</span>
-                                </div>
-                                <div class="mt-3 text-end">
-                                    <button type="button"
-                                        class="btn btn-sm btn-primary w-100 rounded-2 py-2 fw-semibold fs-13"
-                                        data-bs-toggle="modal" data-bs-target="#contactModal">
-                                        Get Exact Quote
-                                    </button>
-                                </div>
-                            </div>
-                            @endforeach
+                        $planPrice = $plan['price'];
+
+                    } elseif ($priceValue && !empty($plan['super_area'])) {
+
+                        $calcVal = ($plan['super_area'] * $priceValue) / 10000000;
+
+                        $planPrice = '₹' . number_format($calcVal, 2) . ' Cr';
+
+                    } elseif (!empty($projects->price)) {
+
+                        $planPrice =
+                            '₹' . formatPrice($projects->price) . ' Onwards*';
+
+                    } else {
+
+                        $planPrice = '—';
+
+                    }
+
+                    $badgeClass = $badgeColors[$index % count($badgeColors)];
+
+                    @endphp
+
+                    <tr class="floor-btn clickable-row {{ $index == 0 ? 'active' : '' }}"
+                        data-plan-index="{{ $index }}"
+                        data-super-area="{{ $plan['super_area'] ?? 0 }}"
+                        data-plan-price="{{ $planPrice }}">
+
+                        <td>
+
+                            <span class="unit-type-badge {{ $badgeClass }}">
+                                {{ $planTitle }}
+                            </span>
+
+                        </td>
+
+                        <td class="fw-semibold text-dark">
+                            {{ $planArea }}
+                        </td>
+
+                        <td class="price-text-bold text-primary">
+
+                            {{ $projects->id == 268 ? '-' : $planPrice }}
+
+                        </td>
+
+                        <td class="text-end text-nowrap">
+
+                            <button type="button"
+                                class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1 fw-semibold fs-13"
+                                data-bs-toggle="modal"
+                                data-bs-target="#quoteModal">
+
+                                Get Quote
+
+                            </button>
+
+                        </td>
+
+                    </tr>
+
+                    @endforeach
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        {{-- Mobile Residential Cards --}}
+        <div class="mobile-unit-list d-md-none mb-4">
+
+            @foreach ($floorPlans as $index => $plan)
+
+            @php
+
+            $planTitle = !empty($plan['title'])
+                ? $plan['title']
+                : 'Configuration ' . ($index + 1);
+
+            $planArea = !empty($plan['super_area'])
+                ? $plan['super_area'] . ' sq.ft'
+                : (!empty($plan['carpet_area'])
+                    ? $plan['carpet_area'] . ' sq.ft'
+                    : '—');
+
+            if (!empty($plan['price'])) {
+
+                $planPrice = $plan['price'];
+
+            } elseif ($priceValue && !empty($plan['super_area'])) {
+
+                $calcVal = ($plan['super_area'] * $priceValue) / 10000000;
+
+                $planPrice = '₹' . number_format($calcVal, 2) . ' Cr';
+
+            } elseif (!empty($projects->price)) {
+
+                $planPrice =
+                    '₹' . formatPrice($projects->price) . ' Onwards*';
+
+            } else {
+
+                $planPrice = '—';
+
+            }
+
+            $badgeClass = $badgeColors[$index % count($badgeColors)];
+
+            @endphp
+
+            <div class="mobile-unit-card floor-btn clickable-row {{ $index == 0 ? 'active' : '' }}"
+                data-plan-index="{{ $index }}"
+                data-super-area="{{ $plan['super_area'] ?? 0 }}"
+                data-plan-price="{{ $planPrice }}">
+
+                <div class="d-flex justify-content-between align-items-center mb-2">
+
+                    <span class="unit-type-badge {{ $badgeClass }}">
+                        {{ $planTitle }}
+                    </span>
+
+                    <span class="price-text-bold text-primary">
+                        {{ $planPrice }}
+                    </span>
+
+                </div>
+
+                <div class="card-row-item d-flex justify-content-between align-items-center py-2 border-bottom border-light">
+
+                    <span class="item-label text-muted fs-13">
+                        Area
+                    </span>
+
+                    <span class="item-value fw-semibold text-dark fs-13">
+                        {{ $planArea }}
+                    </span>
+
+                </div>
+
+                <div class="mt-3 text-end">
+
+                    <button type="button"
+                        class="btn btn-sm btn-primary w-100 rounded-2 py-2 fw-semibold fs-13"
+                        data-bs-toggle="modal"
+                        data-bs-target="#contactModal">
+
+                        Get Exact Quote
+
+                    </button>
+
+                </div>
+
+            </div>
+
+            @endforeach
+
+        </div>
+
+
+        {{-- Residential Disclaimer --}}
+        <p class="unit-disclaimer mb-4 fs-12 text-muted fst-italic">
+            * Indicative prices. Final rates subject to floor, facing & payment plan.
+            Contact sales for exact quote.
+        </p>
+
+
+        {{-- Residential Pricing Highlights --}}
+        <div class="stat-highlight-wrapper pt-3 border-top">
+
+            <div class="stat-label mb-3 fw-bold text-uppercase fs-12 tracking-wide">
+
+                <i class="fa-solid fa-chart-line me-1 text-primary"></i>
+                Pricing Highlights
+
+            </div>
+
+            <div class="row text-center g-3">
+
+                <div class="col-6">
+
+                    <div class="stat-highlight-box p-3 rounded-3 border bg-light">
+
+                        <div class="stat-label mb-1 text-muted fs-12">
+                            BSP
                         </div>
 
-                        {{-- Indicative Disclaimer --}}
-                        <p class="unit-disclaimer mb-4 fs-12 text-muted fst-italic">
-                            * Indicative prices. Final rates subject to floor, facing & payment plan. Contact
-                            sales for exact quote.
-                        </p>
+                        <div class="stat-value text-primary fw-bold fs-5"
+                            id="bsp_value_{{ $projects->id }}">
 
-                        {{-- Integrated Pricing Highlights --}}
-                        <div class="stat-highlight-wrapper pt-3 border-top">
-                            <div class="stat-label mb-3 fw-bold text-uppercase fs-12 tracking-wide">
-                                <i class="fa-solid fa-chart-line me-1 text-primary"></i> Pricing Highlights
-                            </div>
-                            <div class="row text-center g-3">
-                                <div class="col-6">
-                                    <div class="stat-highlight-box p-3 rounded-3 
-                                                        border bg-light">
-                                        <div class="stat-label mb-1 text-muted fs-12">BSP</div>
-                                        <div class="stat-value text-primary fw-bold fs-5"
-                                            id="bsp_value_{{ $projects->id }}">
-                                            @if ($projects->id == 268)
-                                            -
-                                            @elseif ($priceValue)
+                            @if ($projects->id == 268)
 
-                                            ₹{{ number_format($priceValue, 0) }}/sq.ft
-                                            @else
-                                            --
-                                            @endif
-                                        </div>
-                                    </div>
-                                </div>
+                                -
 
-                                <div class="col-6">
-                                    <div class="stat-highlight-box p-3 rounded-3 border bg-light">
-                                        <div class="stat-label mb-1 text-muted fs-12">
-                                            Starting From
-                                        </div>
+                            @elseif ($priceValue)
 
-                                        <div class="stat-value text-dark fw-bold fs-5"
-                                            id="total_value_{{ $projects->id }}">
+                                ₹{{ number_format($priceValue, 0) }}/sq.ft
 
-                                            @php
-                                            $lowestFloorPlan = collect($floorPlans)
-                                            ->filter(function ($plan) use ($priceValue) {
-                                            return !empty($plan['super_area']) && $priceValue;
-                                            })
-                                            ->sortBy(function ($plan) use ($priceValue) {
-                                            return (float) $plan['super_area'] * (float) $priceValue;
-                                            })
-                                            ->first();
+                            @else
 
-                                            $lowestFloorPlanPrice = null;
+                                --
 
-                                            if (
-                                            $lowestFloorPlan &&
-                                            !empty($lowestFloorPlan['super_area']) &&
-                                            $priceValue
-                                            ) {
-                                            $lowestFloorPlanPrice =
-                                            (float) $lowestFloorPlan['super_area'] * (float) $priceValue;
-                                            }
-                                            @endphp
+                            @endif
 
-                                            @if ($lowestFloorPlanPrice)
-                                            ₹{{ number_format($lowestFloorPlanPrice / 10000000, 2) }} Cr
-
-                                            @elseif($priceValue && $superArea)
-                                            ₹{{ number_format($totalValue / 10000000, 2) }} Cr
-
-                                            @elseif(!empty($projects->price))
-                                            ₹{{ formatPrice($projects->price) }} Onwards*
-
-                                            @else
-                                            --
-                                            @endif
-
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
 
                     </div>
+
                 </div>
+
+
+                <div class="col-6">
+
+                    <div class="stat-highlight-box p-3 rounded-3 border bg-light">
+
+                        <div class="stat-label mb-1 text-muted fs-12">
+                            Starting From
+                        </div>
+
+                        <div class="stat-value text-dark fw-bold fs-5"
+                            id="total_value_{{ $projects->id }}">
+
+                            @php
+
+                            $lowestFloorPlan = collect($floorPlans)
+
+                                ->filter(function ($plan) use ($priceValue) {
+
+                                    return !empty($plan['super_area']) && $priceValue;
+
+                                })
+
+                                ->sortBy(function ($plan) use ($priceValue) {
+
+                                    return (float) $plan['super_area']
+                                        * (float) $priceValue;
+
+                                })
+
+                                ->first();
+
+                            $lowestFloorPlanPrice = null;
+
+                            if (
+                                $lowestFloorPlan &&
+                                !empty($lowestFloorPlan['super_area']) &&
+                                $priceValue
+                            ) {
+
+                                $lowestFloorPlanPrice =
+                                    (float) $lowestFloorPlan['super_area']
+                                    * (float) $priceValue;
+
+                            }
+
+                            @endphp
+
+                            @if ($lowestFloorPlanPrice)
+
+                                ₹{{ number_format($lowestFloorPlanPrice / 10000000, 2) }} Cr
+
+                            @elseif($priceValue && $superArea)
+
+                                ₹{{ number_format($totalValue / 10000000, 2) }} Cr
+
+                            @elseif(!empty($projects->price))
+
+                                ₹{{ formatPrice($projects->price) }} Onwards*
+
+                            @else
+
+                                --
+
+                            @endif
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+@endif
                 @endif
                 @endif
                 <!-- location -->
@@ -849,7 +1036,7 @@
                                     <div class="swiper-slide">
                                         <div class="floorSelect">
                                             <div class="card text-center p-2 px-4 text-primary">
-                                                {{ $floorPlan->title }}
+                                                {{-- {{ $floorPlan->title }} --}}
                                             </div>
                                         </div>
                                     </div>
@@ -1110,69 +1297,14 @@
                     </div>
                     @endif
                 </div>
-                <div class="d-block d-lg-none ppc-form col-md-8 mx-auto col-lg-12">
-                    <div class="row p-4">
-                        <h3 class="h6 text-center mb-3 fw-bold">You can Count on us for Great Deals!</h3>
-                        <div class="alert alert-success success-message d-none">
-                            Your enquiry has been submitted successfully.
-                        </div>
-                        <form method="POST" class="popupForm" action="{{ route('contact-mail') }}">
-                            @csrf
-                            <input type="hidden" name="formName" value="popup" />
-                            <div class="form-group input-group">
-                                <span class="input-group-text">
-                                    <i class="fa-solid fa-user"></i>
-                                </span>
-                                <input type="text" class="form-control error commonerr" name="name"
-                                    placeholder="Name" />
-                            </div>
-                            <span class="text-danger error-name"></span>
-                            <div class="form-group input-group">
-                                <span class="input-group-text">
-                                    <i class="fa-solid fa-envelope"></i>
-                                </span>
-                                <input type="email" placeholder="Email Address*" name="email" class="form-control" />
-                            </div>
-                            <span class="text-danger error-email"></span>
-                            <div class="form-group input-group">
-                                <span class="input-group-text">
-                                    <i class="fa-solid fa-phone"></i>
-                                </span>
-                                <input type="tel" class="form-control" name="mobile" placeholder="Mobile*"
-                                    maxlength="10" pattern="[0-9]{10}" inputmode="numeric" />
-                            </div>
-                            <span class="text-danger error-mobile"></span>
-                            <div class="form-group">
-                                <textarea type="text" placeholder="Message" name="message" class="form-control" row="5"
-                                    col="1"></textarea>
-                            </div>
-                            <div class="g-recaptcha mb-3" data-sitekey="{{ config('services.recaptcha.site_key') }}">
-                            </div>
-                            <span class="text-danger error-recaptcha"></span>
-                            @if ($errors->has('recaptchaform5'))
-                            <div class="alert alert-danger">
-                                {{ $errors->first('recaptchaform5') }}
-                            </div>
-                            @endif
-                            <div class="w-full"> <button type="submit" id="contact-mail-submit"
-                                    class="btn orange text-white mb-2 w-100 submitButton">Submit</button> </div>
-                            <div class="w-full d-flex justify-content-between gap-2">
+               <div class="modal-content">
 
-                                <!-- WhatsApp Button -->
-                                <a href="https://wa.me/+919643020020?text={{ urlencode('I want brochure of ' . $projects->project_name) }}"
-                                    target="_blank" id="whatsapp-btn-4"
-                                    class="btn whatsapp text-white w-50 d-flex justify-content-center align-items-center">
-                                    <i class="fab fa-whatsapp me-2"></i>WhatsApp
-                                </a>
+           
 
-                                <a href="tel:919643020020"
-                                    class="btn orange text-white w-50 d-flex justify-content-center align-items-center">
-                                    <i class="fas fa-phone me-2"></i> Call
-                                </a>
-                            </div>
-                        </form>
-                    </div>
-                </div>
+                       
+
+            
+        </div>
             </div>
             <div class="modal fade" id="quoteModal" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog popupFormHome">
@@ -1195,255 +1327,137 @@
                                 Your enquiry has been submitted successfully.
                             </div>
 
-                            <form method="POST" class="popupForm" action="{{ route('contact-mail') }}">
-
-                                @csrf
-
-                                <input type="hidden" name="formName" value="popup">
-
-                                <input type="hidden" name="project_id" value="{{ $projects->id }}">
-
-                                <div class="mb-3">
-                                    <input type="text" class="form-control shadow-none" name="name" placeholder="Name*"
-                                        required>
-                                    <span class="text-danger error-name"></span>
-                                </div>
-
-                                <div class="mb-3">
-                                    <input type="email" class="form-control shadow-none" name="email"
-                                        placeholder="Email Address*" required>
-                                    <span class="text-danger error-email"></span>
-                                </div>
-
-                                <div class="mb-3">
-                                    <input type="tel" class="form-control shadow-none" name="mobile"
-                                        placeholder="Mobile Number*" maxlength="10" pattern="[0-9]{10}"
-                                        inputmode="numeric" required>
-                                    <span class="text-danger error-mobile"></span>
-                                </div>
-
-                                <div class="mb-3">
-                                    <textarea name="message" class="form-control shadow-none" rows="3"
-                                        placeholder="Message"></textarea>
-                                </div>
-
-                                <div class="g-recaptcha mb-3"
-                                    data-sitekey="{{ config('services.recaptcha.site_key') }}">
-                                </div>
-
-                                <span class="text-danger error-recaptcha"></span>
-
-                                <button type="submit" class="btn customBtn w-100 submitButton" id="contact-mail-submit">
-                                    Submit
-                                </button>
-
-                            </form>
+                           <div class="modal-body p-0">
+                @include('frontend.partials.contact-mail-form')
+            </div>
 
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-lg-4 col-md-10 order-1 order-lg-2 mx-auto me-lg-0 ms-lg-auto" id="sidebar-wrapper">
+       <div class="col-lg-4 col-md-10 order-1 order-lg-2 mx-auto me-lg-0 ms-lg-auto"
+    id="sidebar-wrapper">
 
-            {{-- Desktop Quick Enquiry Form --}}
-            <div class="d-none d-lg-block ppc-form col-md-8 mx-auto col-lg-12 mb-4" id="sidebar-enquiry-form">
-                <div class="p-4 pt-3">
-                    <div class="text-center mb-3">
-                        <!-- <span class="badge bg-primary-subtle text-primary fw-semibold px-3 py-1 rounded-pill mb-2"
-                            style="font-size: 0.75rem;">QUICK ENQUIRY</span> -->
-                        <h3 class="h5 fw-bold text-dark mb-1">Get Best Pricing & Deals</h3>
-                        <p class="text-muted small mb-0">Direct developer quote & instant callback</p>
-                    </div>
+    {{-- Desktop Quick Enquiry Form --}}
+    <div class="d-none d-lg-block ppc-form col-md-8 mx-auto col-lg-12 mb-3"
+    id="sidebar-enquiry-form"
+    style="max-height: 420px; overflow-y: auto;">
 
-                    <div class="alert alert-success success-message d-none">
-                        Your enquiry has been submitted successfully.
-                    </div>
+    <div class="p-3 pt-2">
 
-                    <form method="POST" class="popupForm" action="{{ route('contact-mail') }}">
-                        @csrf
-                        <input type="hidden" name="formName" value="popup">
+        <div class="text-center mb-2">
+            <h3 class="h6 fw-bold text-dark mb-1">
+                Get Best Pricing & Deals
+            </h3>
 
-                        <div class="form-group">
-                            <div class="input-group">
-                                <span class="input-group-text">
-                                    <i class="fa-solid fa-user"></i>
-                                </span>
-                                <input type="text" class="form-control error commonerr name" name="name"
-                                    placeholder="Full Name*" required />
-                            </div>
-                            <span class="text-danger error-name small"></span>
-                        </div>
-
-                        <div class="form-group">
-                            <div class="input-group">
-                                <span class="input-group-text">
-                                    <i class="fa-solid fa-envelope"></i>
-                                </span>
-                                <input type="email" placeholder="Email Address*" name="email" class="form-control email"
-                                    required />
-                            </div>
-                            <span class="text-danger error-email small"></span>
-                        </div>
-
-                        <div class="form-group">
-                            <div class="input-group">
-                                <span class="input-group-text">
-                                    <i class="fa-solid fa-phone"></i>
-                                </span>
-                                <input type="tel" class="form-control mobile" name="mobile" placeholder="Mobile Number*"
-                                    minlength="10" maxlength="10" pattern="[0-9]{10}" inputmode="numeric" required />
-                            </div>
-                            <span class="text-danger error-mobile small"></span>
-                        </div>
-
-                        <div class="form-group">
-                            <textarea placeholder="Message (Optional)" name="message" class="form-control"
-                                rows="2"></textarea>
-                        </div>
-
-                        <div class="g-recaptcha mb-3 mt-2" data-sitekey="{{ config('services.recaptcha.site_key') }}">
-                        </div>
-                        <span class="text-danger error-recaptcha small"></span>
-                        @if ($errors->has('recaptchaform3'))
-                        <div class="alert alert-danger p-2 small">
-                            {{ $errors->first('recaptchaform3') }}
-                        </div>
-                        @endif
-
-                        <button type="submit" class="btn customBtn w-100 mb-3 py-2 fw-semibold submitButton"id="contact-mail-submit" >
-                            <i class="fa-solid fa-paper-plane me-2"></i> Request Callback
-                        </button>
-
-                        <div class="d-flex justify-content-between gap-2">
-                            <a href="https://wa.me/+919643020020?text={{ urlencode('I want brochure of ' . $projects->project_name) }}"
-                                target="_blank" id="whatsapp-btn-3"
-                                class="btn whatsapp-btn text-white w-50 py-2 d-flex justify-content-center align-items-center">
-                                <i class="fab fa-whatsapp me-2 fs-6"></i> WhatsApp
-                            </a>
-
-                            <a href="tel:919643020020"
-                                class="btn call-btn text-white w-50 py-2 d-flex justify-content-center align-items-center">
-                                <i class="fas fa-phone me-2"></i> Call Now
-                            </a>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <div class="card shadow-sm border-0 rounded-3 p-4 d-none d-lg-block mt-0 sticky-recommended-card"
-                id="sidebar-recommended-projects" style="border: 1px solid #e2e8f0 !important;">
-                <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom">
-                    <h3 class="h5 mb-0 fw-bold text-dark">Recommended <span class="text-primary">Projects</span></h3>
-                    <i class="fa-solid fa-fire text-danger opacity-75 fs-6"></i>
-                </div>
-
-                @foreach ($recommendedProjects as $recommended)
-                <a class="col-12 d-block text-decoration-none mb-3"
-                    href="{{ route('projects.details', $recommended->slug) }}">
-                    <div class="recommended-card-wrapper d-flex align-items-stretch">
-                        <div class="col-5 img-box position-relative">
-                            <img alt="{{ $recommended->project_name }}" loading="lazy"
-                                class="h-100 w-100 object-fit-cover" src="{{ storageUrl($recommended->logo_image) }}" />
-                        </div>
-                        <div class="p-3 col-7 d-flex flex-column justify-content-center min-w-0">
-                            <h3 class="recommended-title text-dark fw-bold mb-1 text-truncate"
-                                style="font-size: 0.92rem;">
-                                {{ $recommended->project_name }}
-                            </h3>
-                            @if (!empty($recommended->typology))
-                            <div class="mb-1">
-                                <span class="badge bg-light text-secondary border fw-normal" style="font-size: 0.7rem;">
-                                    {{ $recommended->typology }}
-                                </span>
-                            </div>
-                            @endif
-                            @if (!empty($recommended->location))
-                            <p class="text-muted small mb-1 text-truncate" style="font-size: 0.78rem;">
-                                <i class="fa-solid fa-location-dot me-1 text-primary"></i>{{ $recommended->location }}
-                            </p>
-                            @endif
-                            <p class="fw-bold text-primary mb-0" style="font-size: 0.9rem;">
-                                ₹{{ formatPrice($recommended->price) }} Onwards*
-                            </p>
-                        </div>
-                    </div>
-                </a>
-                @endforeach
-            </div>
-
+            <p class="text-muted small mb-1">
+                Direct developer quote & instant callback
+            </p>
         </div>
+
+        <div class="alert alert-success success-message d-none py-2 mb-2">
+            Your enquiry has been submitted successfully.
+        </div>
+
+        <div class="modal-body p-0">
+            @include('frontend.partials.contact-mail-form')
+        </div>
+
+    </div>
+</div>
+
+
+    <div class="card shadow-sm border-0 rounded-3 p-3 d-none d-lg-block mt-0 sticky-recommended-card"
+        id="sidebar-recommended-projects"
+        style="border: 1px solid #e2e8f0 !important;">
+
+        <div class="d-flex align-items-center justify-content-between mb-2 pb-2 border-bottom">
+            <h3 class="h6 mb-0 fw-bold text-dark">
+                Recommended <span class="text-primary">Projects</span>
+            </h3>
+
+            <i class="fa-solid fa-fire text-danger opacity-75 fs-6"></i>
+        </div>
+
+        @foreach ($recommendedProjects as $recommended)
+
+        <a class="col-12 d-block text-decoration-none mb-2"
+            href="{{ route('projects.details', $recommended->slug) }}">
+
+            <div class="recommended-card-wrapper d-flex align-items-stretch">
+
+                <div class="col-5 img-box position-relative">
+                    <img
+                        alt="{{ $recommended->project_name }}"
+                        loading="lazy"
+                        class="h-100 w-100 object-fit-cover"
+                        src="{{ storageUrl($recommended->logo_image) }}"
+                    />
+                </div>
+
+                <div class="p-2 col-7 d-flex flex-column justify-content-center min-w-0">
+
+                    <h3 class="recommended-title text-dark fw-bold mb-1 text-truncate"
+                        style="font-size: 0.85rem;">
+                        {{ $recommended->project_name }}
+                    </h3>
+
+                    @if (!empty($recommended->typology))
+                    <div class="mb-1">
+                        <span class="badge bg-light text-secondary border fw-normal"
+                            style="font-size: 0.65rem;">
+                            {{ $recommended->typology }}
+                        </span>
+                    </div>
+                    @endif
+
+                    @if (!empty($recommended->location))
+                    <p class="text-muted small mb-1 text-truncate"
+                        style="font-size: 0.72rem;">
+                        <i class="fa-solid fa-location-dot me-1 text-primary"></i>
+                        {{ $recommended->location }}
+                    </p>
+                    @endif
+
+                    <p class="fw-bold text-primary mb-0"
+                        style="font-size: 0.82rem;">
+                        ₹{{ formatPrice($recommended->price) }} Onwards*
+                    </p>
+
+                </div>
+            </div>
+
+        </a>
+
+        @endforeach
+
+    </div>
+
+</div>
     </div>
     <div class="modal fade" id="contactModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog popupFormHome">
-            <div class="modal-content p-3">
-                <div class="modal-header border-0">
-                    <img src="{{ asset('frontend/360logo.png') }}" alt="360propguide" class="w-50 mx-auto">
+           <div class="modal-content">
 
-                    <button type="button" class="btn-close align-self-start ms-0 shadow-none" data-bs-dismiss="modal"
-                        aria-label="Close"></button>
-                </div>
-                <h3 class="h6 text-center mb-3 fw-bold">You can Count on us for Great Deals!</h3>
-                <div class="modal-body">
+            <div class="modal-header border-0">
+                            <img src="{{ asset('frontend/360logo.png') }}" alt="360propguide" class="w-50 mx-auto">
 
-                    <form method="POST" id="popupFormDownload" action="{{ route('popup.download') }}">
-                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                        <input type="hidden" name="project_id" value="{{ $projects->id }}">
-                        <input type="hidden" name="download_type" id="downloadType">
-                        <div class="mb-3">
-
-                            <input type="text" class="form-control shadow-none" name="name" placeholder="Name*">
-                            <span class="text-danger error-name"></span>
-                        </div>
-                        <div class="mb-3">
-
-                            <input type="tel" class="form-control shadow-none" name="mobile" placeholder="Mobile*">
-                            <span class="text-danger error-mobile"></span>
-                        </div>
-                        <div class="mb-3">
-
-                            <input type="email" class="form-control shadow-none " name="email" placeholder="Email*">
-                            <span class="text-danger error-email"></span>
-                        </div>
-                        <div class="mb-3">
-
-                            <textarea name="message" class="form-control shadow-none" placeholder="Message"></textarea>
-
-                        </div>
-                        <div class="mb-3">
-                            <div class="g-recaptcha" data-sitekey="{{ config('services.recaptcha.site_key') }}">
-                            </div>
-                            <span class="text-danger error-recaptcha"></span>
-                        </div>
-                        @if ($errors->has('recaptchaform2'))
-                        <div class="alert alert-danger">
-                            {{ $errors->first('recaptchaform2') }}
-                        </div>
-                        @endif
-                        <div class="text-center pt-3 mb-3">
-                            <button type="submit" class="btn customBtn w-100 submitButton" id="contact-mail-submit">
-                                Submit
-                            </button>
+                            <button type="button" class="btn-close align-self-start ms-0 shadow-none"
+                                data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
 
-                    </form>
-                    <div class="w-full d-flex justify-content-between gap-2">
-                        <!-- Submit Button (left) -->
+                        <h3 class="h6 text-center mb-3 fw-bold">
+                            Contact Us
+                        </h3>
 
-                        <a href="tel:+919643020020" class="btn customBtn orange text-white w-50"><i
-                                class="fas fa-phone me-2"></i>Call Us</a>
+            <div class="modal-body">
 
-                        <!-- WhatsApp Button (right) -->
-                        <a href="https://wa.me/+919643020020?text={{ urlencode('I want brochure of ' . $projects->project_name) }}"
-                            target="_blank"
-                            class="whatsapp text-white w-50 d-flex justify-content-center align-items-center"
-                            id="whatsapp-btn-2">
-                            <i class="fab fa-whatsapp me-2"></i> WhatsApp
-                        </a>
-                    </div>
-                </div>
+                @include('frontend.partials.contact-mail-form')
 
             </div>
+
+        </div>
         </div>
     </div>
 </div>
@@ -1558,6 +1572,18 @@ let swiper2 = new Swiper(".floorSwiper", {
         swiper: swiper,
     },
 });
+
+document.querySelectorAll('.commercial-position-link').forEach(link => {
+    link.addEventListener('click', function() {
+        const floorIndex = Number.parseInt(this.dataset.floorIndex, 10);
+
+        if (Number.isInteger(floorIndex) && swiper2.slides.length > floorIndex) {
+            swiper2.slideTo(floorIndex);
+            swiper.slideTo(floorIndex);
+        }
+    });
+});
+
 swiper2.on("slideChange", function() {
     let activeIndex = swiper2.activeIndex;
     swiper.slideTo(activeIndex); // shift thumbs to keep active one visible
@@ -1847,11 +1873,18 @@ document.addEventListener('DOMContentLoaded', function() {
         const boundaryRect = boundarySection.getBoundingClientRect();
         const boundaryBottomDoc = boundaryRect.top + scrollY + boundarySection.offsetHeight;
 
-        const enquiryHeight = enquiryFormHeight || 500;
-        const stickyTriggerDoc = scrollY + topMargin;
-        const maxEnquiryTopDoc = boundaryBottomDoc - enquiryHeight;
-        const nextStage = stickyTriggerDoc < maxEnquiryTopDoc ? 'enquiry' : 'recommended';
+       const enquiryHeight = enquiryFormHeight || 500;
 
+// Form ko possession section ke baad bhi itna extra scroll karne do
+const extraScroll = 500;
+
+const stickyTriggerDoc = scrollY + topMargin;
+const maxEnquiryTopDoc = boundaryBottomDoc - enquiryHeight + extraScroll;
+
+const nextStage =
+    stickyTriggerDoc < maxEnquiryTopDoc
+        ? 'enquiry'
+        : 'recommended';
         // Styles only change at the handoff point. Re-applying display and
         // sticky properties on every scroll frame creates visible jitter.
         if (sidebarStage === nextStage) return;
@@ -1889,7 +1922,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         const currentNavbarHeight = document.getElementById('navbar')
                             ?.offsetHeight || 80;
                         const rect = overviewEl.getBoundingClientRect();
-                        if (rect.top <= currentNavbarHeight + 160) {
+                        if (rect.top <= currentNavbarHeight + 1060) {
                             navWrapper.classList.add('is-visible');
                         } else {
                             navWrapper.classList.remove('is-visible');

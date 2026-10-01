@@ -171,74 +171,26 @@
 @include('frontend.partials.contact-mail-modal')
   <div class="modal fade" id="contactModalPopup" tabindex="-1" aria-hidden="true" aria-labelledby="contactModalTitle">
     <div class="modal-dialog popupFormHome">
-      <div class="modal-content p-3">
-        <div class="modal-header border-0">
-          <img src="{{asset('frontend/360logo.webp')}}" alt="360 PropGuide" class="mx-auto popup-logo-img"
-            width="180" height="70"
-            style="max-width: 180px; height: auto; object-fit: contain; display: block;" loading="lazy"
-            decoding="async">
+       <div class="modal-content">
 
-          <button type="button" class="btn-close align-self-start ms-0 shadow-none" data-bs-dismiss="modal"
-            aria-label="Close"></button>
+            <div class="modal-header border-0">
+                            <img src="{{ asset('frontend/360logo.png') }}" alt="360propguide" class="w-50 mx-auto">
+
+                            <button type="button" class="btn-close align-self-start ms-0 shadow-none"
+                                data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+
+                        <h3 class="h6 text-center mb-3 fw-bold">
+                            Contact Us
+                        </h3>
+
+            <div class="modal-body">
+
+                @include('frontend.partials.contact-mail-form')
+
+            </div>
+
         </div>
-        <h5 class="text-center" id="contactModalTitle">Exclusive Property Deals - Enquire Today!</h5>
-        <div class="modal-body form-wrapper">
-          <div class="alert alert-success success-message d-none">
-            Your enquiry has been submitted successfully.
-          </div>
-          <form method="POST" class="popupForm" action="{{route('contact-mail')}}">
-            <input type="hidden" name="_token" value="{{ csrf_token() }}">
-            <input type="hidden" name="formName" value="popup">
-            <div class="mb-3">
-
-              <input id="name" type="text" class="form-control shadow-none name" name="name"
-                placeholder="Name*">
-              <span class="text-danger error-name"></span>
-            </div>
-            <div class="mb-3">
-
-              <input id="mobile" type="tel" class="form-control shadow-none mobile" name="mobile"
-                placeholder="Mobile*">
-              <span class="text-danger error-mobile"></span>
-            </div>
-            <div class="mb-3">
-
-              <input id="email" type="email" class="form-control shadow-none email" name="email"
-                placeholder="Email*">
-              <span class="text-danger error-email"></span>
-            </div>
-            <div class="mb-3">
-
-              <textarea name="message" id="message" class="form-control shadow-none  "
-                placeholder="Message"></textarea>
-
-            </div>
-            <div class="mb-3">
-              <div class="g-recaptcha" data-sitekey="{{ config('services.recaptcha.site_key') }}"></div>
-              <span class="text-danger error-recaptcha"></span>
-            </div>
-            @if ($errors->has('recaptchaform2'))
-            <div class="alert alert-danger">
-              {{ $errors->first('recaptchaform2') }}
-            </div>
-            @endif
-            <button type="submit" class="btn customBtn text-white mb-3 w-100 submitButton">Submit</button>
-          </form>
-          <div class="w-full d-flex justify-content-between gap-2">
-            <!-- Submit Button (left) -->
-
-            <a href="tel:+919643020020" class="btn customBtn orange text-white w-50"><i
-                class="fas fa-phone me-2"></i>Call Us</a>
-
-            <!-- WhatsApp Button (right) -->
-            <a href="https://wa.me/+919643020020?text={{ urlencode($whatsappMessage) }}" target="_blank"
-              class=" whatsapp text-white w-50 d-flex justify-content-center align-items-center">
-              <i class="fab fa-whatsapp me-2"></i> WhatsApp
-            </a>
-          </div>
-        </div>
-
-      </div>
     </div>
   </div>
 
@@ -334,41 +286,111 @@
       });
     }
   </script>
-  <script>
+ <script>
     function loadRecaptcha() {
-      if (document.getElementById("recaptchaScript")) return;
+        // Agar script already loaded hai to dobara load mat karo
+        if (document.getElementById("recaptchaScript")) {
+            return;
+        }
 
-      let script = document.createElement("script");
-      script.src = "https://www.google.com/recaptcha/api.js";
-      script.id = "recaptchaScript";
-      script.async = true;
-      document.body.appendChild(script);
+        let script = document.createElement("script");
+
+        script.src = "https://www.google.com/recaptcha/api.js";
+        script.id = "recaptchaScript";
+        script.async = true;
+        script.defer = true;
+
+        document.body.appendChild(script);
     }
-    document.querySelectorAll("input, textarea").forEach(el => {
-      el.addEventListener("focus", loadRecaptcha, {
-        once: true
-      });
-    });
-    document.addEventListener("DOMContentLoaded", function() {
-      // Check if the consent cookie is already stored
-      if (!localStorage.getItem('cookieConsent')) {
-        // Show the consent popup if consent is not stored
-        document.getElementById('cookieConsentPopup').style.display = 'block';
-      }
 
-      // Handle consent acceptance
-      document.getElementById('acceptCookies').addEventListener('click', function() {
-        localStorage.setItem('cookieConsent', 'true');
-        document.getElementById('cookieConsentPopup').style.display = 'none';
-      });
+    document.addEventListener("DOMContentLoaded", function () {
 
-      // Handle consent decline
-      document.getElementById('declineCookies').addEventListener('click', function() {
-        localStorage.setItem('cookieConsent', 'false');
-        document.getElementById('cookieConsentPopup').style.display = 'none';
-      });
+        /*
+         * ================================
+         * LOAD RECAPTCHA
+         * ================================
+         *
+         * Ab input field par click karne ki
+         * zarurat nahi hai.
+         */
+        loadRecaptcha();
+
+
+        /*
+         * ================================
+         * COOKIE CONSENT
+         * ================================
+         */
+
+        // Check if the consent cookie is already stored
+        if (!localStorage.getItem('cookieConsent')) {
+
+            const cookiePopup =
+                document.getElementById('cookieConsentPopup');
+
+            if (cookiePopup) {
+                cookiePopup.style.display = 'block';
+            }
+        }
+
+
+        /*
+         * ================================
+         * ACCEPT COOKIES
+         * ================================
+         */
+
+        const acceptCookies =
+            document.getElementById('acceptCookies');
+
+        if (acceptCookies) {
+
+            acceptCookies.addEventListener('click', function () {
+
+                localStorage.setItem(
+                    'cookieConsent',
+                    'true'
+                );
+
+                const cookiePopup =
+                    document.getElementById('cookieConsentPopup');
+
+                if (cookiePopup) {
+                    cookiePopup.style.display = 'none';
+                }
+            });
+        }
+
+
+        /*
+         * ================================
+         * DECLINE COOKIES
+         * ================================
+         */
+
+        const declineCookies =
+            document.getElementById('declineCookies');
+
+        if (declineCookies) {
+
+            declineCookies.addEventListener('click', function () {
+
+                localStorage.setItem(
+                    'cookieConsent',
+                    'false'
+                );
+
+                const cookiePopup =
+                    document.getElementById('cookieConsentPopup');
+
+                if (cookiePopup) {
+                    cookiePopup.style.display = 'none';
+                }
+            });
+        }
+
     });
-  </script>
+</script>
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       document.querySelectorAll('.load-more-btn').forEach(function(button) {
@@ -473,91 +495,311 @@
   </script>
 
 
-  <script>
-    $(document).ready(function() {
-      $(".popupForm").submit(function(e) {
-        e.preventDefault();
-        let form = $(this);
+  
+  
+  
+<script>
+    $(document).ready(function () {
 
-        form.find(".error-name, .error-email, .error-mobile, .error-recaptcha").text('');
-        $('.success-message').addClass('d-none').text('');
+        $(".popupForm").submit(function (e) {
 
-        let name = (form.find('[name="name"]').val() || "").trim();
-        let email = (form.find('[name="email"]').val() || "").trim();
-        let mobile = (form.find('[name="mobile"]').val() || "").trim();
-        let recaptcha = (form.find('[name="g-recaptcha-response"]').val() || "").trim();
+            e.preventDefault();
 
-        let isValid = true;
+            let form = $(this);
 
-        if (name === "") {
-          form.find(".error-name").text("Name is required.");
-          isValid = false;
-        }
+            // Clear old errors
+            form.find(
+                ".error-name, .error-email, .error-mobile, .error-recaptcha"
+            ).text("");
 
-        if (email === "") {
-          form.find(".error-email").text("Email is required.");
-          isValid = false;
-        } else if (!/^\S+@\S+\.\S+$/.test(email)) {
-          form.find(".error-email").text("Invalid email format.");
-          isValid = false;
-        }
+            $('.success-message')
+                .addClass('d-none')
+                .text('');
 
-        if (mobile === "") {
-          form.find(".error-mobile").text("Mobile number is required.");
-          isValid = false;
-        } else if (!/^\d{10}$/.test(mobile)) {
-          form.find(".error-mobile").text("Enter a valid 10-digit mobile number.");
-          isValid = false;
-        }
+            let name = (form.find('[name="name"]').val() || "").trim();
+            let email = (form.find('[name="email"]').val() || "").trim();
+            let mobile = (form.find('[name="mobile"]').val() || "").trim();
 
-        if (form.find('[name="g-recaptcha-response"]').length > 0 && recaptcha === "") {
-          form.find(".error-recaptcha").text("Please validate Recaptcha");
-          isValid = false;
-        }
+            let recaptcha = (
+                form.find('[name="g-recaptcha-response"]').val() || ""
+            ).trim();
 
-        if (!isValid) return;
+            let isValid = true;
 
-        let formData = new FormData(this);
-        //formData.append('g-recaptcha-response', recaptcha);
 
-        let submitButton = form.find('.submitButton');
-        submitButton.prop('disabled', true).html('<div class="loader"></div>');
+            // =========================
+            // NAME
+            // =========================
 
-        $.ajax({
-          url: "{{ route('contact-mail') }}",
-          type: "POST",
-          data: formData,
-          processData: false,
-          contentType: false,
+            if (name === "") {
 
-          success: function(response) {
-            if (response.success) {
+                form.find(".error-name")
+                    .text("Name is required.");
 
-              form[0].reset();
-              grecaptcha.reset();
-              submitButton.prop('disabled', false).html('Submit');
-
-              //  Direct redirect to Thank You page
-              window.location.href = response.redirect_url;
+                isValid = false;
             }
-          },
 
-          error: function(xhr) {
-            submitButton.prop('disabled', false).html('Submit');
-            let errors = xhr.responseJSON.errors;
-            if (errors) {
-              if (errors.name) form.find(".error-name").text(errors.name[0]);
-              if (errors.email) form.find(".error-email").text(errors.email[0]);
-              if (errors.mobile) form.find(".error-mobile").text(errors.mobile[
-                0]);
-              if (errors['g-recaptcha-response']) form.find(".error-recaptcha")
-                .text(errors['g-recaptcha-response'][0]);
+
+            // =========================
+            // EMAIL
+            // =========================
+
+            if (email === "") {
+
+                form.find(".error-email")
+                    .text("Email is required.");
+
+                isValid = false;
+
+            } else if (!/^\S+@\S+\.\S+$/.test(email)) {
+
+                form.find(".error-email")
+                    .text("Invalid email format.");
+
+                isValid = false;
             }
-          }
+
+
+            // =========================
+            // MOBILE
+            // =========================
+
+            if (mobile === "") {
+
+                form.find(".error-mobile")
+                    .text("Mobile number is required.");
+
+                isValid = false;
+
+            } else if (!/^\d{10}$/.test(mobile)) {
+
+                form.find(".error-mobile")
+                    .text(
+                        "Enter a valid 10-digit mobile number."
+                    );
+
+                isValid = false;
+            }
+
+
+            // =========================
+            // RECAPTCHA
+            // =========================
+
+            if (
+                form.find(
+                    '[name="g-recaptcha-response"]'
+                ).length > 0 &&
+                recaptcha === ""
+            ) {
+
+                form.find(".error-recaptcha")
+                    .text("Please validate Recaptcha");
+
+                isValid = false;
+            }
+
+
+            // Stop if invalid
+            if (!isValid) {
+                return;
+            }
+
+
+            // =========================
+            // FORM DATA
+            // =========================
+
+            let formData = new FormData(this);
+
+            let submitButton = form.find('.submitButton');
+
+            submitButton
+                .prop('disabled', true)
+                .html('<div class="loader"></div>');
+
+
+            // =========================
+            // AJAX
+            // =========================
+
+            $.ajax({
+
+                url: "{{ route('contact-mail') }}",
+
+                type: "POST",
+
+                data: formData,
+
+                processData: false,
+
+                contentType: false,
+
+
+                // =========================
+                // SUCCESS
+                // =========================
+
+                success: function (response) {
+
+                    if (response.success) {
+
+                        form[0].reset();
+
+                        if (
+                            typeof grecaptcha !== "undefined"
+                        ) {
+                            grecaptcha.reset();
+                        }
+
+                        submitButton
+                            .prop('disabled', false)
+                            .html('Submit');
+
+                        window.location.href =
+                            response.redirect_url;
+                    }
+                },
+
+
+                // =========================
+                // SERVER ERRORS
+                // =========================
+
+                error: function (xhr) {
+
+                    submitButton
+                        .prop('disabled', false)
+                        .html('Submit');
+
+                    let errors =
+                        xhr.responseJSON &&
+                        xhr.responseJSON.errors;
+
+                    if (errors) {
+
+                        if (errors.name) {
+
+                            form.find(".error-name")
+                                .text(errors.name[0]);
+                        }
+
+                        if (errors.email) {
+
+                            form.find(".error-email")
+                                .text(errors.email[0]);
+                        }
+
+                        if (errors.mobile) {
+
+                            form.find(".error-mobile")
+                                .text(errors.mobile[0]);
+                        }
+
+                        if (
+                            errors['g-recaptcha-response']
+                        ) {
+
+                            form.find(".error-recaptcha")
+                                .text(
+                                    errors[
+                                        'g-recaptcha-response'
+                                    ][0]
+                                );
+                        }
+                    }
+                }
+
+            });
+
         });
-      });
+
+
+        // ==================================================
+        // ALL INPUT / TEXTAREA ERROR AUTO CLEAR
+        // ==================================================
+
+        $(".popupForm").on(
+            "input",
+            "input, textarea, select",
+            function () {
+
+                let input = $(this);
+
+                /*
+                 * Example:
+                 *
+                 * name    -> error-name
+                 * email   -> error-email
+                 * mobile  -> error-mobile
+                 *
+                 * Automatically field name se error class
+                 * find karega.
+                 */
+
+                let fieldName = input.attr("name");
+
+                if (!fieldName) {
+                    return;
+                }
+
+
+                // Special case for recaptcha
+                if (
+                    fieldName === "g-recaptcha-response"
+                ) {
+
+                    if (input.val().trim() !== "") {
+
+                        input
+                            .closest(".mb-3")
+                            .find(".error-recaptcha")
+                            .text("");
+                    }
+
+                    return;
+                }
+
+
+                // Generic error class
+                let errorClass =
+                    ".error-" + fieldName;
+
+
+                // Field mein kuch type hua hai
+                if (input.val().trim() !== "") {
+
+                    input
+                        .closest(".mb-3")
+                        .find(errorClass)
+                        .text("");
+                }
+
+            }
+        );
+
+
+        // ==================================================
+        // RECAPTCHA ERROR CLEAR
+        // ==================================================
+
+        $(document).on(
+            "change",
+            '[name="g-recaptcha-response"]',
+            function () {
+
+                if ($(this).val().trim() !== "") {
+
+                    $(".popupForm")
+                        .find(".error-recaptcha")
+                        .text("");
+                }
+            }
+        );
+
     });
-  </script>
+</script>
+
   <script defer>
     document.addEventListener('DOMContentLoaded', function() {
       // Use event delegation to support dynamically loaded images
@@ -1099,18 +1341,17 @@ function suggestionMarkup(item, bhkType) {
     // 3 BHK + Noida
     // /3-bhk-flats-in-noida
     //
-    if (type === 'city') {
+if (type === 'city') {
 
-        const bhkSlug = makeSlug(bhkType);
+    const bhkSlug = makeSlug(bhkType);
+    const citySlug = makeSlug(name);
 
-        if (bhkSlug) {
-            url = '/' + bhkSlug + '-flats-in-' + makeSlug(name);
-        } else {
-            url = '/flats-in-' + makeSlug(name);
-        }
-
+    if (bhkSlug && bhkSlug !== 'flats-in') {
+        url = '/' + bhkSlug + '-flats-in-' + citySlug;
+    } else {
+        url = '/flats-in-' + citySlug;
     }
-
+}
     // =========================
     // LOCALITY / SECTOR
     // =========================
@@ -1276,48 +1517,72 @@ $(document).on('click', '.project-results .suggestion-item', function (e) {
 
     
     // Show project results when the input field is focused
-    $(document).on('focus', '.keyword', function() {
-      const $parent = $(this).closest('.searchboxs');
-      const $results = $parent.find('.project-results');
+   // Show project results when user starts typing
+$(document).on('input', '.keyword', function () {
 
-      $results.show().html('<li>Searching...</li>');
+    const $keyword = $(this);
+    const $parent = $keyword.closest('.searchboxs');
+    const $results = $parent.find('.project-results');
 
-      const location = $parent.find('select[name="location"]').val();
-      const bhkType = $parent.find('select[name="bhkType"]').val();
+    const keyword = $.trim($keyword.val());
 
-      if (location) {
-        $.ajax({
-          url: "{{ route('projects.search', [], false) }}",
-          method: "GET",
-          dataType: "json",
-          data: {
-            location,
-            bhkType
-          },
-          success: function(data) {
+    // Input empty hai
+    if (keyword.length === 0) {
+        $results.empty().hide();
+        return;
+    }
+
+    // 2 characters se pehle search mat karo
+    if (keyword.length < 2) {
+        $results.empty().hide();
+        return;
+    }
+
+    $results.show().html('<li><a>Searching...</a></li>');
+
+    const location = $parent.find('select[name="location"]').val();
+    const bhkType = $parent.find('select[name="bhkType"]').val();
+
+    $.ajax({
+        url: "{{ route('projects.search', [], false) }}",
+        method: "GET",
+        dataType: "json",
+        data: {
+            keyword: keyword,
+            location: location,
+            bhkType: bhkType
+        },
+
+        success: function(data) {
+
             const items = (data && data.data) ? data.data : [];
-            if (items.length > 0) {
-              let results = '';
-              $.each(items, function (index, item) {
-                results += suggestionMarkup(item, bhkType);
-              });
-              $results.html(results);
-            } else {
-              $results.html(
-                '<li><a>No projects available for selected configuration</a></li>');
-            }
-          },
-          error: function() {
-            $results.html(
-              '<li><a>There was an error with the search request. Please try again.</a></li>'
-            );
-          }
-        });
-      } else {
-        $results.empty();
-      }
-    });
 
+            if (items.length > 0) {
+
+                let results = '';
+
+                $.each(items, function (index, item) {
+                    results += suggestionMarkup(item, bhkType);
+                });
+
+                $results.html(results).show();
+
+            } else {
+
+                $results.html(
+                    '<li><a>No results found</a></li>'
+                ).show();
+            }
+        },
+
+        error: function() {
+
+            $results.html(
+                '<li><a>There was an error with the search request. Please try again.</a></li>'
+            ).show();
+        }
+    });
+});
     
     // Hide results on blur (if not clicking result)
   $(document).on('blur', '.keyword', function () {
@@ -1437,7 +1702,7 @@ $(document).on('click', '.project-results .suggestion-item', function (e) {
    data-bs-target="#contactMailModal">
 
     <span class="floating-label">
-        Email Now
+        Contact Us
     </span>
 
     <span class="floating-icon floating-email-icon">
@@ -1528,6 +1793,8 @@ font-size: 24px;
 
     .call-contact-btn::before {
       background: rgba(30, 136, 229, 0.15);
+      margin-left: -23px;
+    margin-top: -23px;
     }
 
 

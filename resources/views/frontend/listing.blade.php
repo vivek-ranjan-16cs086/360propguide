@@ -62,7 +62,7 @@ $resultCount = isset($projects) ? $projects->total() : 0;
 @endphp
 
 <section class="projects-page">
-    <form method="GET" action="{{ route('projects') }}" id="projectsFilterForm" class="container">
+    <form method="GET" action="{{ route('projects') }}" data-filter-endpoint="{{ route('filters') }}" id="projectsFilterForm" class="container">
         <header class="projects-header">
             <div class="projects-header__top">
                 <div class="projects-header__title-group">
@@ -76,10 +76,9 @@ $resultCount = isset($projects) ? $projects->total() : 0;
                         <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
                         <input type="search" name="q" value="{{ $selected['q'] }}" class="form-control"
                             placeholder="Search projects" autocomplete="off">
-                        @if($selected['q'] !== '')
-                        <a href="{{ $removeFilterUrl('q') }}" class="project-search__clear" aria-label="Clear search"><i
+                        <a href="{{ route('projects') }}" class="project-search__clear" data-clear-project-search
+                            aria-label="Clear search" {{ $selected['q'] === '' ? 'hidden' : '' }}><i
                                 class="fa-solid fa-xmark"></i></a>
-                        @endif
                     </div>
                     <button type="button" class="project-filter-trigger d-lg-none" data-open-filters
                         aria-controls="projectFilters">
@@ -214,6 +213,128 @@ $resultCount = isset($projects) ? $projects->total() : 0;
     (function() {
         var form = document.getElementById('projectsFilterForm');
         if (!form) return;
+        var results = form.querySelector('.projects-results');
+        var count = form.querySelector('.projects-header__count');
+        var csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+        var activeRequest = null;
+
+        function filterState(page) {
+            var data = new FormData(form);
+
+            return {
+                location: data.getAll('location[]'),
+                locality: data.getAll('locality[]'),
+                type: data.getAll('type[]'),
+                possession: data.getAll('possession[]'),
+                developer: data.getAll('developer[]'),
+                q: (data.get('q') || '').trim(),
+                sort: data.get('sort') || 'newest',
+                min_price: data.get('min_price') || null,
+                max_price: data.get('max_price') || null,
+                page: page || 1
+            };
+        }
+
+        function setLoading(loading) {
+            results.setAttribute('aria-busy', loading ? 'true' : 'false');
+            results.style.opacity = loading ? '0.6' : '';
+            results.style.pointerEvents = loading ? 'none' : '';
+        }
+
+        function showFilterError() {
+            var error = results.querySelector('#projectsFilterError');
+            if (!error) {
+                error = document.createElement('div');
+                error.id = 'projectsFilterError';
+                error.className = 'alert alert-danger';
+                error.setAttribute('role', 'alert');
+                results.prepend(error);
+            }
+            error.hidden = false;
+            error.textContent = 'Unable to update projects. Please try again.';
+        }
+
+        function applyProjectFilters(page) {
+            if (activeRequest) activeRequest.abort();
+            var request = new AbortController();
+            activeRequest = request;
+            setLoading(true);
+
+            fetch(form.dataset.filterEndpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'text/html',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify(filterState(page)),
+                signal: request.signal
+            })
+                .then(function(response) {
+                    if (!response.ok) throw new Error('Filter request failed');
+                    return response.text();
+                })
+                .then(function(html) {
+                    if (activeRequest !== request) return;
+
+                    var page = new DOMParser().parseFromString(html, 'text/html');
+                    var nextResults = page.querySelector('.projects-results');
+                    var nextCount = page.querySelector('.projects-header__count');
+                    if (!nextResults || !nextCount) throw new Error('Invalid filter response');
+
+                    results.innerHTML = nextResults.innerHTML;
+                    count.textContent = nextCount.textContent;
+
+                    var clearSearch = form.querySelector('[data-clear-project-search]');
+                    if (clearSearch) clearSearch.hidden = !form.querySelector('input[name="q"]').value.trim();
+                })
+                .catch(function(error) {
+                    if (error.name !== 'AbortError') showFilterError();
+                })
+                .finally(function() {
+                    if (activeRequest !== request) return;
+                    activeRequest = null;
+                    setLoading(false);
+                });
+        }
+
+        function clearFilterControls() {
+            form.querySelectorAll('input[type="checkbox"]').forEach(function(input) {
+                input.checked = false;
+            });
+            form.querySelectorAll('input[name="q"], input[name="min_price"], input[name="max_price"]').forEach(function(input) {
+                input.value = '';
+            });
+            form.querySelector('select[name="sort"]').value = 'newest';
+            syncLocalities();
+        }
+
+        function useFilterUrl(url) {
+            var params = new URL(url, document.baseURI).searchParams;
+            clearFilterControls();
+
+            ['location', 'locality', 'type', 'possession', 'developer'].forEach(function(name) {
+                var values = [];
+                params.forEach(function(value, key) {
+                    if (key === name || key === name + '[]' || key.indexOf(name + '[') === 0) values.push(value);
+                });
+                values.forEach(function(value) {
+                    var input = Array.prototype.find.call(form.querySelectorAll('[name="' + name + '[]"]'), function(item) {
+                        return item.value === value;
+                    });
+                    if (input) input.checked = true;
+                });
+            });
+
+            ['q', 'min_price', 'max_price'].forEach(function(name) {
+                var input = form.querySelector('[name="' + name + '"]');
+                if (input) input.value = params.get(name) || '';
+            });
+            form.querySelector('select[name="sort"]').value = params.get('sort') || 'newest';
+            syncLocalities();
+            applyProjectFilters(Number(params.get('page')) || 1);
+        }
 
         function selectedCities() {
             return Array.prototype.map.call(form.querySelectorAll('input[name="location[]"]:checked'), function(input) {
@@ -241,21 +362,59 @@ $resultCount = isset($projects) ? $projects->total() : 0;
             syncLocalities();
         }
         if (event.target.matches('input[type="checkbox"], select[name="sort"]')) {
-            form.requestSubmit();
+            applyProjectFilters(1);
         }
     });
 
-        form.addEventListener('submit', function() {
-            form.querySelectorAll('input[name="q"], input[name="min_price"], input[name="max_price"]').forEach(
-                function(input) {
-                    if (!input.value) input.disabled = true;
-                });
-            form.querySelectorAll('#localityList [data-city]').forEach(function(row) {
-                if (row.hidden) {
-                    var checkbox = row.querySelector('input');
-                    if (checkbox) checkbox.disabled = true;
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+            applyProjectFilters(1);
+        });
+
+        form.addEventListener('click', function(event) {
+            var pagination = event.target.closest('[data-project-page], #pagination-links a');
+            if (pagination) {
+                event.preventDefault();
+                var page = Number(pagination.dataset.projectPage || new URL(pagination.href).searchParams.get('page')) || 1;
+                applyProjectFilters(page);
+                return;
+            }
+
+            var chip = event.target.closest('.active-filter-chip');
+            if (chip) {
+                event.preventDefault();
+                if (chip.dataset.filterKey) {
+                    var key = chip.dataset.filterKey;
+                    if (key === 'q') {
+                        form.querySelector('input[name="q"]').value = '';
+                    } else if (key === 'budget') {
+                        form.querySelector('input[name="min_price"]').value = '';
+                        form.querySelector('input[name="max_price"]').value = '';
+                    } else {
+                        form.querySelectorAll('[name="' + key + '[]"]').forEach(function(input) {
+                            if (input.value === chip.dataset.filterValue) input.checked = false;
+                        });
+                        if (key === 'location') syncLocalities();
+                    }
+                    applyProjectFilters(1);
+                } else {
+                    useFilterUrl(chip.href);
                 }
-            });
+                return;
+            }
+
+            if (event.target.closest('[data-clear-project-filters], .filter-header__reset, .project-empty-state__reset')) {
+                event.preventDefault();
+                clearFilterControls();
+                applyProjectFilters(1);
+                return;
+            }
+
+            if (event.target.closest('[data-clear-project-search], .project-search__clear')) {
+                event.preventDefault();
+                form.querySelector('input[name="q"]').value = '';
+                applyProjectFilters(1);
+            }
         });
 
     form.querySelectorAll('[data-filter-search]').forEach(function (input) {

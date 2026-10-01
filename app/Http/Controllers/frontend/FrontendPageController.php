@@ -220,6 +220,12 @@ class FrontendPageController extends Controller
 			$selected['max_price'] = (int) $legacy['budget']['max'];
 		}
 
+		if ($request->ajax()) {
+			$request->merge($selected);
+
+			return $this->getListingsPageData($request);
+		}
+
 		return redirect()->route('projects', $this->listingQueryParams($selected));
 	}
 	public function getThankYouPage()
@@ -935,7 +941,20 @@ You can use this page to discover and compare <strong>{$configurationText}{$prop
 
 
 
-	public function getProjectDetails($slug)
+	public function getCommercialProjectDetails($slug)
+	{
+		$project = Project::where('slug', $slug)->where('status', '1')->firstOrFail();
+		$typologies = json_decode($project->typology, true);
+		$typologies = is_array($typologies) ? $typologies : explode(',', (string) $project->typology);
+		$isShopsProject = collect($typologies)->contains(fn ($typology) => strcasecmp(trim((string) $typology), 'Shops') === 0);
+		$isCommercialProject = strtolower(trim((string) $project->project_type)) === 'commercial' || $isShopsProject;
+
+		abort_unless($isCommercialProject, 404);
+
+		return $this->getProjectDetails($project->slug, false);
+	}
+
+	public function getProjectDetails($slug, $redirectCommercial = true)
 	{
 		// projects
 		$projects = Project::where('slug', $slug)
@@ -943,6 +962,14 @@ You can use this page to discover and compare <strong>{$configurationText}{$prop
 			->firstOrFail();
 
 		$typologies = json_decode($projects->typology, true);
+		$typologies = is_array($typologies) ? $typologies : explode(',', (string) $projects->typology);
+		$isShopsProject = collect($typologies)->contains(fn ($typology) => strcasecmp(trim((string) $typology), 'Shops') === 0);
+		$isCommercialProject = strtolower(trim((string) $projects->project_type)) === 'commercial' || $isShopsProject;
+
+		if ($redirectCommercial && $isCommercialProject) {
+			return redirect()->route('projects.commercial', ['slug' => $projects->slug], 301);
+		}
+
 		$projects->typology_string = is_array($typologies)
 			? implode(', ', $typologies)
 			: 'N/A';
@@ -1096,7 +1123,8 @@ You can use this page to discover and compare <strong>{$configurationText}{$prop
 				'projects',
 				'recommendedProjects',
 				'faqSchema',
-				'customLinks'
+				'customLinks',
+				'isCommercialProject'
 			)
 		);
 	}
@@ -2072,8 +2100,8 @@ You can use this page to discover and compare <strong>{$configurationText}{$prop
     | projects.location_id
     |--------------------------------------------------------------------------
     */
-		if (!empty($selected['location']) && $hasLocationId) {
-			$parentIds = Location::parents()
+		if (!empty($selected['location'])) {
+			$parentIds = $hasLocationId ? Location::parents()
 				->active()
 				->where(function ($q) use ($selected) {
 					foreach ($selected['location'] as $city) {
@@ -2083,9 +2111,17 @@ You can use this page to discover and compare <strong>{$configurationText}{$prop
 						);
 					}
 				})
-				->pluck('id');
+				->pluck('id') : collect();
 
-			$query->whereIn('location_id', $parentIds);
+			$query->where(function ($q) use ($selected, $hasLocationId, $parentIds) {
+				if ($hasLocationId && $parentIds->isNotEmpty()) {
+					$q->whereIn('location_id', $parentIds);
+				}
+
+				foreach ($selected['location'] as $city) {
+					$q->orWhereRaw('LOWER(TRIM(cities)) = ?', [strtolower(trim($city))]);
+				}
+			});
 		}
 
 		/*
