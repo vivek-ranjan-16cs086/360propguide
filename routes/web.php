@@ -327,4 +327,4 @@ Route::post('/save-fcm-token', [NotificationController::class, 'saveToken']);
 
 // This broad route must remain after every specific GET route.
 Route::get('/{slug}', [FrontendPageController::class, 'showFilteredProjects'])
-    ->where('slug', '.*');
+    ->where('slug', '[^/]+');
