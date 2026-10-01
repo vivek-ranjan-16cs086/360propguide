@@ -75,7 +75,7 @@
 
 
 @section('customCSS')
-<link rel="stylesheet" href="{{ asset('frontend/css/details.css') }}" />
+<link rel="stylesheet" href="{{ url('frontend/css/project-details.css') }}" />
 @endSection
 @section('content')
 
