@@ -220,6 +220,12 @@ class FrontendPageController extends Controller
 			$selected['max_price'] = (int) $legacy['budget']['max'];
 		}
 
+		if ($request->ajax()) {
+			$request->merge($selected);
+
+			return $this->getListingsPageData($request);
+		}
+
 		return redirect()->route('projects', $this->listingQueryParams($selected));
 	}
 	public function getThankYouPage()
@@ -2090,8 +2096,8 @@ You can use this page to discover and compare <strong>{$configurationText}{$prop
     | projects.location_id
     |--------------------------------------------------------------------------
     */
-		if (!empty($selected['location']) && $hasLocationId) {
-			$parentIds = Location::parents()
+		if (!empty($selected['location'])) {
+			$parentIds = $hasLocationId ? Location::parents()
 				->active()
 				->where(function ($q) use ($selected) {
 					foreach ($selected['location'] as $city) {
@@ -2101,9 +2107,17 @@ You can use this page to discover and compare <strong>{$configurationText}{$prop
 						);
 					}
 				})
-				->pluck('id');
+				->pluck('id') : collect();
 
-			$query->whereIn('location_id', $parentIds);
+			$query->where(function ($q) use ($selected, $hasLocationId, $parentIds) {
+				if ($hasLocationId && $parentIds->isNotEmpty()) {
+					$q->whereIn('location_id', $parentIds);
+				}
+
+				foreach ($selected['location'] as $city) {
+					$q->orWhereRaw('LOWER(TRIM(cities)) = ?', [strtolower(trim($city))]);
+				}
+			});
 		}
 
 		/*
