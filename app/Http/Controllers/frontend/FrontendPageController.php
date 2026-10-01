@@ -238,7 +238,11 @@ class FrontendPageController extends Controller
 	}
 	public function showFilteredProjects(Request $request, $slug)
 	{
-		// dd($request);
+		$path = $request->getPathInfo();
+
+		if (str_ends_with($path, '/')) {
+			abort(404);
+		}
 
 		if (preg_match('/^(\d+-bhk-)?projects-in-(.+)$/', $slug, $matches)) {
 			return redirect('/' . ($matches[1] ?? '') . 'flats-in-' . $matches[2], 301);
