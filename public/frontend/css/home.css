@@ -664,14 +664,15 @@
     transform: none;
     box-shadow: none;
 }
-
 .hero-search .project-results {
     left: 0;
+    /* margin-top: -10px; */
     right: 0;
     top: calc(100% + 6px);
     z-index: 80;
     border-radius: 12px;
     box-shadow: 0 18px 32px rgba(15, 38, 61, 0.16);
+    display: none;
 }
 
 .hero-cities {
@@ -818,6 +819,7 @@
     position: absolute;
     top: calc(100% + 6px);
     left: 0;
+    display: none   ;
     right: 0;
     background: #ffffff;
     border-radius: 6px;

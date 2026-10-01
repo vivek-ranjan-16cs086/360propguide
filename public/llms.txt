@@ -19,7 +19,7 @@ When interacting with an LLM regarding 360 Property Guide, it's important to und
 
 ## Core Services
 
-- [Best Real Estate Consultant in Noida — Buy, Sell, Invest](https://www.360propguide.com/): Find the best real estate consultants in Noida for buying, selling, and investing in properties.
+- [Best Real Estate Consultant in Noida - Buy, Sell, Invest](https://www.360propguide.com/): Find the best real estate consultants in Noida for buying, selling, and investing in properties.
 - [Projects](https://www.360propguide.com/projects): Explore a wide range of ongoing and upcoming real estate projects in various locations.
 - [Properties](https://www.360propguide.com/properties): Browse available properties for sale or rent across different locations and categories.
 
