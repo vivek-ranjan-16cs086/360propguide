@@ -1917,12 +1917,13 @@ const nextStage =
                 updateScrollSpy();
                 updateTwoStageSidebar();
                 if (navWrapper) {
-                    const overviewEl = document.getElementById('overview');
-                    if (overviewEl) {
+                    const projectInfoEl = document.querySelector('.project-info-card');
+                    if (projectInfoEl) {
                         const currentNavbarHeight = document.getElementById('navbar')
                             ?.offsetHeight || 80;
-                        const rect = overviewEl.getBoundingClientRect();
-                        if (rect.top <= currentNavbarHeight + 1060) {
+                        const stickyNavHeight = navWrapper.offsetHeight || 54;
+                        const rect = projectInfoEl.getBoundingClientRect();
+                        if (rect.top <= currentNavbarHeight + stickyNavHeight) {
                             navWrapper.classList.add('is-visible');
                         } else {
                             navWrapper.classList.remove('is-visible');
