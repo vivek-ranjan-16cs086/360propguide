@@ -2068,3 +2068,87 @@ display:none;}
         width: 100%;
     }
 }
+
+/* commerical table css */
+/* Shops project pricing */
+.commercial-price-intro {
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.commercial-price-label {
+    color: var(--bs-primary);
+    letter-spacing: .08em;
+}
+
+.commercial-price-table {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.commercial-price-head,
+.commercial-price-row {
+    display: grid;
+    grid-template-columns: 1fr 1.55fr 1fr 1.15fr;
+    gap: 1rem;
+    align-items: center;
+}
+
+.commercial-price-head {
+    background: #f8fafc;
+    color: #111827;
+    font-size: .875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.commercial-price-row + .commercial-price-row {
+    border-top: 1px solid #e2e8f0;
+}
+
+.commercial-price-rate {
+    color: var(--bs-primary);
+}
+
+.commercial-price-row__action {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: .75rem;
+}
+
+.commercial-position-link {
+    color: var(--coral-500, #f05736);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.commercial-position-link:hover,
+.commercial-position-link:focus-visible {
+    color: var(--coral-600, #d94524);
+    text-decoration: underline;
+}
+
+@media (max-width: 767.98px) {
+    .commercial-price-head {
+        display: none;
+    }
+
+    .commercial-price-row {
+        grid-template-columns: 1fr 1fr;
+        gap: .75rem;
+    }
+
+    .commercial-price-row__format,
+    .commercial-price-row__action {
+        grid-column: 1 / -1;
+    }
+
+    .commercial-price-row__action .btn {
+        width: 100%;
+    }
+}
+/* form-control */
+.form-control{ outline: none !important;
+    box-shadow: none !important;
+    border-color: var(--bs-border-color) !important;}
