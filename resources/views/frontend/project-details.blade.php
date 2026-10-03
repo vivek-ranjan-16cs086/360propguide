@@ -587,9 +587,7 @@
 @if (!empty($rate) && is_numeric($rate))
     <span class="d-block small text-muted">per sq ft</span>
 @endif
-                                    @if (is_numeric($rate))
-                                    <span class="d-block small text-muted">per sq ft</span>
-                                    @endif
+                                   
                                 </div>
                                 <div class="commercial-price-row__action">
                                     <a href="#floor" class="commercial-position-link" data-floor-index="{{ $floorIndex }}">
