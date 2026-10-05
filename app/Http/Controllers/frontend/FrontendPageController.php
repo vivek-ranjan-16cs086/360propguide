@@ -118,11 +118,22 @@ class FrontendPageController extends Controller
 	}
 
 	// Project Listing Page
+	public function getCommercialListings(Request $request)
+	{
+		// Reuse the standard project listing workflow with the commercial typology
+		// fixed to Shops, while preserving location, keyword, and other filters.
+		$request->attributes->set('commercial_listing', true);
+
+		return $this->getListingsPageData($request);
+	}
 
 	public function getListingsPageData(Request $request)
 	{
 
 		$selected = $this->resolveListingSelection($request);
+		if ($request->attributes->get('commercial_listing')) {
+			$selected['type'] = ['Shops'];
+		}
 		$minPrice = (int) Project::where('status', '1')->min('price');
 		$maxPrice = (int) Project::where('status', '1')->max('price');
 
