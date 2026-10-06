@@ -220,6 +220,12 @@ class FrontendPageController extends Controller
 			$selected['max_price'] = (int) $legacy['budget']['max'];
 		}
 
+		if ($request->ajax()) {
+			$request->merge($selected);
+
+			return $this->getListingsPageData($request);
+		}
+
 		return redirect()->route('projects', $this->listingQueryParams($selected));
 	}
 	public function getThankYouPage()
@@ -232,7 +238,11 @@ class FrontendPageController extends Controller
 	}
 	public function showFilteredProjects(Request $request, $slug)
 	{
-		// dd($request);
+		$path = $request->getPathInfo();
+
+		if (str_ends_with($path, '/')) {
+			abort(404);
+		}
 
 		if (preg_match('/^(\d+-bhk-)?projects-in-(.+)$/', $slug, $matches)) {
 			return redirect('/' . ($matches[1] ?? '') . 'flats-in-' . $matches[2], 301);
@@ -2090,8 +2100,8 @@ You can use this page to discover and compare <strong>{$configurationText}{$prop
     | projects.location_id
     |--------------------------------------------------------------------------
     */
-		if (!empty($selected['location']) && $hasLocationId) {
-			$parentIds = Location::parents()
+		if (!empty($selected['location'])) {
+			$parentIds = $hasLocationId ? Location::parents()
 				->active()
 				->where(function ($q) use ($selected) {
 					foreach ($selected['location'] as $city) {
@@ -2101,9 +2111,17 @@ You can use this page to discover and compare <strong>{$configurationText}{$prop
 						);
 					}
 				})
-				->pluck('id');
+				->pluck('id') : collect();
 
-			$query->whereIn('location_id', $parentIds);
+			$query->where(function ($q) use ($selected, $hasLocationId, $parentIds) {
+				if ($hasLocationId && $parentIds->isNotEmpty()) {
+					$q->whereIn('location_id', $parentIds);
+				}
+
+				foreach ($selected['location'] as $city) {
+					$q->orWhereRaw('LOWER(TRIM(cities)) = ?', [strtolower(trim($city))]);
+				}
+			});
 		}
 
 		/*

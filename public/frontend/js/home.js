@@ -211,6 +211,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
         window.location.href = "/flats-in-" + slug;
         return;
+    }else{
+          slug = slug.replace(slugifyCity(searchLocation), "");
+
+        window.location.href = slug;
+        return;
     }
 }
                 const params = new URLSearchParams();

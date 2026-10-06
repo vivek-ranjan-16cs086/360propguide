@@ -75,7 +75,7 @@
 
 
 @section('customCSS')
-<link rel="stylesheet" href="{{ asset('frontend/css/details.css') }}" />
+<link rel="stylesheet" href="{{ url('frontend/css/project-details.css') }}" />
 @endSection
 @section('content')
 
@@ -587,7 +587,13 @@
 @if (!empty($rate) && is_numeric($rate))
     <span class="d-block small text-muted">per sq ft</span>
 @endif
+<<<<<<< HEAD
                                    
+=======
+                                    {{-- @if (is_numeric($rate))
+                                    <span class="d-block small text-muted">per sq ft</span>
+                                    @endif --}}
+>>>>>>> 4b82bd7ce2bbc82f2403da56a1f3f428077a6b3d
                                 </div>
                                 <div class="commercial-price-row__action">
                                     <a href="#floor" class="commercial-position-link" data-floor-index="{{ $floorIndex }}">
@@ -1229,6 +1235,8 @@
                                     Experience:
                                     <div class="fw-bold text-black">{{ $developer->developer_experience }} +
                                     </div>
+
+                                    
                                 </div>
                             </div>
                             <div class="col-4 col-md-3">
@@ -1915,12 +1923,13 @@ const nextStage =
                 updateScrollSpy();
                 updateTwoStageSidebar();
                 if (navWrapper) {
-                    const overviewEl = document.getElementById('overview');
-                    if (overviewEl) {
+                    const projectInfoEl = document.querySelector('.project-info-card');
+                    if (projectInfoEl) {
                         const currentNavbarHeight = document.getElementById('navbar')
                             ?.offsetHeight || 80;
-                        const rect = overviewEl.getBoundingClientRect();
-                        if (rect.top <= currentNavbarHeight + 1060) {
+                        const stickyNavHeight = navWrapper.offsetHeight || 54;
+                        const rect = projectInfoEl.getBoundingClientRect();
+                        if (rect.top <= currentNavbarHeight + stickyNavHeight) {
                             navWrapper.classList.add('is-visible');
                         } else {
                             navWrapper.classList.remove('is-visible');
