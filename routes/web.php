@@ -63,9 +63,6 @@ Route::get('project', function () {
     return view('frontend.project');
 })->name('frontend.projects');
 
-Route::get('commercial/epic', function () {
-    return view('frontend.commercial-details');
-})->name('commercial.epic');
 
 Route::get('commercial-projects', [FrontendPageController::class, 'getCommercialListings'])
     ->name('projects.commercial.index');

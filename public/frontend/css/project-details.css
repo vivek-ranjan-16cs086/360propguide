@@ -1605,7 +1605,7 @@ display:none;}
 
 .unit-config-table thead th:nth-child(3) {
     width: 27.5%;
-    border-top-right-radius: 10px;
+    /* border-top-right-radius: 10px; */
 }
 
 .unit-config-table tbody tr {
@@ -2015,8 +2015,8 @@ display:none;}
 }
 
 .commercial-price-head {
-    background: #f8fafc;
-    color: #111827;
+    background:var(--blueColor, #1b3f63) !important;
+    color: white !important;
     font-size: .875rem;
     font-weight: 700;
     text-transform: uppercase;
@@ -2069,6 +2069,8 @@ display:none;}
     }
 }
 
+<<<<<<< HEAD:public/frontend/css/details.css
+=======
 /* commerical table css */
 /* Shops project pricing */
 .commercial-price-intro {
@@ -2152,3 +2154,4 @@ display:none;}
 .form-control{ outline: none !important;
     box-shadow: none !important;
     border-color: var(--bs-border-color) !important;}
+>>>>>>> 4b82bd7ce2bbc82f2403da56a1f3f428077a6b3d:public/frontend/css/project-details.css
