@@ -550,7 +550,7 @@
 
 
 
-                                    <div class="col-12 mb-3">
+                                    <div class="col-12 mb-3" style="margin-top: 10px !important;">
                                         <h5>
                                             SEO Section
                                         </h5>
@@ -1290,6 +1290,115 @@ $(document).on('click', '.commercialPlusBtn', function () {
 
                 reIndexCommercialFloorPlans();
             });
+
+            function reindexAllFloorPlans() {
+                $('#residentialFloors .pdfloorPlans, #commercialFloors .commercialFloorPlan').each(function(index) {
+                    $(this).find('input, select, textarea').each(function() {
+                        const name = $(this).attr('name');
+                        if (name) {
+                            $(this).attr('name', name.replace(/floor_plans\[\d+\]/, `floor_plans[${index}]`));
+                        }
+                    });
+                });
+            }
+
+            function addFloorPlanMetadata($row, index, type, areaType) {
+                $row.prepend(`
+                    <input type="hidden" name="floor_plans[${index}][plan_type]" value="${type}">
+                    ${type === 'residential' ? `<input type="hidden" name="floor_plans[${index}][area_type]" value="${areaType}">` : ''}
+                `);
+            }
+
+            function renderProjectFloorPlanGroups() {
+                const areaType = @json($selectedAreaType);
+                const selectedType = @json($selectedProjectType);
+                $('#residentialFloors, #commercialFloors').remove();
+                $('#residentialFloorSectionWrapper').html(`
+                    <div class="mixed-plan-group" data-plan-group="residential" style="margin-top: 15px !important;">
+                        <h5>BHK Plans</h5>
+                        <select name="area_type" id="area_type" class="form-control mt-3">
+                            <option value="apartment" ${areaType === 'apartment' ? 'selected' : ''}>Apartments</option>
+                            <option value="plots" ${areaType === 'plots' ? 'selected' : ''}>Plots</option>
+                        </select>
+                     
+
+                         <div class="d-flex justify-content-between align-items-center mt-3">
+                            <h5 class="mb-0">Residential Floor Plans</h5>
+                            <button type="button" class="btn btn-success plusBtn mt-3"><i class="fa fa-plus"></i> Add Residential Plan</button>
+                        </div>
+                        <div id="residentialFloors" class="row mt-3"></div>
+                    </div>
+                `);
+                $('#commercialFloorSectionWrapper').html(`
+                    <div class="mixed-plan-group" data-plan-group="commercial">
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <h5 class="mb-0">Commercial Floor Plans</h5>
+                            <button type="button" class="btn btn-success commercialPlusBtn"><i class="fa fa-plus"></i> Add Commercial Plan</button>
+                        </div>
+                        <div id="commercialFloors" class="row mt-3"></div>
+                    </div>
+                `);
+
+                const $residential = $(generateFloorPlanFields(areaType, 0));
+                addFloorPlanMetadata($residential, 0, 'residential', areaType);
+                $('#residentialFloors').append($residential);
+                const $commercial = $(generateCommercialFloorFields(1));
+                addFloorPlanMetadata($commercial, 1, 'commercial', areaType);
+                $('#commercialFloors').append($commercial);
+
+                function updateVisibleGroups() {
+                    const category = $('#project_type').val();
+                    $('[data-plan-group="residential"]').toggle(category !== 'commercial');
+                    $('[data-plan-group="commercial"]').toggle(category !== 'residential');
+                    $('#residentialFloors :input').prop('disabled', category === 'commercial');
+                    $('#commercialFloors :input').prop('disabled', category === 'residential');
+                    $('#area_type').prop('disabled', category === 'commercial');
+                }
+
+                $('#project_type').off('change').on('change.floorPlans', updateVisibleGroups);
+                $('#area_type').off('change').on('change.floorPlans', function() {
+                    const newAreaType = $(this).val();
+                    const $rows = $('#residentialFloors .pdfloorPlans');
+                    const previousRows = $rows.length;
+                    $('#residentialFloors').empty();
+                    for (let index = 0; index < Math.max(previousRows, 1); index++) {
+                        const $row = $(generateFloorPlanFields(newAreaType, index));
+                        addFloorPlanMetadata($row, index, 'residential', newAreaType);
+                        $('#residentialFloors').append($row);
+                    }
+                    reindexAllFloorPlans();
+                });
+                updateVisibleGroups();
+            }
+
+            $(document).off('click', '.plusBtn');
+            $(document).off('click', '.commercialPlusBtn');
+            $(document).off('click', '.minusBtn');
+            $(document).off('click', '.commercialMinusBtn');
+            $(document).on('click.floorPlans', '.plusBtn', function() {
+                const index = $('#residentialFloors .pdfloorPlans, #commercialFloors .commercialFloorPlan').length;
+                const areaType = $('#area_type').val() || 'apartment';
+                const $row = $(generateFloorPlanFields(areaType, index));
+                addFloorPlanMetadata($row, index, 'residential', areaType);
+                $('#residentialFloors').append($row);
+                reindexAllFloorPlans();
+            });
+            $(document).on('click.floorPlans', '.commercialPlusBtn', function() {
+                const index = $('#residentialFloors .pdfloorPlans, #commercialFloors .commercialFloorPlan').length;
+                const $row = $(generateCommercialFloorFields(index));
+                addFloorPlanMetadata($row, index, 'commercial', '');
+                $('#commercialFloors').append($row);
+                reindexAllFloorPlans();
+            });
+            $(document).on('click.floorPlans', '.minusBtn', function() {
+                $(this).closest('.pdfloorPlans').remove();
+                reindexAllFloorPlans();
+            });
+            $(document).on('click.floorPlans', '.commercialMinusBtn', function() {
+                $(this).closest('.commercialFloorPlan').remove();
+                reindexAllFloorPlans();
+            });
+            renderProjectFloorPlanGroups();
 
         });
     </script>

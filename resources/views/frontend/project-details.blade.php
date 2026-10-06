@@ -549,7 +549,182 @@
     @endif
 
             </div>-->
-                @if ($isCommercialProject)
+                @if (strtolower((string) $projects->project_type) === 'mixed')
+                @php
+                $mixedFloorPlans = json_decode($projects->floor_plans_data, true) ?? [];
+                $mixedResidentialPlans = collect($mixedFloorPlans)->filter(function ($plan) {
+                    return ($plan['plan_type'] ?? null) === 'residential'
+                        || (!isset($plan['plan_type']) && !isset($plan['floor']) && !isset($plan['format_position_title']));
+                });
+                $mixedCommercialPlans = collect($mixedFloorPlans)->filter(function ($plan) {
+                    return ($plan['plan_type'] ?? null) === 'commercial'
+                        || (!isset($plan['plan_type']) && (isset($plan['floor']) || isset($plan['format_position_title'])));
+                });
+                $mixedSqftPrices = json_decode($projects->sqft_price, true) ?? [];
+                $mixedBsp = (float) ($mixedSqftPrices[0]['value'] ?? 0);
+                $mixedMinimumPrice = (float) ($projects->price ?? 0);
+                if (!$mixedMinimumPrice && $mixedBsp) {
+                    $mixedPlanPrices = $mixedResidentialPlans->map(function ($plan) use ($mixedBsp) {
+                        return !empty($plan['super_area']) ? (float) $plan['super_area'] * $mixedBsp : null;
+                    })->filter();
+                    $mixedMinimumPrice = $mixedPlanPrices->min() ?? 0;
+                }
+                @endphp
+                @if (request()->path() != 'projects/prestige-bougainvillea-gardens')
+                <div class="price section project-section" id="price">
+                    <div class="project-details-card mb-4">
+                        <h3 class="h4 mb-4 fw-bold text-dark">{{ $projects->project_name }} <span class="text-primary">Pricing &amp; Plans</span></h3>
+
+                        <section class="mb-4" aria-labelledby="mixed-residential-heading">
+                            <h4 id="mixed-residential-heading" class="h5 fw-bold mb-3">Residential Plans</h4>
+                            <div class="unit-table-container d-none d-md-block mb-4"
+                                style="overflow-x: auto; border-radius: 8px; border: 1px solid #e2e8f0;">
+                                <table class="unit-config-table mb-0 w-100">
+                                    <thead>
+                                        <tr>
+                                            <th style="min-width: 180px;">Unit Configuration</th>
+                                            <th style="min-width: 130px;">Area (sq.ft)</th>
+                                            <th style="min-width: 150px;">Starting Price</th>
+                                            <th style="min-width: 120px; text-align: right;">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse ($mixedResidentialPlans as $index => $plan)
+                                        @php
+                                        $planTitle = $plan['title'] ?? 'Configuration ' . ($index + 1);
+                                        $planAreaValue = (float) ($plan['super_area'] ?? $plan['carpet_area'] ?? 0);
+                                        $planArea = $planAreaValue ? $planAreaValue . ' sq.ft' : '—';
+                                        if (!empty($plan['price'])) {
+                                            $planPrice = $plan['price'];
+                                        } elseif ($mixedBsp && !empty($plan['super_area'])) {
+                                            $planPrice = '₹' . number_format(($plan['super_area'] * $mixedBsp) / 10000000, 2) . ' Cr';
+                                        } elseif ($mixedMinimumPrice) {
+                                            $planPrice = '₹' . formatPrice($mixedMinimumPrice) . ' Onwards*';
+                                        } else {
+                                            $planPrice = '—';
+                                        }
+                                        $badgeColors = ['badge-blue', 'badge-purple', 'badge-green', 'badge-amber'];
+                                        $badgeClass = $badgeColors[$index % count($badgeColors)];
+                                        @endphp
+                                        <tr class="floor-btn clickable-row {{ $loop->first ? 'active' : '' }}"
+                                            data-plan-index="{{ $index }}"
+                                            data-super-area="{{ $plan['super_area'] ?? 0 }}"
+                                            data-plan-price="{{ $planPrice }}">
+                                            <td><span class="unit-type-badge {{ $badgeClass }}">{{ $planTitle }}</span></td>
+                                            <td class="fw-semibold text-dark">{{ $planArea }}</td>
+                                            <td class="price-text-bold text-primary">{{ $projects->id == 268 ? '-' : $planPrice }}</td>
+                                            <td class="text-end text-nowrap">
+                                                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1 fw-semibold fs-13"
+                                                    data-bs-toggle="modal" data-bs-target="#quoteModal">Get Quote</button>
+                                            </td>
+                                        </tr>
+                                        @empty
+                                        <tr><td colspan="4" class="text-muted">Residential plan details will be available on request.</td></tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="mobile-unit-list d-md-none mb-4">
+                                @forelse ($mixedResidentialPlans as $index => $plan)
+                                @php
+                                $planTitle = $plan['title'] ?? 'Configuration ' . ($index + 1);
+                                $planAreaValue = (float) ($plan['super_area'] ?? $plan['carpet_area'] ?? 0);
+                                $planArea = $planAreaValue ? $planAreaValue . ' sq.ft' : '—';
+                                if (!empty($plan['price'])) {
+                                    $planPrice = $plan['price'];
+                                } elseif ($mixedBsp && !empty($plan['super_area'])) {
+                                    $planPrice = '₹' . number_format(($plan['super_area'] * $mixedBsp) / 10000000, 2) . ' Cr';
+                                } elseif ($mixedMinimumPrice) {
+                                    $planPrice = '₹' . formatPrice($mixedMinimumPrice) . ' Onwards*';
+                                } else {
+                                    $planPrice = '—';
+                                }
+                                $badgeClass = $badgeColors[$index % count($badgeColors)];
+                                @endphp
+                                <div class="mobile-unit-card floor-btn clickable-row {{ $loop->first ? 'active' : '' }}"
+                                    data-plan-index="{{ $index }}"
+                                    data-super-area="{{ $plan['super_area'] ?? 0 }}"
+                                    data-plan-price="{{ $planPrice }}">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="unit-type-badge {{ $badgeClass }}">{{ $planTitle }}</span>
+                                        <span class="price-text-bold text-primary">{{ $planPrice }}</span>
+                                    </div>
+                                    <div class="card-row-item d-flex justify-content-between align-items-center py-2 border-bottom border-light">
+                                        <span class="item-label text-muted fs-13">Area</span>
+                                        <span class="item-value fw-semibold text-dark fs-13">{{ $planArea }}</span>
+                                    </div>
+                                    <div class="mt-3 text-end">
+                                        <button type="button" class="btn btn-sm btn-primary w-100 rounded-2 py-2 fw-semibold fs-13"
+                                            data-bs-toggle="modal" data-bs-target="#contactModal">Get Exact Quote</button>
+                                    </div>
+                                </div>
+                                @empty
+                                <p class="text-muted">Residential plan details will be available on request.</p>
+                                @endforelse
+                            </div>
+                            <p class="unit-disclaimer mb-4 fs-12 text-muted fst-italic">
+                                * Indicative prices. Final rates subject to floor, facing &amp; payment plan. Contact sales for exact quote.
+                            </p>
+                        </section>
+
+                        <section class="mb-4" aria-labelledby="mixed-commercial-heading">
+                            <h4 id="mixed-commercial-heading" class="h5 fw-bold mb-3">Commercial Plans</h4>
+                            <div class="commercial-price-table">
+                                <div class="commercial-price-head p-3">
+                                    <span>Floor</span><span>Format &amp; Position</span><span>Rate / Sq Ft</span><span>Explore</span>
+                                </div>
+                                @forelse ($mixedCommercialPlans as $floorIndex => $plan)
+                                @php
+                                $floor = $plan['floor'] ?? '—';
+                                $format = $plan['format_position_title'] ?? $plan['floor_sub_label'] ?? '—';
+                                $rate = $plan['rate_sq_ft'] ?? null;
+                                @endphp
+                                <div class="commercial-price-row p-3 p-lg-4">
+                                    <strong class="text-dark">{{ $floor }}</strong>
+                                    <strong class="commercial-price-row__format text-dark">{{ $format }}</strong>
+                                    <div>
+                                        <strong class="commercial-price-rate fs-5">
+                                            {{ !empty($rate) ? (is_numeric($rate) ? '₹' . number_format((float) $rate) : $rate) : '—' }}
+                                        </strong>
+                                        @if (!empty($rate) && is_numeric($rate))
+                                        <span class="d-block small text-muted">per sq ft</span>
+                                        @endif
+                                    </div>
+                                    <div class="commercial-price-row__action">
+                                        <a href="#floor" class="commercial-position-link" data-floor-index="{{ $floorIndex }}">
+                                            View position <span aria-hidden="true">&#8599;</span>
+                                        </a>
+                                        <button type="button" class="btn customBtn rounded-3 px-3 py-2 fw-semibold"
+                                            data-bs-toggle="modal" data-bs-target="#contactModal">Ask about this floor</button>
+                                    </div>
+                                </div>
+                                @empty
+                                <div class="commercial-price-row p-3 p-lg-4">
+                                    <span class="text-muted">Commercial plan details will be available on request.</span>
+                                </div>
+                                @endforelse
+                            </div>
+                        </section>
+
+                        <div class="row g-3 pt-3 border-top">
+                            <div class="col-6">
+                                <div class="stat-highlight-box p-3 rounded-3 border bg-light h-100">
+                                    <div class="stat-label mb-1 text-muted fs-12">BSP</div>
+                                    <div class="stat-value text-primary fw-bold fs-5">{{ $mixedBsp ? '₹' . number_format($mixedBsp) . ' / sq.ft' : 'On request' }}</div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="stat-highlight-box p-3 rounded-3 border bg-light h-100">
+                                    <div class="stat-label mb-1 text-muted fs-12">Minimum Price</div>
+                                    <div class="stat-value text-dark fw-bold fs-5">{{ $mixedMinimumPrice ? '₹' . formatPrice($mixedMinimumPrice) . ' Onwards*' : 'On request' }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @endif
+                @elseif ($isCommercialProject)
                 <div class="price section project-section" id="price">
                     <div class="project-details-card mb-4">
                         <div class="commercial-price-intro pb-4 mb-4">
@@ -587,13 +762,6 @@
 @if (!empty($rate) && is_numeric($rate))
     <span class="d-block small text-muted">per sq ft</span>
 @endif
-<<<<<<< HEAD
-                                   
-=======
-                                    {{-- @if (is_numeric($rate))
-                                    <span class="d-block small text-muted">per sq ft</span>
-                                    @endif --}}
->>>>>>> 4b82bd7ce2bbc82f2403da56a1f3f428077a6b3d
                                 </div>
                                 <div class="commercial-price-row__action">
                                     <a href="#floor" class="commercial-position-link" data-floor-index="{{ $floorIndex }}">
@@ -1037,10 +1205,25 @@
                                     @endphp
                                     @if (!empty($floorPlans) && count($floorPlans) > 0)
                                     @foreach ($floorPlans as $index => $floorPlan)
+                                    @php
+                                    $floorPlanLabel = $floorPlan->floor
+                                        ?? $floorPlan->title
+                                        ?? $floorPlan->format_position_title
+                                        ?? ('Floor Plan ' . ($index + 1));
+                                    $floorPlanDetails = collect([
+                                        $floorPlan->floor_sub_label ?? null,
+                                        $floorPlan->format_position_title ?? null,
+                                        !empty($floorPlan->super_area) ? $floorPlan->super_area . ' sq.ft' : null,
+                                        !empty($floorPlan->total_area) ? $floorPlan->total_area . ' sq. yds' : null,
+                                    ])->filter()->unique()->implode(' · ');
+                                    @endphp
                                     <div class="swiper-slide">
                                         <div class="floorSelect">
                                             <div class="card text-center p-2 px-4 text-primary">
-                                                {{-- {{ $floorPlan->title }} --}}
+                                                <strong class="text-dark">{{ $floorPlanLabel }}</strong>
+                                                {{-- @if ($floorPlanDetails)
+                                                <small class="d-block text-muted mt-1">{{ $floorPlanDetails }}</small>
+                                                @endif --}}
                                             </div>
                                         </div>
                                     </div>

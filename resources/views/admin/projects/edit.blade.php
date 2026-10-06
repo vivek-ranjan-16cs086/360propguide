@@ -1332,6 +1332,134 @@ $(document).on('click', '.commercialPlusBtn', function () {
 
 });
 
+    const savedFloorPlans = @json(json_decode($projects->floor_plans_data ?? '[]', true) ?? []);
+    let editAreaType = @json(old('area_type', $projects->area_type ?? 'apartment'));
+
+    function editFloorPlanType(plan) {
+        if (plan.plan_type === 'commercial' || plan.plan_type === 'residential') return plan.plan_type;
+        return plan.floor !== undefined || plan.format_position_title !== undefined ? 'commercial' : 'residential';
+    }
+
+    function reindexEditFloorPlans() {
+        $('#residentialFloors .pdfloorPlans, #commercialFloors .commercialFloorPlan').each(function(index) {
+            $(this).find('input, select, textarea').each(function() {
+                const name = $(this).attr('name');
+                if (name) $(this).attr('name', name.replace(/floor_plans\[\d+\]/, `floor_plans[${index}]`));
+            });
+        });
+    }
+
+    function appendEditPlanMetadata($row, index, planType, areaType, originalIndex) {
+        const originalValue = originalIndex === null ? '' : originalIndex;
+        $row.prepend(`
+            <input type="hidden" name="floor_plans[${index}][plan_type]" value="${planType}">
+            <input type="hidden" name="floor_plans[${index}][original_index]" value="${originalValue}">
+            ${planType === 'residential' ? `<input type="hidden" name="floor_plans[${index}][area_type]" value="${areaType}">` : ''}
+        `);
+    }
+
+    function renderEditFloorPlans() {
+        const category = $('#project_type').val();
+        const showResidential = category !== 'commercial';
+        const showCommercial = category !== 'residential';
+        const residentialPlans = [];
+        const commercialPlans = [];
+
+        savedFloorPlans.forEach(function(plan, originalIndex) {
+            (editFloorPlanType(plan) === 'commercial' ? commercialPlans : residentialPlans)
+                .push({ plan: plan, originalIndex: originalIndex });
+        });
+
+        $('#residentialFloorSectionWrapper').html(showResidential ? `
+            <div id="residentialFloorSection"><h5>BHK Plans</h5>
+                <select name="area_type" id="area_type" class="form-control mt-3">
+                    <option value="apartment" ${editAreaType === 'apartment' ? 'selected' : ''}>Apartments</option>
+                    <option value="plots" ${editAreaType === 'plots' ? 'selected' : ''}>Plots</option>
+                </select>
+            </div>` : '');
+        $('#floorPlanButtonWrapper').html(showResidential ? `
+            <h5>&nbsp;</h5><button type="button" class="btn btn-success plusBtn"><i class="fa fa-plus"></i> Add Residential Plan</button>` : '');
+        $('#floorPlansWrapper').html(`
+            ${showResidential ? '<div id="residentialFloors" class="floors row mb-3"></div>' : ''}
+            ${showCommercial ? '<div class="commercialPlanGroup"><div class="d-flex justify-content-between align-items-center"><h5>Commercial Floor Plans</h5><button type="button" class="btn btn-success commercialPlusBtn"><i class="fa fa-plus"></i> Add Commercial Plan</button></div><div id="commercialFloors" class="row mb-3"></div></div>' : ''}`);
+
+        let nextIndex = 0;
+        if (showResidential) {
+            if (!residentialPlans.length) residentialPlans.push({ plan: {}, originalIndex: null });
+            residentialPlans.forEach(function(item) {
+                const areaType = item.plan.area_type ||
+                    (item.plan.length !== undefined || item.plan.width !== undefined ? 'plots' : editAreaType);
+                const $row = $(generateFloorPlanFields(areaType, nextIndex));
+                appendEditPlanMetadata($row, nextIndex, 'residential', areaType, item.originalIndex);
+                $('#residentialFloors').append($row);
+                Object.keys(item.plan).forEach(function(key) {
+                    if (!['image', 'feature_image', 'plan_type', 'area_type'].includes(key)) {
+                        $row.find(`[name="floor_plans[${nextIndex}][${key}]"]`).val(item.plan[key] ?? '');
+                    }
+                });
+                nextIndex++;
+            });
+        }
+        if (showCommercial) {
+            if (!commercialPlans.length) commercialPlans.push({ plan: {}, originalIndex: null });
+            commercialPlans.forEach(function(item) {
+                const $row = $(generateCommercialFloorFields(nextIndex, item.plan));
+                appendEditPlanMetadata($row, nextIndex, 'commercial', '', item.originalIndex);
+                $('#commercialFloors').append($row);
+                nextIndex++;
+            });
+        }
+        reindexEditFloorPlans();
+    }
+
+    $(document).off('change', '#project_type');
+    $(document).off('change', '#area_type');
+    $(document).off('click', '.plusBtn');
+    $(document).off('click', '.commercialPlusBtn');
+    $(document).off('click', '.minusBtn');
+    $(document).off('click', '.commercialMinusBtn');
+    $(document).on('change', '#project_type', renderEditFloorPlans);
+    $(document).on('change', '#area_type', function() {
+        editAreaType = $(this).val();
+        const rows = $('#residentialFloors .pdfloorPlans').map(function() {
+            return {
+                title: $(this).find('[name$="[title]"]').val(),
+                originalIndex: $(this).find('[name$="[original_index]"]').val()
+            };
+        }).get();
+        $('#residentialFloors').empty();
+        rows.forEach(function(item, index) {
+            const $row = $(generateFloorPlanFields(editAreaType, index));
+            appendEditPlanMetadata($row, index, 'residential', editAreaType, item.originalIndex === '' ? null : item.originalIndex);
+            $row.find('[name$="[title]"]').val(item.title);
+            $('#residentialFloors').append($row);
+        });
+        reindexEditFloorPlans();
+    });
+    $(document).on('click', '.plusBtn', function() {
+        const index = $('#residentialFloors .pdfloorPlans, #commercialFloors .commercialFloorPlan').length;
+        const $row = $(generateFloorPlanFields(editAreaType, index));
+        appendEditPlanMetadata($row, index, 'residential', editAreaType, null);
+        $('#residentialFloors').append($row);
+        reindexEditFloorPlans();
+    });
+    $(document).on('click', '.commercialPlusBtn', function() {
+        const index = $('#residentialFloors .pdfloorPlans, #commercialFloors .commercialFloorPlan').length;
+        const $row = $(generateCommercialFloorFields(index));
+        appendEditPlanMetadata($row, index, 'commercial', '', null);
+        $('#commercialFloors').append($row);
+        reindexEditFloorPlans();
+    });
+    $(document).on('click', '.minusBtn', function() {
+        $(this).closest('.pdfloorPlans').remove();
+        reindexEditFloorPlans();
+    });
+    $(document).on('click', '.commercialMinusBtn', function() {
+        $(this).closest('.commercialFloorPlan').remove();
+        reindexEditFloorPlans();
+    });
+    $(document).ready(renderEditFloorPlans);
+
     function previewImage(input, previewId) {
         if (input.files && input.files[0]) {
             var reader = new FileReader();

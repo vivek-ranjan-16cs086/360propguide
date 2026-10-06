@@ -1605,7 +1605,7 @@ display:none;}
 
 .unit-config-table thead th:nth-child(3) {
     width: 27.5%;
-    border-top-right-radius: 10px;
+    /* border-top-right-radius: 10px; */
 }
 
 .unit-config-table tbody tr {
@@ -2015,8 +2015,8 @@ display:none;}
 }
 
 .commercial-price-head {
-    background: #f8fafc;
-    color: #111827;
+    background:var(--blueColor, #1b3f63) !important;
+    color: white !important;
     font-size: .875rem;
     font-weight: 700;
     text-transform: uppercase;

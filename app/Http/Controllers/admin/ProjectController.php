@@ -213,8 +213,8 @@ $status = "<a href=\"javascript:void(0)\"
             ]);
         
         
+        $floorPlans = [];
         if (!empty($request->floor_plans) && is_array($request->floor_plans)) {
-            $floorPlans = [];
 
             foreach ($request->floor_plans as $currentFloorPlan) {
                 $processedPlan = [];
@@ -237,9 +237,8 @@ $status = "<a href=\"javascript:void(0)\"
             }
 
             // Save the JSON-encoded floor plans data to the database
-            $floorPlanData = json_encode($floorPlans);
-
         }
+        $floorPlanData = json_encode($floorPlans);
 
         //Store the FAQs of projects
         $faqData = [];
@@ -718,12 +717,10 @@ public function update(Request $request)
         ) ?? [];
 
         $newFloorData = [];
+        $retainedFloorImages = [];
 
         $requestFloorPlans =
-            $request->input(
-                'floor_plans',
-                []
-            );
+            $request->all()['floor_plans'] ?? [];
 
 
         foreach (
@@ -732,6 +729,11 @@ public function update(Request $request)
         ) {
 
             $tempPlan = [];
+            $originalIndex = $floorPlan['original_index'] ?? $index;
+            $originalIndex = filter_var($originalIndex, FILTER_VALIDATE_INT);
+            $existingPlan = $originalIndex !== false && isset($oldFloorData[$originalIndex])
+                ? $oldFloorData[$originalIndex]
+                : [];
 
 
             foreach (
@@ -752,19 +754,6 @@ public function update(Request $request)
                         $value->isValid()
                     ) {
 
-                        // Remove old image
-                        if (
-                            !empty(
-                                $oldFloorData[$index]['image']
-                            )
-                        ) {
-
-                            removeFile(
-                                $oldFloorData[$index]['image']
-                            );
-                        }
-
-
                         // Upload new image
                         $tempPlan['image'] =
                             uploadFile(
@@ -778,7 +767,7 @@ public function update(Request $request)
                             );
                     }
 
-                } else {
+                } elseif ($key !== 'original_index') {
 
                     // -----------------------------------------
                     // NORMAL FLOOR PLAN DATA
@@ -796,13 +785,11 @@ public function update(Request $request)
 
             if (
                 !isset($tempPlan['image']) &&
-                !empty(
-                    $oldFloorData[$index]['image']
-                )
+                    !empty($existingPlan['image'])
             ) {
 
                 $tempPlan['image'] =
-                    $oldFloorData[$index]['image'];
+                    $existingPlan['image'];
             }
 
 
@@ -812,6 +799,10 @@ public function update(Request $request)
 
             $tempPlan['image'] =
                 $tempPlan['image'] ?? null;
+
+            if ($tempPlan['image']) {
+                $retainedFloorImages[] = $tempPlan['image'];
+            }
 
 
             // ---------------------------------------------
@@ -826,27 +817,12 @@ public function update(Request $request)
         // REMOVE OLD DELETED FLOOR PLAN IMAGES
         // =====================================================
 
-        if (
-            count($oldFloorData) >
-            count($requestFloorPlans)
-        ) {
-
-            for (
-                $i = count($requestFloorPlans);
-                $i < count($oldFloorData);
-                $i++
+        foreach ($oldFloorData as $oldPlan) {
+            if (
+                !empty($oldPlan['image']) &&
+                !in_array($oldPlan['image'], $retainedFloorImages, true)
             ) {
-
-                if (
-                    !empty(
-                        $oldFloorData[$i]['image']
-                    )
-                ) {
-
-                    removeFile(
-                        $oldFloorData[$i]['image']
-                    );
-                }
+                removeFile($oldPlan['image']);
             }
         }
 
