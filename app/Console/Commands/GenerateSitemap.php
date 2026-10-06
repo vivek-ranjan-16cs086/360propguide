@@ -23,6 +23,7 @@ class GenerateSitemap extends Command
             '/',
             '/about-us',
             '/projects',
+            '/commercial-projects',
             '/blogs',
             '/properties',
             '/careers',

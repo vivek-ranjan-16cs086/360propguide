@@ -124,10 +124,13 @@ class FrontendPageController extends Controller
 		// fixed to Shops, while preserving location, keyword, and other filters.
 		$request->attributes->set('commercial_listing', true);
 
-		return $this->getListingsPageData($request);
+		return $this->getListingsPageData($request, [
+			'title' => 'Best Commercial Projects in Noida for Investment 2026',
+			'description' => 'Explore the best commercial projects in Noida for investment. Compare shops, office spaces and retail projects with prices, rental returns and top locations.',
+		]);
 	}
 
-	public function getListingsPageData(Request $request)
+	public function getListingsPageData(Request $request, array $seoData = [])
 	{
 
 		$selected = $this->resolveListingSelection($request);
@@ -176,6 +179,11 @@ class FrontendPageController extends Controller
 
 		$schema = '<script type="application/ld+json">' . json_encode($itemList, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . '</script>';
 		$filters = [];
+		$title = $seoData['title'] ?? null;
+		$description = $seoData['description'] ?? null;
+		$dynamicTitle = $request->attributes->get('commercial_listing')
+			? 'Commercial Projects in Delhi NCR'
+			: null;
 
 		return view('frontend.listing', compact(
 			'projects',
@@ -187,7 +195,10 @@ class FrontendPageController extends Controller
 			'locality',
 			'localityCityMap',
 			'selected',
-			'filters'
+			'filters',
+			'title',
+			'description',
+			'dynamicTitle'
 		));
 	}
 
