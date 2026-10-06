@@ -222,7 +222,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     params.set("keyword", keyword);
                 }
                 if (mode === "commercial") {
-                    params.append("type[]", "Shops");
+                    const query = params.toString();
+                    window.location.href = "/commercial-projects/" + (query ? "?" + query : "");
+                    return;
                 }
 
                 const query = params.toString();
