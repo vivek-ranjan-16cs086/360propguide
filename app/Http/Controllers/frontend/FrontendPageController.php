@@ -262,7 +262,7 @@ class FrontendPageController extends Controller
 	{
 		$path = $request->getPathInfo();
 
-		if (str_ends_with($path, '/')) {
+		if (str_ends_with($path, '//')) {
 			abort(404);
 		}
 
@@ -968,7 +968,7 @@ You can use this page to discover and compare <strong>{$configurationText}{$prop
 		$project = Project::where('slug', $slug)->where('status', '1')->firstOrFail();
 		$typologies = json_decode($project->typology, true);
 		$typologies = is_array($typologies) ? $typologies : explode(',', (string) $project->typology);
-		$isShopsProject = collect($typologies)->contains(fn ($typology) => strcasecmp(trim((string) $typology), 'Shops') === 0);
+		$isShopsProject = collect($typologies)->contains(fn($typology) => strcasecmp(trim((string) $typology), 'Shops') === 0);
 		$isCommercialProject = strtolower(trim((string) $project->project_type)) === 'commercial' || $isShopsProject;
 
 		abort_unless($isCommercialProject, 404);
@@ -985,7 +985,7 @@ You can use this page to discover and compare <strong>{$configurationText}{$prop
 
 		$typologies = json_decode($projects->typology, true);
 		$typologies = is_array($typologies) ? $typologies : explode(',', (string) $projects->typology);
-		$isShopsProject = collect($typologies)->contains(fn ($typology) => strcasecmp(trim((string) $typology), 'Shops') === 0);
+		$isShopsProject = collect($typologies)->contains(fn($typology) => strcasecmp(trim((string) $typology), 'Shops') === 0);
 		$isCommercialProject = strtolower(trim((string) $projects->project_type)) === 'commercial' || $isShopsProject;
 
 		if ($redirectCommercial && $isCommercialProject) {
