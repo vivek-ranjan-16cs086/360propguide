@@ -263,7 +263,7 @@ class FrontendPageController extends Controller
 	{
 		$path = $request->getPathInfo();
 
-		if (str_ends_with($path, '/')) {
+		if (str_ends_with($path, '//')) {
 			abort(404);
 		}
 
