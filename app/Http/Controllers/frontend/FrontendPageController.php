@@ -45,19 +45,20 @@ class FrontendPageController extends Controller
 		$feeds = data_get($this->facebookPostData(), 'feed', []);
 
 		//Youtube video Api
-		$videos = YouTubeVideo::orderBy('published_time', 'DESC')->take(30)->get();
+		$videos = YouTubeVideo::orderBy('published_time', 'DESC')->get();
 
 		// helper: ISO 8601 duration ko total seconds me convert karo
 		$toSeconds = function ($duration) {
-			preg_match('/PT(?:(\d+)M)?(?:(\d+)S)?/', $duration, $matches);
-			$minutes = isset($matches[1]) ? intval($matches[1]) : 0;
-			$seconds = isset($matches[2]) ? intval($matches[2]) : 0;
-			return ($minutes * 60) + $seconds;
+			preg_match('/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/', $duration, $matches);
+			$hours = isset($matches[1]) ? intval($matches[1]) : 0;
+			$minutes = isset($matches[2]) ? intval($matches[2]) : 0;
+			$seconds = isset($matches[3]) ? intval($matches[3]) : 0;
+			return ($hours * 3600) + ($minutes * 60) + $seconds;
 		};
 
-		// Long videos: > 2 minutes (120 seconds)
+		// Regular videos: > 60 seconds
 		$filteredVideos = $videos->filter(function ($video) use ($toSeconds) {
-			return $toSeconds($video->duration) > 120;
+			return $toSeconds($video->duration) > 60;
 		})->take(6);
 
 		// Shorts: <= 60 seconds
@@ -963,34 +964,50 @@ You can use this page to discover and compare <strong>{$configurationText}{$prop
 
 
 
+	private function projectTypologies(Project $project): array
+	{
+		$typologies = json_decode($project->typology, true);
+
+		return is_array($typologies) ? $typologies : explode(',', (string) $project->typology);
+	}
+
+	private function isCommercialProject(Project $project, array $typologies): bool
+	{
+		$isShopsProject = collect($typologies)->contains(
+			fn ($typology) => strcasecmp(trim((string) $typology), 'Shops') === 0
+		);
+
+		return strtolower(trim((string) $project->project_type)) === 'commercial' || $isShopsProject;
+	}
+
 	public function getCommercialProjectDetails($slug)
 	{
 		$project = Project::where('slug', $slug)->where('status', '1')->firstOrFail();
-		$typologies = json_decode($project->typology, true);
-		$typologies = is_array($typologies) ? $typologies : explode(',', (string) $project->typology);
-		$isShopsProject = collect($typologies)->contains(fn ($typology) => strcasecmp(trim((string) $typology), 'Shops') === 0);
-		$isCommercialProject = strtolower(trim((string) $project->project_type)) === 'commercial' || $isShopsProject;
-
+		$typologies = $this->projectTypologies($project);
+		$isCommercialProject = $this->isCommercialProject($project, $typologies);
 		abort_unless($isCommercialProject, 404);
 
-		return $this->getProjectDetails($project->slug, false);
+		return $this->renderProjectDetails($project, $typologies, $isCommercialProject);
 	}
 
-	public function getProjectDetails($slug, $redirectCommercial = true)
+	public function getProjectDetails($slug)
 	{
 		// projects
 		$projects = Project::where('slug', $slug)
 			->where('status', '1')
 			->firstOrFail();
 
-		$typologies = json_decode($projects->typology, true);
-		$typologies = is_array($typologies) ? $typologies : explode(',', (string) $projects->typology);
-		$isShopsProject = collect($typologies)->contains(fn ($typology) => strcasecmp(trim((string) $typology), 'Shops') === 0);
-		$isCommercialProject = strtolower(trim((string) $projects->project_type)) === 'commercial' || $isShopsProject;
-
-		if ($redirectCommercial && $isCommercialProject) {
+		$typologies = $this->projectTypologies($projects);
+		$isCommercialProject = $this->isCommercialProject($projects, $typologies);
+		if ($isCommercialProject) {
 			return redirect()->route('projects.commercial', ['slug' => $projects->slug], 301);
 		}
+
+		return $this->renderProjectDetails($projects, $typologies, $isCommercialProject);
+	}
+
+	private function renderProjectDetails(Project $projects, array $typologies, bool $isCommercialProject)
+	{
 
 		$projects->typology_string = is_array($typologies)
 			? implode(', ', $typologies)
