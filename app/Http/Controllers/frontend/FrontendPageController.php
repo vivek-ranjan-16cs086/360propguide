@@ -292,8 +292,11 @@ class FrontendPageController extends Controller
 		$keywords = $link->keywords ?? null;
 		$linkType = $link->type ?? null;
 
-		// Handle property custom links
-		if ($linkType === 'property') {
+		// Handle property custom links, including links without a stored custom-link row.
+		if (
+			$linkType === 'property'
+			|| preg_match('/^(apartments-in-|plots-in-|sale-properties-in-|rent-properties-in-|\d+-bhk-apartments?-in-)/i', $slug)
+		) {
 			return $this->handlePropertyCustomLink($slug, $link, $title, $name, $description, $keywords);
 		}
 
@@ -1896,7 +1899,7 @@ You can use this page to discover and compare <strong>{$configurationText}{$prop
 	/**
 	 * Handle property custom links
 	 */
-	private function handlePropertyCustomLink($slug, $link, $title, $name, $description, $keywords)
+	private function handlePropertyCustomLink($slug, ?CustomLink $link, $title, $name, $description, $keywords)
 	{
 		$slug = strtolower(trim((string) $slug, '/'));
 		$propertyType = null;
@@ -1989,8 +1992,8 @@ You can use this page to discover and compare <strong>{$configurationText}{$prop
 			->values()
 			->all();
 
-		$links_description = $link->links_description ?? null;
-		$dynamicTitle = $name ?: $title;
+		$links_description = $link?->links_description;
+		$dynamicTitle = $name ?: $title ?: ucwords(str_replace('-', ' ', $slug));
 		$totalResults = $properties->total();
 
 		return view('frontend.property-listing', compact(
