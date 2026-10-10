@@ -71,7 +71,7 @@
                 <div class="property-type" id="propertyTypeFilter">
                     <input onchange="updatePropertyType()" type="checkbox" class="property-filter" id="apartment" value="apartment">
                     <label for="apartment" class="property-btn">Apartments</label>
-                    <input onchange="updatePropertyType()" type="checkbox" class="property-filter" id="plot" value="Plot">
+                    <input onchange="updatePropertyType()" type="checkbox" class="property-filter" id="plot" value="plots">
                     <label for="plot" class="property-btn">Plots</label>
                 </div>
             </div>

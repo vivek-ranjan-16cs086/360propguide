@@ -7,9 +7,11 @@ use Illuminate\Support\Facades\View;
 use App\Models\Project;
 use App\Models\Location;
 use App\Models\Developer;
+use App\Models\Property;
 use App\Observers\LocationObserver;
 use App\Observers\DeveloperObserver;
 use App\Observers\ProjectObserver; 
+use App\Observers\PropertyObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -29,6 +31,7 @@ class AppServiceProvider extends ServiceProvider
         Location::observe(LocationObserver::class);
         Developer::observe(DeveloperObserver::class);
         Project::observe(ProjectObserver::class);
+        Property::observe(PropertyObserver::class);
 
         View::composer('frontend.layouts.app', function ($view) {
 			$service = app(\App\Services\ProjectLinksService::class);

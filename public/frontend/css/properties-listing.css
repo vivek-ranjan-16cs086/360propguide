@@ -1,5 +1,5 @@
 /* properties-v2.css — load AFTER listing.css & properties-listing.css. Everything is scoped under .pl */
-.pl{--ink:#0b1b2e;--ink2:#41536b;--brand:#41536b;;--brand-soft:#e8efff;--line:#e4e9f1;--bg:#f4f6fa;--green:#12a150;--green-soft:#e3f6ea;--amber:#b86e00;--amber-soft:#fff3dc;--r:18px;--ease:cubic-bezier(.2,.7,.2,1);
+.pl{--ink:#0b1b2e;--ink2:#41536b;--brand:hwb(214 25% 58%);--brand-soft:#e8efff;--line:#e4e9f1;--bg:#f4f6fa;--green:#12a150;--green-soft:#e3f6ea;--amber:#b86e00;--amber-soft:#fff3dc;--r:18px;--ease:cubic-bezier(.2,.7,.2,1);
   font-family:'Plus Jakarta Sans',system-ui,-apple-system,'Segoe UI',sans-serif;background:var(--bg);color:var(--ink);padding-bottom:48px}
 .pl *{box-sizing:border-box}
 .pl a{text-decoration:none;color:inherit}
@@ -31,8 +31,7 @@
 @keyframes plPop{from{transform:scale(.6);opacity:0}to{transform:none;opacity:1}}
 
 /* ---------- Sidebar ---------- */
-.pl .filters-sidebar{position:sticky;top:80px;background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:14px;max-height:calc(100vh - 100px);overflow-y:auto;scrollbar-width:none}
-.pl .filters-sidebar::-webkit-scrollbar{display:none}
+.pl .filters-sidebar{position:sticky;top:80px;background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:14px}
 .pl input[type=checkbox],#mobileFilter input[type=checkbox]{accent-color:var(--brand)}
 #mobileFilter{border-radius:0 var(--r) var(--r) 0}
 
@@ -194,7 +193,7 @@
 }
 
 /* ===== v5: flat, portal-style look (pichle sab rules ko override karta hai) ===== */
-.pl{--ink:#1c2630;--ink2:#5d6975;--brand:#1a56c4;--brand-soft:#eef3fc;--line:#e1e5ea;--bg:#f4f5f7;--green:#17803f;--green-soft:#e8f5ec;--amber:#a65f00;--amber-soft:#fdf3e1;--r:8px;font-family:inherit;padding-bottom:40px}
+.pl{--ink:#1c2630;--ink2:#5d6975;--brand:hwb(214 25% 58%);--brand-soft:#eef3fc;--line:#e1e5ea;--bg:#f4f5f7;--green:#17803f;--green-soft:#e8f5ec;--amber:#a65f00;--amber-soft:#fdf3e1;--r:8px;font-family:inherit;padding-bottom:40px}
 .pl-hero{background:#fff;color:var(--ink);padding:16px 0;border-bottom:1px solid var(--line)}
 .pl-hero::after{display:none}
 .pl-count{background:none;padding:0;color:var(--ink2);font-weight:500;font-size:.9rem}
@@ -210,7 +209,7 @@
 .pl-chip:hover{transform:none;color:var(--brand);border-color:transparent}
 .pl-chip.is-on{background:none;color:var(--ink);border-bottom-color:var(--brand)}
 .pl-saved{border-radius:6px;background:#fdecef}
-.pl .filters-sidebar{position:static;max-height:none;overflow:visible;border-radius:8px;box-shadow:none}
+.pl .filters-sidebar{border-radius:8px;box-shadow:none}
 .pl-about{border-radius:8px}
 /* card */
 .pl-card{border-radius:8px;box-shadow:none;margin-bottom:16px}
@@ -256,7 +255,7 @@
 @media(max-width:767.98px){.pl-chip{margin-right:10px}}
 
 /* ===== v6: modern layout (image-first card, grid/list toggle) ===== */
-.pl{--r:12px;--brand:#1f5eff;--brand-soft:#edf2ff}
+.pl{--r:12px;--brand:hwb(214 25% 58%);--brand-soft:#edf2ff}
 .pl-crumb{display:flex;gap:8px;align-items:center;padding:14px 12px 0;font-size:.82rem;color:var(--ink2);background:#fff}
 .pl-crumb a:hover{color:var(--brand)}.pl-crumb b{font-weight:600;color:var(--ink)}
 .pl-hero{padding:8px 0 18px;border-bottom:0}
@@ -304,3 +303,15 @@
   .pl-crumb{padding-top:10px}
   .pl-price{font-size:1.4rem}
 }
+
+/* ===== v7 fixes ===== */
+/* specs: wrap hone par bhi alignment theek (dividers = left border, pehla item clip) */
+.pl-specs{display:flex;flex-wrap:wrap;overflow:hidden;border:0;margin-left:-14px;row-gap:4px}
+.pl-specs div{flex:1 1 130px;min-width:0;margin-left:-1px;padding:6px 14px;border:0;border-left:1px solid var(--line)}
+.pl-specs div:first-child,.pl-specs div:last-child{padding-left:14px}
+.pl-specs div:nth-child(n){border-top:0}
+.pl-grid .pl-specs{margin-left:-10px}
+.pl-grid .pl-specs div,.pl-grid .pl-specs div:first-child{padding:6px 10px}
+/* "Check availability": purani .check-availability CSS ka colour override */
+.pl .pl-btn.pl-ghost{background:var(--brand)!important;border-color:var(--brand)!important;color:#fff!important}
+.pl .pl-btn.pl-ghost:hover{background:#1446a0!important;border-color:#1446a0!important}

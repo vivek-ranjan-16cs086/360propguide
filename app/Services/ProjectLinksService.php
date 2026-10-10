@@ -4,7 +4,9 @@ namespace App\Services;
 
 use App\Models\admin\CustomLink;
 use App\Models\Location;
+use App\Models\Property;
 use App\Models\Project;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 class ProjectLinksService
@@ -76,7 +78,8 @@ class ProjectLinksService
 
     public function getPropertyLinks(): array
     {
-        return CustomLink::where('type', 'property')
+        $customLinks = CustomLink::where('type', 'property')
+            ->where('is_active', 1)
             ->orderBy('id', 'DESC')
             ->get()
             ->map(function ($link) {
@@ -90,6 +93,66 @@ class ProjectLinksService
                 ];
             })
             ->toArray();
+
+        $customLinksByText = collect($customLinks)
+            ->keyBy(fn($link) => strtolower(trim($link['text'])));
+        $propertyTypesByCity = Cache::remember('frontend.property-custom-link-cities', now()->addMinutes(5), function () {
+            $propertyTypesByCity = [];
+
+            Property::query()
+                ->where('status', 'approved')
+                ->whereNotNull('city')
+                ->select(['id', 'city', 'property_type', 'listing_type'])
+                ->chunkById(500, function ($properties) use (&$propertyTypesByCity) {
+                    foreach ($properties as $property) {
+                        $city = trim((string) $property->city);
+                        $cityKey = strtolower($city);
+
+                        if ($cityKey === '') {
+                            continue;
+                        }
+
+                        $propertyTypesByCity[$cityKey]['city'] ??= $city;
+                        $propertyTypesByCity[$cityKey]['types'][] = strtolower(trim((string) $property->property_type));
+                        $propertyTypesByCity[$cityKey]['listing_types'][] = strtolower(trim((string) $property->listing_type));
+                    }
+                });
+
+            return $propertyTypesByCity;
+        });
+
+        $links = [];
+        foreach ($propertyTypesByCity as $cityData) {
+            $city = $cityData['city'];
+            $cityName = ucwords(strtolower($city));
+            $linkDefinitions = [];
+
+            if (in_array('apartment', $cityData['types'], true)) {
+                $linkDefinitions[] = ['Apartments in ' . $cityName, 'propertyType=apartment'];
+            }
+
+            if (in_array('plots', $cityData['types'], true)) {
+                $linkDefinitions[] = ['Plots in ' . $cityName, 'propertyType=plots'];
+            }
+
+            foreach (['sale' => 'Sale', 'rent' => 'Rent'] as $listingType => $label) {
+                if (in_array($listingType, $cityData['listing_types'], true)) {
+                    $linkDefinitions[] = [$label . ' Properties in ' . $cityName, 'listingType=' . $label];
+                }
+            }
+
+            foreach ($linkDefinitions as [$text, $filter]) {
+                $key = strtolower(trim($text));
+                $links[] = $customLinksByText->get($key) ?? [
+                    'text' => $text,
+                    'title' => $text,
+                    'url' => 'properties?' . $filter . '&location%5B%5D=' . rawurlencode($city),
+                ];
+                $customLinksByText->forget($key);
+            }
+        }
+
+        return array_merge($links, $customLinksByText->values()->all());
     }
 
     public function getCityTypeLinks(?string $city): array
