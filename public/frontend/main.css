@@ -766,7 +766,6 @@ body {
     border: 1px solid #e2e8f0;
     border-radius: 8px;
     padding: 1.25rem;
-    min-height: 490px;
     box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
 }
 
@@ -869,10 +868,6 @@ body {
 }
 
 @media (max-width: 768px) {
-    .custom-links-card {
-        min-height: 375px;
-    }
-
     .scroll-box {
         max-height: 325px;
     }

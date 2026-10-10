@@ -14,6 +14,44 @@
 <link rel="stylesheet" href="{{ asset('frontend/css/listing.css') }}?v={{ @filemtime(public_path('frontend/css/listing.css')) ?: time() }}">
 <link rel="stylesheet" href="{{ asset('frontend/css/properties-listing.css') }}?v={{ @filemtime(public_path('frontend/css/properties-listing.css')) ?: time() }}">
 <link rel="stylesheet" href="{{ asset('frontend/css/properties-v2.css') }}?v={{ @filemtime(public_path('frontend/css/properties-v2.css')) ?: time() }}">
+<style>
+/* ===== Card layout: image | details | price panel (screenshot wala design) ===== */
+#property-list:not(.pl-grid) .pl-card { grid-template-columns: 290px minmax(0, 1fr) 240px; grid-template-areas: "media body buy"; }
+#property-list:not(.pl-grid) .pl-media { min-height: 230px; }
+#property-list:not(.pl-grid) .pl-buy {
+  grid-column: auto; flex-direction: column; align-items: stretch; flex-wrap: nowrap; justify-content: space-between; gap: 16px;
+  padding: 20px; border-left: 1px solid var(--line); border-top: 0; background: #fafbfc;
+}
+#property-list:not(.pl-grid) .pl-buy > div:first-child { display: block; }
+#property-list:not(.pl-grid) .pl-price { font-size: 1.5rem; }
+#property-list:not(.pl-grid) .pl-cta { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: auto; margin-left: 0; }
+#property-list:not(.pl-grid) .pl-ghost { grid-column: 1 / -1; order: -1; flex: none; padding: 10px 8px; }
+
+/* specs strip: upar-neeche patli line */
+.pl-specs { position: relative; padding: 4px 0; }
+.pl-specs::before, .pl-specs::after { content: ""; position: absolute; left: 14px; right: 0; border-top: 1px solid var(--line); }
+.pl-specs::before { top: 0; }
+.pl-specs::after { bottom: 0; }
+.pl-grid .pl-specs::before, .pl-grid .pl-specs::after { left: 10px; }
+
+/* tablet: price panel neeche ek row me */
+@media (max-width: 1199.98px) {
+  #property-list:not(.pl-grid) .pl-card { grid-template-columns: 260px minmax(0, 1fr); grid-template-areas: "media body" "buy buy"; }
+  #property-list:not(.pl-grid) .pl-buy { flex-direction: row; align-items: center; flex-wrap: wrap; border-left: 0; border-top: 1px solid var(--line); }
+  #property-list:not(.pl-grid) .pl-buy > div:first-child { display: flex; align-items: baseline; gap: 6px 14px; flex-wrap: wrap; }
+  #property-list:not(.pl-grid) .pl-cta { display: flex; margin-left: auto; }
+  #property-list:not(.pl-grid) .pl-ghost { order: 0; grid-column: auto; padding: 10px 18px; }
+}
+/* mobile: sab ek ke neeche */
+@media (max-width: 767.98px) {
+  #property-list:not(.pl-grid) .pl-card { grid-template-columns: 1fr; grid-template-areas: "media" "body" "buy"; }
+  #property-list:not(.pl-grid) .pl-media { min-height: 0; aspect-ratio: 16 / 10; }
+  #property-list:not(.pl-grid) .pl-buy { flex-direction: column; align-items: stretch; padding: 16px; }
+  #property-list:not(.pl-grid) .pl-buy > div:first-child { display: block; }
+  #property-list:not(.pl-grid) .pl-cta { display: grid; grid-template-columns: 1fr 1fr; margin-left: 0; }
+  #property-list:not(.pl-grid) .pl-ghost { grid-column: 1 / -1; order: -1; padding: 10px 8px; }
+}
+</style>
 @endSection
 
 @section('content')
@@ -41,6 +79,7 @@
 <div class="pl" id="plRoot">
 
     {{-- ===== Compact hero ===== --}}
+    <div class="pl-crumb container"><a href="{{ url('/') }}">Home</a><span>›</span><b>Properties</b></div>
     <section class="pl-hero">
         <div class="container pl-hero-in">
             <div class="pl-hero-txt">
@@ -64,6 +103,10 @@
                 <button type="button" class="pl-chip sort-link" data-filter="HighToLow">Price: High to Low</button>
                 <button type="button" class="pl-chip sort-link" data-filter="NewestFirst">Newest First</button>
             </div>
+            <div class="pl-view">
+                <button type="button" class="pl-vbtn is-on" data-view="list" aria-label="List view"><i class="fa-solid fa-list"></i></button>
+                <button type="button" class="pl-vbtn" data-view="grid" aria-label="Grid view"><i class="fa-solid fa-table-cells-large"></i></button>
+            </div>
             <button type="button" class="pl-saved" id="plSavedPill" hidden data-bs-toggle="modal" data-bs-target="#contactModalPopup">
                 <i class="fa-solid fa-heart"></i> <span id="plSavedCount">0</span> shortlisted · Enquire
             </button>
@@ -80,7 +123,7 @@
                 </aside>
             </div>
 
-            <div class="col-lg-9">
+            <div class="col-lg-9 ps-lg-4">
                 <div class="pl-active" id="plActive" style="display:none"></div>
 
                 @if(isset($links_description) && $links_description)
@@ -117,6 +160,7 @@
                                 $emi = (!$isRent && $property->total_price > 0) ? round($emiOf($property->total_price)) : null;
                                 $wa = 'https://wa.me/919643020020?text=' . rawurlencode('Hi, I am interested in ' . $property->title . ' - ' . $url);
                                 $ago = (optional($property->created_at)->diffInDays(now()) ?? 9999) <= 90 ? optional($property->created_at)->diffForHumans() : null;
+                                $isNew = (optional($property->created_at)->diffInDays(now()) ?? 9999) <= 14;
                                 $desc = $pick('short_description', 'description', 'overview');
                                 $desc = $desc ? \Illuminate\Support\Str::limit(trim(preg_replace('/\s+/', ' ', strip_tags((string) $desc))), 140) : null;
                                 $amRaw = $pick('amenities', 'highlights');
@@ -149,6 +193,7 @@
                                         <span class="pl-pics"><i class="fa-regular fa-images"></i> <em>1</em>/{{ $slides }}</span>
                                     @endif
                                     @if($property->listing_type)<span class="pl-tag">For {{ str_replace('_', ' ', ucfirst($property->listing_type)) }}</span>@endif
+                                    @if($isNew)<span class="pl-new">New</span>@endif
                                     <button type="button" class="pl-save" aria-label="Shortlist" data-save="{{ $property->slug }}"><i class="fa-regular fa-heart"></i></button>
                                 </div>
 
@@ -348,6 +393,7 @@
         var psf = (area && !isNaN(area) && Number(area) > 0 && !rent) ? Math.round(p.total_price / area) : null;
         var emi = (!rent && p.total_price > 0) ? Math.round(plEmi(p.total_price)) : null;
         var wa = 'https://wa.me/919643020020?text=' + encodeURIComponent('Hi, I am interested in ' + p.title + ' - ' + url);
+        var isNew = p.created_at && (Date.now() - new Date(p.created_at)) < 14 * 864e5;
         var ago = (p.created_at && (Date.now() - new Date(p.created_at)) < 90 * 864e5) ? plAgo(p.created_at) : '';
         var desc = pick(p, ['short_description', 'description', 'overview']);
         desc = desc ? String(desc).replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim() : '';
@@ -367,6 +413,7 @@
     <div class="pl-track">${track}</div>
     ${slides > 1 ? '<button type="button" class="pl-nav prev" aria-label="Previous photo"><i class="fa-solid fa-chevron-left"></i></button><button type="button" class="pl-nav next" aria-label="Next photo"><i class="fa-solid fa-chevron-right"></i></button><span class="pl-pics"><i class="fa-regular fa-images"></i> <em>1</em>/' + slides + '</span>' : ''}
     ${p.listing_type ? '<span class="pl-tag">For ' + escapeHtml(formatText(p.listing_type)) + '</span>' : ''}
+    ${isNew ? '<span class="pl-new">New</span>' : ''}
     <button type="button" class="pl-save" aria-label="Shortlist" data-save="${escapeHtml(p.slug)}"><i class="fa-regular fa-heart"></i></button>
   </div>
   <div class="pl-body">
@@ -442,6 +489,14 @@
         if ($(this).data('search')) { $('#search-input').val('').trigger('change'); return; }
         $('#filter-form input[type=checkbox]:checked').eq($(this).data('idx')).prop('checked', false).trigger('change');
     });
+    /* ---------- list / grid view ---------- */
+    function plView(v) {
+        $('#property-list').toggleClass('pl-grid', v === 'grid');
+        $('.pl-vbtn').removeClass('is-on').filter('[data-view="' + v + '"]').addClass('is-on');
+        try { localStorage.setItem('pl_view', v); } catch (e) {}
+    }
+    $(document).on('click', '.pl-vbtn', function () { plView($(this).data('view')); });
+
     /* ---------- share + photo counter ---------- */
     $(document).on('click', '.pl-share', function (e) {
         e.preventDefault();
@@ -559,6 +614,7 @@
         $('#plRoot').addClass('pl-js');
         plMoreUI();
         plReveal();
+        try { plView(localStorage.getItem('pl_view') || 'list'); } catch (e) {}
 
         /* filter form: sidebar <-> offcanvas (pehle move, phir filters apply) */
         var filterForm = document.querySelector('#filter-form');
@@ -572,6 +628,20 @@
         }
         moveFilters();
         window.addEventListener('resize', moveFilters);
+
+        /* sidebar: jab tak pura nahi dikhta tab tak page ke saath scroll, bottom dikhte hi fix (sticky) */
+      /* sidebar: pehle page ke saath scroll, pura dikhte hi fix */
+var plSide = document.getElementById('propertyFilters');
+function plStickySidebar() {
+    if (!plSide || !plSide.offsetParent) return;
+    var TOP = 80, GAP = 20;                  // TOP = site header ki height
+    var h = plSide.offsetHeight, vh = window.innerHeight;
+    plSide.style.top = (h + TOP + GAP > vh ? vh - h - GAP : TOP) + 'px';
+}
+plStickySidebar();
+window.addEventListener('resize', plStickySidebar);
+window.addEventListener('load', plStickySidebar);
+if (window.ResizeObserver && plSide) new ResizeObserver(plStickySidebar).observe(plSide);
         var ft = document.getElementById('filterToggle');
         if (ft) ft.addEventListener('click', function () { new bootstrap.Offcanvas(document.getElementById('mobileFilter')).show(); });
 

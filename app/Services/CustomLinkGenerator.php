@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\admin\CustomLink;
 use App\Models\Developer;
 use App\Models\Location;
+use App\Models\Property;
 use App\Models\Project;
 use Illuminate\Support\Str;
 
@@ -49,7 +50,108 @@ class CustomLinkGenerator
                 }
             });
 
+        $saved += $this->syncPropertyLinks();
+
         return $saved;
+    }
+
+    public function syncPropertyLinks(): int
+    {
+        $propertiesByCity = [];
+
+        Property::query()
+            ->where('status', 'approved')
+            ->whereNotNull('city')
+            ->select(['id', 'city', 'property_type', 'listing_type'])
+            ->chunkById(500, function ($properties) use (&$propertiesByCity) {
+                foreach ($properties as $property) {
+                    $city = trim((string) $property->city);
+                    $cityKey = strtolower($city);
+
+                    if ($cityKey === '') {
+                        continue;
+                    }
+
+                    $propertiesByCity[$cityKey]['city'] ??= $city;
+                    $propertiesByCity[$cityKey]['property_types'][] = strtolower(trim((string) $property->property_type));
+                    $propertiesByCity[$cityKey]['listing_types'][] = strtolower(trim((string) $property->listing_type));
+                }
+            });
+
+        $payloads = [];
+
+        foreach ($propertiesByCity as $properties) {
+            $payloads = array_merge(
+                $payloads,
+                $this->propertyPayloads(
+                    $properties['city'],
+                    array_unique($properties['property_types']),
+                    array_unique($properties['listing_types'])
+                )
+            );
+        }
+
+        $currentSlugs = collect($payloads)->pluck('slug')->all();
+        $generatedPrefixes = [
+            'apartments-in-',
+            'plots-in-',
+            'sale-properties-in-',
+            'rent-properties-in-',
+        ];
+
+        $staleLinks = CustomLink::query()
+            ->where('type', 'property')
+            ->where(function ($query) use ($generatedPrefixes) {
+                foreach ($generatedPrefixes as $prefix) {
+                    $query->orWhere('slug', 'like', $prefix . '%');
+                }
+            });
+
+        if ($currentSlugs !== []) {
+            $staleLinks->whereNotIn('slug', $currentSlugs);
+        }
+
+        $staleLinks->delete();
+
+        return $this->save($payloads);
+    }
+
+    private function propertyPayloads(string $city, array $propertyTypes, array $listingTypes): array
+    {
+        $cityName = ucwords(strtolower(trim($city)));
+        $citySlug = Str::slug($city);
+
+        if ($citySlug === '') {
+            return [];
+        }
+
+        $definitions = [];
+
+        if (in_array('apartment', $propertyTypes, true)) {
+            $definitions[] = ['apartments-in-' . $citySlug, 'Apartments in ' . $cityName];
+        }
+
+        if (in_array('plots', $propertyTypes, true)) {
+            $definitions[] = ['plots-in-' . $citySlug, 'Plots in ' . $cityName];
+        }
+
+        foreach (['sale' => 'Sale', 'rent' => 'Rent'] as $listingType => $label) {
+            if (in_array($listingType, $listingTypes, true)) {
+                $definitions[] = [
+                    $listingType . '-properties-in-' . $citySlug,
+                    $label . ' Properties in ' . $cityName,
+                ];
+            }
+        }
+
+        return array_map(function (array $definition) use ($cityName) {
+            [$slug, $name] = $definition;
+            $payload = $this->make($slug, $name, 'property', $cityName, $name);
+            $payload['keywords'] = strtolower($name . ', properties in ' . $cityName . ', real estate in ' . $cityName);
+            $payload['links_description'] = 'Browse available ' . strtolower($name) . ' and compare property details in ' . $cityName . '.';
+
+            return $payload;
+        }, $definitions);
     }
     private function getPossessionsForLocation(Location $location): array
     {

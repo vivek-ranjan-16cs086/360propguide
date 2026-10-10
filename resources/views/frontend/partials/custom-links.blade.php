@@ -33,7 +33,7 @@
     </div>
 @endif
 
-@if (!($onProjects ?? false) && !empty($propertyLinks))
+@if (!empty($propertyLinks))
     <div class="custom-link-section container my-4 commonLinks">
         <h5 class="sectionHeader">Explore Properties</h5>
 

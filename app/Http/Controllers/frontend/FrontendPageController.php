@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class FrontendPageController extends Controller
 {
@@ -1740,12 +1741,18 @@ You can use this page to discover and compare <strong>{$configurationText}{$prop
 
 			$listingTypes = $list('listingType');
 			if ($listingTypes !== []) {
-				$query->whereIn('listing_type', $listingTypes);
+				$query->whereIn(
+					DB::raw('LOWER(TRIM(listing_type))'),
+					array_map('strtolower', $listingTypes)
+				);
 			}
 
 			$propertyTypes = $list('propertyType');
 			if ($propertyTypes !== []) {
-				$query->whereIn('property_type', $propertyTypes);
+				$query->whereIn(
+					DB::raw('LOWER(TRIM(property_type))'),
+					array_map('strtolower', $propertyTypes)
+				);
 			}
 
 			$configurations = $list('configuration');
@@ -1891,60 +1898,70 @@ You can use this page to discover and compare <strong>{$configurationText}{$prop
 	 */
 	private function handlePropertyCustomLink($slug, $link, $title, $name, $description, $keywords)
 	{
-		$slugParts = explode('-', $slug);
+		$slug = strtolower(trim((string) $slug, '/'));
+		$propertyType = null;
+		$listingType = null;
+		$configuration = null;
 
-		$bhk = null;
-		$city = null;
-
-		//bhk wise filter
-		for ($i = 0; $i < count($slugParts); $i++) {
-			if (is_numeric($slugParts[$i]) && isset($slugParts[$i + 1]) && $slugParts[$i + 1] === 'bhk') {
-				$bhk = $slugParts[$i] . ' BHK';
-				break;
-			}
+		if (preg_match('/^apartments-in-(.+)$/', $slug, $matches)) {
+			$propertyType = 'apartment';
+			$citySlug = $matches[1];
+		} elseif (preg_match('/^plots-in-(.+)$/', $slug, $matches)) {
+			$propertyType = 'plots';
+			$citySlug = $matches[1];
+		} elseif (preg_match('/^(sale|rent)-properties-in-(.+)$/', $slug, $matches)) {
+			$listingType = $matches[1];
+			$citySlug = $matches[2];
+		} elseif (preg_match('/^(\d+)-bhk-apartments?-in-(.+)$/', $slug, $matches)) {
+			$propertyType = 'apartment';
+			$configuration = strtolower($matches[1] . '_bhk');
+			$citySlug = $matches[2];
+		} else {
+			abort(404);
 		}
 
-		//city
-		if (str_contains($slug, 'apartment-in-') || str_contains($slug, 'apartments-in-')) {
-			$cityPart = str_contains($slug, 'apartment-in-')
-				? explode('apartment-in-', $slug)[1] ?? null
-				: explode('apartments-in-', $slug)[1] ?? null;
+		$matchedCity = Property::query()
+			->where('status', 'approved')
+			->whereNotNull('city')
+			->select('city')
+			->distinct()
+			->get()
+			->first(fn($property) => Str::slug($property->city) === $citySlug);
 
-			if ($cityPart) {
-				$city = trim(str_replace('-', ' ', $cityPart));
-			}
+		if (!$matchedCity) {
+			abort(404);
 		}
 
-		//query
-		$propertiesQuery = Property::query();
+		$city = trim((string) $matchedCity->city);
+		$initialFilters = ['location' => [$city]];
+		$propertiesQuery = Property::query()
+			->with(['project', 'user'])
+			->where('status', 'approved')
+			->whereRaw('LOWER(TRIM(city)) = ?', [strtolower($city)]);
 
-		// Always apartment type
-		$propertiesQuery->where('property_type', 'apartment');
-
-		if ($bhk) {
-			$configValue = strtolower(str_replace(' ', '_', $bhk));
-			$propertiesQuery->where('configuration', $configValue);
+		if ($propertyType !== null) {
+			$propertiesQuery->whereRaw('LOWER(TRIM(property_type)) = ?', [$propertyType]);
+			$initialFilters['propertyType'] = [$propertyType];
 		}
 
-		//FIX: Case-insensitive + partial match
-		if ($city) {
-			// Get exact matching city from DB (case insensitive)
-			$matchedCity = Property::whereRaw("LOWER(city) LIKE ?", ['%' . strtolower($city) . '%'])
-				->value('city');
-
-			if ($matchedCity) {
-				$initialFilters['location'] = [$matchedCity]; // exact DB value
-			}
+		if ($listingType !== null) {
+			$propertiesQuery->whereRaw('LOWER(TRIM(listing_type)) = ?', [$listingType]);
+			$initialFilters['listingType'] = [$listingType];
 		}
 
-		$properties = $propertiesQuery->paginate(12);
+		if ($configuration !== null) {
+			$propertiesQuery->whereRaw('LOWER(TRIM(configuration)) = ?', [$configuration]);
+			$initialFilters['configuration'] = [$configuration];
+		}
 
-		//filter with price
-		$minPrice = Property::min('total_price') ?? 100000;
-		$maxPrice = Property::max('total_price') ?? 10000000;
+		$properties = $propertiesQuery->orderByDesc('created_at')->paginate(12);
+		$approvedProperties = Property::query()->where('status', 'approved');
+		$minPrice = (clone $approvedProperties)->min('total_price') ?? 100000;
+		$maxPrice = (clone $approvedProperties)->max('total_price') ?? 10000000;
 
-		//$locations = Property::pluck('city')->filter()->unique()->values()->all();
-		$locations = Property::pluck('city')
+		$locations = Property::where('status', 'approved')
+			->whereNotNull('city')
+			->pluck('city')
 			->filter()
 			->map(function ($item) {
 				return ucwords(strtolower(trim($item)));
@@ -1952,7 +1969,12 @@ You can use this page to discover and compare <strong>{$configurationText}{$prop
 			->unique()
 			->values()
 			->all();
-		$configurations = Property::pluck('configuration')->filter()->unique()->values()->all();
+		$configurations = Property::where('status', 'approved')
+			->pluck('configuration')
+			->filter()
+			->unique()
+			->values()
+			->all();
 		$constructionStatuses = Property::where('status', 'approved')
 			->pluck('construction_status')
 			->filter()
@@ -1967,20 +1989,9 @@ You can use this page to discover and compare <strong>{$configurationText}{$prop
 			->values()
 			->all();
 
-		//filter
-		$initialFilters = [];
-
-		if (isset($configValue)) {
-			$initialFilters['configuration'] = [$configValue];
-		}
-
-		if ($city) {
-			$initialFilters['location'] = [$city];
-		}
-
-		$initialFilters['propertyType'] = ['apartment'];
-
 		$links_description = $link->links_description ?? null;
+		$dynamicTitle = $name ?: $title;
+		$totalResults = $properties->total();
 
 		return view('frontend.property-listing', compact(
 			'properties',
@@ -1995,7 +2006,9 @@ You can use this page to discover and compare <strong>{$configurationText}{$prop
 			'description',
 			'keywords',
 			'initialFilters',
-			'links_description'
+			'links_description',
+			'dynamicTitle',
+			'totalResults'
 		));
 	}
 
