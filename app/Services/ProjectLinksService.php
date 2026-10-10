@@ -89,7 +89,7 @@ class ProjectLinksService
                 return [
                     'text'  => $text,
                     'title' => $title,
-                    'url'   => $link->slug,
+                    'url'   => Str::slug($text),
                 ];
             })
             ->toArray();
@@ -128,31 +128,40 @@ class ProjectLinksService
             $linkDefinitions = [];
 
             if (in_array('apartment', $cityData['types'], true)) {
-                $linkDefinitions[] = ['Apartments in ' . $cityName, 'propertyType=apartment'];
+                $linkDefinitions[] = 'Apartments in ' . $cityName;
             }
 
             if (in_array('plots', $cityData['types'], true)) {
-                $linkDefinitions[] = ['Plots in ' . $cityName, 'propertyType=plots'];
+                $linkDefinitions[] = 'Plots in ' . $cityName;
             }
 
             foreach (['sale' => 'Sale', 'rent' => 'Rent'] as $listingType => $label) {
                 if (in_array($listingType, $cityData['listing_types'], true)) {
-                    $linkDefinitions[] = [$label . ' Properties in ' . $cityName, 'listingType=' . $label];
+                    $linkDefinitions[] = $label . ' Properties in ' . $cityName;
                 }
             }
 
-            foreach ($linkDefinitions as [$text, $filter]) {
+            foreach ($linkDefinitions as $text) {
                 $key = strtolower(trim($text));
                 $links[] = $customLinksByText->get($key) ?? [
                     'text' => $text,
                     'title' => $text,
-                    'url' => 'properties?' . $filter . '&location%5B%5D=' . rawurlencode($city),
+                    'url' => Str::slug($text),
                 ];
                 $customLinksByText->forget($key);
             }
         }
 
-        return array_merge($links, $customLinksByText->values()->all());
+        $remainingCustomLinks = $customLinksByText
+            ->map(function ($link) {
+                $link['url'] = Str::slug($link['text']);
+
+                return $link;
+            })
+            ->values()
+            ->all();
+
+        return array_merge($links, $remainingCustomLinks);
     }
 
     public function getCityTypeLinks(?string $city): array

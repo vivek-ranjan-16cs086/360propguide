@@ -661,6 +661,15 @@ if (window.ResizeObserver && plSide) new ResizeObserver(plStickySidebar).observe
                 serverInitialFilters.propertyType.forEach(function (pt) { $(".property-filter[value='" + pt + "']").prop('checked', true); });
                 filtersData['propertyType'] = serverInitialFilters.propertyType;
             }
+            if (serverInitialFilters.listingType) {
+                serverInitialFilters.listingType.forEach(function (lt) {
+                    var input = $('#listingTypeFilter .property-filter').filter(function () {
+                        return String($(this).val()).toLowerCase() === String(lt).toLowerCase();
+                    });
+                    input.prop('checked', true);
+                    if (input.length) filtersData['listingType'] = (filtersData['listingType'] || []).concat(input.val());
+                });
+            }
             filtersData['pageId'] = 1;
             applyFilters(filtersData);
         } else {
