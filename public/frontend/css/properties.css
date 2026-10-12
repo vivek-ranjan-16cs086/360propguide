@@ -364,3 +364,99 @@ input::-webkit-inner-spin-button {
 #under_construction:checked ~ #possessionDateWrapper {
     display: block;
 }
+
+/* Property overview */
+#summary.property-overview {
+  padding: 28px 30px;
+}
+
+#summary .property-overview__title {
+  margin-bottom: 0.75rem;
+  color: #111827;
+  font-weight: 700;
+}
+
+#summary .property-overview__grid {
+  --bs-gutter-x: 2rem;
+}
+
+#summary .property-overview__item {
+  display: grid;
+  grid-template-columns: 2.5rem minmax(7.25rem, 0.95fr) minmax(0, 1.35fr);
+  align-items: center;
+  gap: 0.8rem;
+  width: calc(100% - 0.75rem);
+  min-height: 4.5rem;
+  padding: 0.55rem 0;
+  border-bottom: 1px dotted #d5d8dd;
+}
+
+#summary .property-overview__icon {
+  display: inline-flex;
+  width: 2.5rem;
+  height: 2.5rem;
+  grid-row: 1;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.6rem;
+  background: #f4f5f7;
+  color: #606267;
+  font-size: 1rem;
+}
+
+#summary .property-overview__label-wrap {
+  min-width: 0;
+  grid-column: 2;
+  grid-row: 1;
+}
+
+#summary .property-overview__label {
+  margin: 0;
+  color: #4b5563;
+  font-size: 0.9rem;
+}
+
+#summary .property-overview__value {
+  min-width: 0;
+  grid-column: 3;
+  grid-row: 1;
+  color: #0f172a;
+  font-size: 0.95rem;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+#summary .property-overview__value p {
+  margin: 0;
+}
+
+#summary .property-overview__value a {
+  font-weight: 500;
+}
+
+@media (max-width: 767.98px) {
+  #summary.property-overview {
+    padding: 20px 16px;
+  }
+
+  #summary .property-overview__grid {
+    --bs-gutter-x: 1.5rem;
+  }
+
+  #summary .property-overview__grid > .col-6 {
+    width: 100%;
+  }
+
+  #summary .property-overview__item {
+    grid-template-columns: 2.35rem minmax(6.5rem, 0.9fr) minmax(0, 1.1fr);
+    gap: 0.7rem;
+    width: calc(100% - 0.5rem);
+    min-height: 4.25rem;
+    padding: 0.5rem 0;
+  }
+
+  #summary .property-overview__icon {
+    width: 2.35rem;
+    height: 2.35rem;
+  }
+}

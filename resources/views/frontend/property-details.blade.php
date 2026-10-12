@@ -30,6 +30,7 @@
 
 @section('customCSS')
 <link rel="stylesheet" href="{{asset('frontend/css/project-detail.css')}}" />
+<link rel="stylesheet" href="{{asset('frontend/css/project-details.css')}}" />
 <script type="application/ld+json">
 {!! json_encode([
     "@context" => "https://schema.org",
@@ -222,23 +223,26 @@
 
 </div>
 <div class="container">
-    <div class="row my-4 justify-content-between">
-        <div class="col-lg-7 col-md-12 order-2 order-lg-1">
+    <div class="row my-4 gx-lg-5 justify-content-between position-relative">
+        <div class="col-lg-8 col-md-12 order-2 order-lg-1">
             <div>
                 <!-- summary -->
-                <div class="section" id="summary">
-                    <p class="h4 mb-4 text-primary fw-bold ">
+                <div class="section property-overview project-details-card mb-4" id="summary">
+                    <p class="h4 property-overview__title">
                         Property Overview
                     </p>
-                    <div class="row py-3 py-lg-0 h-100 align-content-around">
+                    <div class="row property-overview__grid">
 
                         {{-- Project Name --}}
                         <div class="col-6">
-                            <div class="">
-                                <div class="d-flex">
-                                    <p class="text-secondary mb-1">Project Name</p>
+                            <div class="property-overview__item">
+                                <span class="property-overview__icon" aria-hidden="true">
+                                    <i class="fa-solid fa-building"></i>
+                                </span>
+                                <div class="property-overview__label-wrap">
+                                    <p class="property-overview__label">Project Name</p>
                                 </div>
-                                <div>
+                                <div class="property-overview__value">
                                     <a href="{{ url('projects', $property->project->slug) }}" target="_blank" class="text-primary text-decoration-underline">
                                         {{ $property->project->project_name ?? 'N/A' }}</a>
                                 </div>
@@ -247,11 +251,14 @@
 
                           <!-- Brokerage -->
                         <div class="col-6">
-                            <div class="">
-                                <div class="d-flex">
-                                    <p class="text-secondary mb-1">Brokerage</p>
+                            <div class="property-overview__item">
+                                <span class="property-overview__icon" aria-hidden="true">
+                                    <i class="fa-solid fa-hand-holding-dollar"></i>
+                                </span>
+                                <div class="property-overview__label-wrap">
+                                    <p class="property-overview__label">Brokerage</p>
                                 </div>
-                                <div>
+                                <div class="property-overview__value">
                                     <p class="">No Charge</p>
                                 </div>
                             </div>
@@ -259,33 +266,42 @@
 
                         <!-- Price -->
                         <div class="col-6 text-capitalize">
-                            <div class="">
-                                <div class="d-flex">
-                                    <p class="text-secondary mb-1">Price</p>
+                            <div class="property-overview__item">
+                                <span class="property-overview__icon" aria-hidden="true">
+                                    <i class="fa-solid fa-indian-rupee-sign"></i>
+                                </span>
+                                <div class="property-overview__label-wrap">
+                                    <p class="property-overview__label">Price</p>
                                 </div>
-                                <div>
+                                <div class="property-overview__value">
                                     <p class="">₹{{ formatPrice($property->total_price ?? 0) }}</p>
                                 </div>
                             </div>
                         </div>
                         <!-- Avg Price -->
                         <div class="col-6">
-                            <div class="">
-                                <div class="d-flex">
-                                    <p class="text-secondary mb-1">Avg Price</p>
+                            <div class="property-overview__item">
+                                <span class="property-overview__icon" aria-hidden="true">
+                                    <i class="fa-solid fa-chart-line"></i>
+                                </span>
+                                <div class="property-overview__label-wrap">
+                                    <p class="property-overview__label">Avg Price</p>
                                 </div>
-                                <div>
+                                <div class="property-overview__value">
                                     <p class="">₹{{ formatPrice($property->price_per_sqft ?? 0) }} / {{ $property->area_unit ?? '' }}</p>
                                 </div>
                             </div>
                         </div>
                           <!-- Configuration -->
                         <div class="col-6 text-capitalize">
-                            <div class="">
-                                <div class="d-flex">
-                                    <p class="text-secondary mb-1">Configuration</p>
+                            <div class="property-overview__item">
+                                <span class="property-overview__icon" aria-hidden="true">
+                                    <i class="fa-solid fa-house"></i>
+                                </span>
+                                <div class="property-overview__label-wrap">
+                                    <p class="property-overview__label">Configuration</p>
                                 </div>
-                                <div>
+                                <div class="property-overview__value">
                                     <p class="text-uppercase">{{ clean($property->configuration ?? 'N/A') }}</p>
                                 </div>
                             </div>
@@ -293,11 +309,14 @@
 
                           <!-- Bathrooms -->
                         <div class="col-6">
-                            <div class="">
-                                <div class="d-flex">
-                                    <p class="text-secondary mb-1">Bathrooms</p>
+                            <div class="property-overview__item">
+                                <span class="property-overview__icon" aria-hidden="true">
+                                    <i class="fa-solid fa-bath"></i>
+                                </span>
+                                <div class="property-overview__label-wrap">
+                                    <p class="property-overview__label">Bathrooms</p>
                                 </div>
-                                <div>
+                                <div class="property-overview__value">
                                     <p class="">{{ $property->advanced_details['bathroom'] ?? 'N/A' }}</p>
                                 </div>
                             </div>
@@ -305,11 +324,14 @@
 
                         {{-- Parking --}}
                         <div class="col-6">
-                            <div class="">
-                                <div class="d-flex">
-                                    <p class="text-secondary mb-1">Parking</p>
+                            <div class="property-overview__item">
+                                <span class="property-overview__icon" aria-hidden="true">
+                                    <i class="fa-solid fa-square-parking"></i>
+                                </span>
+                                <div class="property-overview__label-wrap">
+                                    <p class="property-overview__label">Parking</p>
                                 </div>
-                                <div>
+                                <div class="property-overview__value">
                                     <p class="">{{ $property->advanced_details['parking'] ?? 'N/A' }}</p>
                                 </div>
                             </div>
@@ -317,11 +339,14 @@
 
                         {{-- Balcony --}}
                         <div class="col-6">
-                            <div class="">
-                                <div class="d-flex">
-                                    <p class="text-secondary mb-1">Balcony</p>
+                            <div class="property-overview__item">
+                                <span class="property-overview__icon" aria-hidden="true">
+                                    <i class="fa-solid fa-door-open"></i>
+                                </span>
+                                <div class="property-overview__label-wrap">
+                                    <p class="property-overview__label">Balcony</p>
                                 </div>
-                                <div>
+                                <div class="property-overview__value">
                                     <p class="">{{ $property->advanced_details['balcony'] ?? 'N/A' }}</p>
                                 </div>
                             </div>
@@ -329,11 +354,14 @@
 
                         {{-- Construction Status --}}
                         <div class="col-6">
-                            <div class="">
-                                <div class="d-flex">
-                                    <p class="text-secondary mb-1">Construction Status</p>
+                            <div class="property-overview__item">
+                                <span class="property-overview__icon" aria-hidden="true">
+                                    <i class="fa-solid fa-helmet-safety"></i>
+                                </span>
+                                <div class="property-overview__label-wrap">
+                                    <p class="property-overview__label">Construction Status</p>
                                 </div>
-                                <div>
+                                <div class="property-overview__value">
                                     <p class="">{{ ucfirst(str_replace('_', ' ', $property->construction_status ?? 'N/A')) }}</p>
                                 </div>
                             </div>
@@ -341,33 +369,42 @@
 
                         {{-- Furnishing --}}
                         <div class="col-6 text-capitalize">
-                            <div class="">
-                                <div class="d-flex">
-                                    <p class="text-secondary mb-1">Furnishing</p>
+                            <div class="property-overview__item">
+                                <span class="property-overview__icon" aria-hidden="true">
+                                    <i class="fa-solid fa-couch"></i>
+                                </span>
+                                <div class="property-overview__label-wrap">
+                                    <p class="property-overview__label">Furnishing</p>
                                 </div>
-                                <div>
+                                <div class="property-overview__value">
                                     <p class="">{{ str_replace('_', ' ', $property->furnishing_types ?? 'N/A') }}</p>
                                 </div>
                             </div>
                         </div>
                         {{-- floor --}}
                         <div class="col-6 text-capitalize">
-                            <div class="">
-                                <div class="d-flex">
-                                    <p class="text-secondary mb-1">Floor</p>
+                            <div class="property-overview__item">
+                                <span class="property-overview__icon" aria-hidden="true">
+                                    <i class="fa-solid fa-layer-group"></i>
+                                </span>
+                                <div class="property-overview__label-wrap">
+                                    <p class="property-overview__label">Floor</p>
                                 </div>
-                                <div>
+                                <div class="property-overview__value">
                                     <p class="">{{ $property->advanced_details['floor_no'] ?? 'N/A' }} out of {{ $property->advanced_details['total_floors'] ?? 'N/A' }}</p>
                                 </div>
                             </div>
                         </div>
                         {{-- facing --}}
                         <div class="col-6 text-capitalize">
-                            <div class="">
-                                <div class="d-flex">
-                                    <p class="text-secondary mb-1">Facing</p>
+                            <div class="property-overview__item">
+                                <span class="property-overview__icon" aria-hidden="true">
+                                    <i class="fa-solid fa-compass"></i>
+                                </span>
+                                <div class="property-overview__label-wrap">
+                                    <p class="property-overview__label">Facing</p>
                                 </div>
-                                <div>
+                                <div class="property-overview__value">
                                     <p class="">{{ $property->advanced_details['facing'] ?? 'N/A' }}</p>
                                 </div>
                             </div>
@@ -375,11 +412,14 @@
 
                         {{-- Age of Property --}}
                         <div class="col-6">
-                            <div class="">
-                                <div class="d-flex">
-                                    <p class="text-secondary mb-1">Age of Property</p>
+                            <div class="property-overview__item">
+                                <span class="property-overview__icon" aria-hidden="true">
+                                    <i class="fa-solid fa-calendar-days"></i>
+                                </span>
+                                <div class="property-overview__label-wrap">
+                                    <p class="property-overview__label">Age of Property</p>
                                 </div>
-                                <div>
+                                <div class="property-overview__value">
                                     <p class="">{{ $property->advanced_details['property_age'] ?? 'N/A' }} Years Old</p>
                                 </div>
                             </div>
@@ -387,11 +427,14 @@
 
                         {{-- Area --}}
                         <div class="col-6">
-                            <div class="">
-                                <div class="d-flex">
-                                    <p class="text-secondary mb-1">Area</p>
+                            <div class="property-overview__item">
+                                <span class="property-overview__icon" aria-hidden="true">
+                                    <i class="fa-solid fa-ruler-combined"></i>
+                                </span>
+                                <div class="property-overview__label-wrap">
+                                    <p class="property-overview__label">Area</p>
                                 </div>
-                                <div>
+                                <div class="property-overview__value">
                                     <p class="">{{ $property->area ?? 'N/A' }} {{ $property->area_unit ?? '' }}</p>
                                 </div>
                             </div>
@@ -400,11 +443,14 @@
 
                         {{-- Added --}}
                         <div class="col-6">
-                            <div class="">
-                                <div class="d-flex">
-                                    <p class="text-secondary mb-1">Added</p>
+                            <div class="property-overview__item">
+                                <span class="property-overview__icon" aria-hidden="true">
+                                    <i class="fa-solid fa-clock"></i>
+                                </span>
+                                <div class="property-overview__label-wrap">
+                                    <p class="property-overview__label">Added</p>
                                 </div>
-                                <div>
+                                <div class="property-overview__value">
                                     <p class="">{{ $property->created_at->diffForHumans() ?? 'N/A' }}</p>
                                 </div>
                             </div>
@@ -413,15 +459,15 @@
                     </div>
                 </div>
 				<!-- About Property -->
-                <div class="about-listing section">
-                    <div class="h4 my-4 text-primary fw-bold">About this Property</div>
+				<div class="about-listing section project-details-card mb-4">
+                    <div class="h4 mb-4 fw-bold text-dark">About this Property</div>
                     
                     <p>{{ $property->advanced_details['description'] ?? 'N/A' }}</p>
                 </div> 
                 <!-- location -->
                 @if(!empty($property->project->location_video))
-				<div class="section" id="location">
-					<div class="h4 my-4 text-primary fw-bold">Location</div>
+				<div class="section project-details-card mb-4" id="location">
+					<div class="h4 mb-4 fw-bold text-dark">Location</div>
 
 					<video
 						src="{{ 'https://360propguide.com/storage/'.$property->project->location_video }}"
@@ -438,13 +484,13 @@
 				@endif
 
                 <!-- amenities -->
-                <div class="amenities section" id="amenities">
-                    <div class="h4 my-4 text-primary fw-bold">Amenities</div>
+                <div class="amenities section project-details-card mb-4" id="amenities">
+                    <div class="h4 mb-4 fw-bold text-dark">Amenities</div>
                     <div class="row">
                         @if(!empty($property->amenitiesDetails) && count($property->amenitiesDetails)>0)
                         @foreach($property->amenitiesDetails as $index => $amenity)
                         <div class="icon col-md-2 col-4">
-                            <img src="{{'https://360propguide.com/storage/'.$amenity->image}}" alt="{{'360_propguide'.$amenity->name}}" />
+                            <img src="{{'https://www.360propguide.com/storage/'.$amenity->image}}" alt="{{'360_propguide'.$amenity->name}}" />
                             <span>{{$amenity->name}}</span>
                         </div>
                         @endforeach
@@ -453,8 +499,8 @@
                     </div>
                 </div>
                 <!-- dev backgrounds -->
-                <div class="possessions section" id="developer">
-                    <div class="h4 my-4 text-primary fw-bold">About Developer</div>
+                <div class="possessions section project-details-card mb-4" id="developer">
+                    <div class="h4 mb-4 fw-bold text-dark">About Developer</div>
                     <div class="row align-items-md-center mb-3">
                         @if (!empty($property->developerDetails))
                         @foreach ($property->developerDetails as $developer)
