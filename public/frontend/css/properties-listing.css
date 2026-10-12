@@ -31,7 +31,8 @@
 @keyframes plPop{from{transform:scale(.6);opacity:0}to{transform:none;opacity:1}}
 
 /* ---------- Sidebar ---------- */
-.pl .filters-sidebar{position:sticky;top:80px;background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:14px}
+.pl .filters-sidebar{position:sticky;top:80px;max-height:calc(100vh - 100px);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none;-ms-overflow-style:none;background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:14px}
+.pl .filters-sidebar::-webkit-scrollbar{display:none}
 .pl input[type=checkbox],#mobileFilter input[type=checkbox]{accent-color:var(--brand)}
 #mobileFilter{border-radius:0 var(--r) var(--r) 0}
 
