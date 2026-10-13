@@ -322,17 +322,14 @@
 }
 
 .pl-ajax-loader {
-    position: fixed;
-    z-index: 1030;
-    left: 50%;
-    bottom: 16px;
+    position: static;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
     width: max-content;
     max-width: calc(100vw - 32px);
-    transform: translateX(-50%);
+    margin: 16px auto;
     text-align: center;
     padding: 16px;
     font-weight: 600;

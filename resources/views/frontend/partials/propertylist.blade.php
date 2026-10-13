@@ -484,14 +484,10 @@
         if (!append) $('#property-list').html(plSkeleton(3));
 
         $.ajax({
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
+            headers: {'Accept': 'application/json'},
             url: "{{ route('property.filters', [], false) }}?page=" + pageNumber,
-            method: 'POST',
-            data: JSON.stringify({'filters': fd}),
+            method: 'GET',
+            data: {'filters': fd},
             success: function (response) {
                 var items = (response && response.data && Array.isArray(response.data.data)) ? response.data.data : [];
                 if (!append) $('#results-title').text((response && response.dynamicTitle) ? response.dynamicTitle : 'All Properties');
