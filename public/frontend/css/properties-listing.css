@@ -316,3 +316,33 @@
 /* "Check availability": purani .check-availability CSS ka colour override */
 .pl .pl-btn.pl-ghost{background:var(--brand)!important;border-color:var(--brand)!important;color:#fff!important}
 .pl .pl-btn.pl-ghost:hover{background:#1446a0!important;border-color:#1446a0!important}
+
+#propertyScrollSentinel {
+    min-height: 1px;
+}
+
+.pl-ajax-loader {
+    position: fixed;
+    z-index: 1030;
+    left: 50%;
+    bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: max-content;
+    max-width: calc(100vw - 32px);
+    transform: translateX(-50%);
+    text-align: center;
+    padding: 16px;
+    font-weight: 600;
+    color: var(--ink2);
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    box-shadow: 0 4px 16px rgba(11, 27, 46, .16);
+}
+
+.pl-ajax-loader[hidden] {
+    display: none;
+}

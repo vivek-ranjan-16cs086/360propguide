@@ -1822,13 +1822,10 @@ You can use this page to discover and compare <strong>{$configurationText}{$prop
 				$query->latest();
 			}
 
-			// Pagination
 			$page = max(1, (int) $request->query('page', 1));
 			$properties = $query->paginate(6, ['*'], 'page', $page);
-			// â”€â”€ Dynamic title 
 			$totalResults = $properties->total();
-			$titleParts   = [];
-
+			$titleParts = [];
 			if ($configurations !== []) {
 				$formatted = array_map(function ($c) {
 					return strtoupper(str_replace('_', ' ', $c));

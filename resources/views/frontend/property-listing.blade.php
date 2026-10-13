@@ -247,6 +247,10 @@
                 </div>
 
                 <div id="propertyScrollSentinel" class="text-center my-4" aria-hidden="true"></div>
+                <div id="propertyAjaxLoader" class="pl-ajax-loader" role="status" aria-live="polite" hidden>
+                    <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                    <span>Loading more properties...</span>
+                </div>
                 @if(isset($properties) && method_exists($properties, 'hasMorePages') && $properties->hasMorePages())
                     <noscript><a class="pl-seo" href="{{ $properties->nextPageUrl() }}">Next page</a></noscript>
                 @endif
@@ -291,6 +295,7 @@
     var plLoadingRequest = false;
     var plLoadingMore = false;
     var propertyScrollCheckQueued = false;
+    var propertyScrollLimit = null;
     /* DB keys — Blade ke $KEYS jaise hi rakho */
     var PL_KEYS = {
         area: ['carpet_area', 'super_area', 'builtup_area', 'area'],
@@ -463,24 +468,54 @@
     }
     $(document).on('click', '.pl-reset-btn, .pl-clear', function () { $('#resetFilters').trigger('click'); });
 
+    function getPropertyScrollLimit() {
+        var cards = document.querySelectorAll('#property-list .pl-card:not(.pl-skel)');
+        var lastCard = cards[cards.length - 1];
+        if (!lastCard) return window.pageYOffset || document.documentElement.scrollTop;
+
+        var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        return Math.max(0, Math.ceil(lastCard.getBoundingClientRect().bottom + scrollTop - window.innerHeight));
+    }
+
+    function enforcePropertyScrollLimit() {
+        if (propertyScrollLimit === null) return;
+
+        var currentScroll = window.pageYOffset || document.documentElement.scrollTop;
+        if (currentScroll > propertyScrollLimit && document.scrollingElement) {
+            document.scrollingElement.scrollTop = propertyScrollLimit;
+        }
+    }
+
     function checkPropertyScroll() {
         propertyScrollCheckQueued = false;
+        if (propertyScrollLimit !== null) {
+            enforcePropertyScrollLimit();
+            return;
+        }
+
         var sentinel = document.getElementById('propertyScrollSentinel');
         if (!sentinel || plLoadingRequest || plLoadingMore || plState.cur >= plState.last) return;
 
-        if (sentinel.getBoundingClientRect().top <= window.innerHeight + 500) {
+        if (sentinel.getBoundingClientRect().top <= window.innerHeight * 2) {
             plLoadingMore = true;
             filtersData['pageId'] = plState.cur + 1;
             applyFilters(filtersData, true);
         }
     }
     function schedulePropertyScrollCheck() {
+        enforcePropertyScrollLimit();
         if (propertyScrollCheckQueued) return;
         propertyScrollCheckQueued = true;
         window.requestAnimationFrame(checkPropertyScroll);
     }
     window.addEventListener('scroll', schedulePropertyScrollCheck, {passive: true});
     window.addEventListener('resize', schedulePropertyScrollCheck, {passive: true});
+    window.addEventListener('wheel', function (e) {
+        if (propertyScrollLimit !== null && e.deltaY > 0 &&
+            (window.pageYOffset || document.documentElement.scrollTop) >= propertyScrollLimit) {
+            e.preventDefault();
+        }
+    }, {passive: false});
 
     /* ---------- active filter chips + quick chip sync ---------- */
     function plChips() {
@@ -532,7 +567,15 @@
         var requestSucceeded = false;
         var pageNumber = (fd && fd['pageId'] !== undefined) ? fd['pageId'] : 1;
         plLoadingRequest = true;
-        if (!append) {
+        var $loader = $('#propertyAjaxLoader');
+        propertyScrollLimit = append
+            ? getPropertyScrollLimit()
+            : null;
+        $loader.prop('hidden', false);
+
+        if (append) {
+            $('#property-list').append(plSkeleton(3));
+        } else {
             plLoadingMore = false;
             $('#property-list').html(plSkeleton(3));
         }
@@ -551,6 +594,7 @@
                 requestSucceeded = !!response && response.status !== false;
                 var items = (response && response.data && Array.isArray(response.data.data)) ? response.data.data : [];
                 if (!append) $('#results-title').text((response && response.dynamicTitle) ? response.dynamicTitle : 'All Properties');
+                if (append) $('#property-list .pl-skel').remove();
 
                 if (!response || response.status === false || items.length === 0) {
                     if (append) {
@@ -574,19 +618,26 @@
             error: function () {
                 if (requestId !== plRequestId) return;
                 if (append) {
+                    $('#property-list .pl-skel').remove();
                     return;
                 }
                 $('#property-list').html(plEmpty());
                 $('#results-count').text('0 Results');
                 plState = {cur: 1, last: 1}; plChips();
             },
-            complete: function () {
-                if (requestId === plRequestId) {
-                    plLoadingRequest = false;
-                    plLoadingMore = false;
-                    if (requestSucceeded) schedulePropertyScrollCheck();
+        complete: function () {
+            if (requestId === plRequestId) {
+                plLoadingRequest = false;
+                plLoadingMore = false;
+                propertyScrollLimit = null;
+                $('#propertyAjaxLoader').prop('hidden', true);
+
+                if (requestSucceeded) {
+                    schedulePropertyScrollCheck();
                 }
             }
+        }
+
         });
     }
 
@@ -690,14 +741,17 @@
                     if (input.length) filtersData['listingType'] = (filtersData['listingType'] || []).concat(input.val());
                 });
             }
-            filtersData['pageId'] = 1;
-            applyFilters(filtersData);
         } else {
             applyQueryParams();
             updateListingType(false);
             updatePropertyType(false);
             updateConfiguration(false);
             updateLocation(false);
+        }
+        if (!plLoadingRequest && plState.cur < plState.last) {
+            filtersData['pageId'] = plState.cur + 1;
+            plLoadingMore = true;
+            applyFilters(filtersData, true);
         }
         plChips();
 
