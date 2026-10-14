@@ -84,7 +84,7 @@ Route::get('about-us', [FrontendPageController::class, 'getAboutUsPageData'])->n
 // Property browsing
 Route::prefix('properties')->group(function () {
     Route::get('/', [FrontendPageController::class, 'getPropertyListings']);
-    Route::post('filters', [FrontendPageController::class, 'filterProperties'])->name('property.filters');
+    Route::get('filters', [FrontendPageController::class, 'filterProperties'])->name('property.filters');
     Route::get('/{slug}', [FrontendPageController::class, 'getPropertyDetails'])->name('property.details');
 });
 

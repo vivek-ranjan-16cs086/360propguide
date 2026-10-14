@@ -295,7 +295,6 @@
     var plLoadingRequest = false;
     var plLoadingMore = false;
     var propertyScrollCheckQueued = false;
-    var propertyScrollLimit = null;
     /* DB keys — Blade ke $KEYS jaise hi rakho */
     var PL_KEYS = {
         area: ['carpet_area', 'super_area', 'builtup_area', 'area'],
@@ -466,33 +465,16 @@
     function plEmpty() {
         return '<div class="pl-empty"><i class="fa-solid fa-house-circle-xmark"></i><h4>No properties found</h4><p class="text-muted">Try removing a few filters.</p><button type="button" class="pl-chip pl-reset-btn">Reset filters</button></div>';
     }
+    function updatePropertyListingEnd() {
+        var hideEndContent = plLoadingRequest || plState.cur < plState.last;
+        document.querySelectorAll('.commonLinks, body > footer').forEach(function (element) {
+            element.hidden = hideEndContent;
+        });
+    }
     $(document).on('click', '.pl-reset-btn, .pl-clear', function () { $('#resetFilters').trigger('click'); });
-
-    function getPropertyScrollLimit() {
-        var cards = document.querySelectorAll('#property-list .pl-card:not(.pl-skel)');
-        var lastCard = cards[cards.length - 1];
-        if (!lastCard) return window.pageYOffset || document.documentElement.scrollTop;
-
-        var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-        return Math.max(0, Math.ceil(lastCard.getBoundingClientRect().bottom + scrollTop - window.innerHeight));
-    }
-
-    function enforcePropertyScrollLimit() {
-        if (propertyScrollLimit === null) return;
-
-        var currentScroll = window.pageYOffset || document.documentElement.scrollTop;
-        if (currentScroll > propertyScrollLimit && document.scrollingElement) {
-            document.scrollingElement.scrollTop = propertyScrollLimit;
-        }
-    }
 
     function checkPropertyScroll() {
         propertyScrollCheckQueued = false;
-        if (propertyScrollLimit !== null) {
-            enforcePropertyScrollLimit();
-            return;
-        }
-
         var sentinel = document.getElementById('propertyScrollSentinel');
         if (!sentinel || plLoadingRequest || plLoadingMore || plState.cur >= plState.last) return;
 
@@ -503,19 +485,12 @@
         }
     }
     function schedulePropertyScrollCheck() {
-        enforcePropertyScrollLimit();
         if (propertyScrollCheckQueued) return;
         propertyScrollCheckQueued = true;
         window.requestAnimationFrame(checkPropertyScroll);
     }
     window.addEventListener('scroll', schedulePropertyScrollCheck, {passive: true});
     window.addEventListener('resize', schedulePropertyScrollCheck, {passive: true});
-    window.addEventListener('wheel', function (e) {
-        if (propertyScrollLimit !== null && e.deltaY > 0 &&
-            (window.pageYOffset || document.documentElement.scrollTop) >= propertyScrollLimit) {
-            e.preventDefault();
-        }
-    }, {passive: false});
 
     /* ---------- active filter chips + quick chip sync ---------- */
     function plChips() {
@@ -567,10 +542,8 @@
         var requestSucceeded = false;
         var pageNumber = (fd && fd['pageId'] !== undefined) ? fd['pageId'] : 1;
         plLoadingRequest = true;
+        updatePropertyListingEnd();
         var $loader = $('#propertyAjaxLoader');
-        propertyScrollLimit = append
-            ? getPropertyScrollLimit()
-            : null;
         $loader.prop('hidden', false);
 
         if (append) {
@@ -581,14 +554,10 @@
         }
 
         $.ajax({
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
+            headers: {'Accept': 'application/json'},
             url: "{{ route('property.filters', [], false) }}?page=" + pageNumber,
-            method: 'POST',
-            data: JSON.stringify({'filters': fd}),
+            method: 'GET',
+            data: {'filters': fd},
             success: function (response) {
                 if (requestId !== plRequestId) return;
                 requestSucceeded = !!response && response.status !== false;
@@ -629,12 +598,12 @@
             if (requestId === plRequestId) {
                 plLoadingRequest = false;
                 plLoadingMore = false;
-                propertyScrollLimit = null;
                 $('#propertyAjaxLoader').prop('hidden', true);
 
                 if (requestSucceeded) {
                     schedulePropertyScrollCheck();
                 }
+                updatePropertyListingEnd();
             }
         }
 
@@ -696,6 +665,7 @@
     /* ---------- DOM ready ---------- */
     $(document).ready(function () {
         $('#plRoot').addClass('pl-js');
+        updatePropertyListingEnd();
         plReveal();
         schedulePropertyScrollCheck();
         try { plView(localStorage.getItem('pl_view') || 'list'); } catch (e) {}
