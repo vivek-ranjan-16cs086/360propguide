@@ -201,6 +201,7 @@ $status = "<a href=\"javascript:void(0)\"
         
             'faqs_data' => 'required',
             'floor_plans' => 'required|array',
+            'floor_plans.*.is_coming_soon' => 'boolean',
         
             'location' => 'required',
             'cities' => 'required',
@@ -233,6 +234,10 @@ $status = "<a href=\"javascript:void(0)\"
                 }
 
                 $processedPlan['image'] = $processedPlan['image'] ?? null;
+                $processedPlan['is_coming_soon'] = filter_var(
+                    $currentFloorPlan['is_coming_soon'] ?? false,
+                    FILTER_VALIDATE_BOOLEAN
+                );
                 $floorPlans[] = $processedPlan;
             }
 
@@ -525,6 +530,7 @@ public function update(Request $request)
             'project_type' => 'required|in:residential,commercial,mixed',
            
             'floor_plans' => 'required|array',
+            'floor_plans.*.is_coming_soon' => 'boolean',
         ]);
 
 
@@ -799,6 +805,10 @@ public function update(Request $request)
 
             $tempPlan['image'] =
                 $tempPlan['image'] ?? null;
+            $tempPlan['is_coming_soon'] = filter_var(
+                $floorPlan['is_coming_soon'] ?? false,
+                FILTER_VALIDATE_BOOLEAN
+            );
 
             if ($tempPlan['image']) {
                 $retainedFloorImages[] = $tempPlan['image'];

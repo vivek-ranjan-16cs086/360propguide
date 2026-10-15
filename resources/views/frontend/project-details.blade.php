@@ -1239,9 +1239,21 @@
                                     @endphp
                                     @if (!empty($floorPlans) && count($floorPlans) > 0)
                                     @foreach ($floorPlans as $index => $floorPlan)
+                                    @php
+                                    $floorPlanImage = trim((string) ($floorPlan['image'] ?? '')) !== ''
+                                        ? $floorPlan['image']
+                                        : (trim((string) ($floorPlan['feature_image'] ?? '')) !== '' ? $floorPlan['feature_image'] : null);
+                                    $isComingSoon = filter_var(
+                                        $floorPlan['is_coming_soon'] ?? false,
+                                        FILTER_VALIDATE_BOOLEAN
+                                    );
+                                    $floorPlanImageUrl = $isComingSoon
+                                        ? asset('assets/images/360_prop_guide_coming_soon.avif')
+                                        : storageUrl($floorPlanImage);
+                                    @endphp
                                     <div class="swiper-slide flex-column">
                                         <img class="col-12 col-md-10 mx-auto" alt="{{ $projects->project_name }}"
-                                            src="{{ storageUrl($floorPlan['image'] ?? ($floorPlan['feature_image'] ?? null)) }}" />
+                                            src="{{ $floorPlanImageUrl }}" />
                                         <div class="row m-0 w-100 align-items-center">
                                             @if (@$floorPlan['super_area'] != 0)
                                             <div class="col-md-3 col-6">
@@ -1530,8 +1542,7 @@
 
     {{-- Desktop Quick Enquiry Form --}}
     <div class="d-none d-lg-block ppc-form col-md-8 mx-auto col-lg-12 mb-3"
-    id="sidebar-enquiry-form"
-    style="max-height: 420px; overflow-y: auto;">
+    id="sidebar-enquiry-form">
 
     <div class="p-3 pt-2">
 
