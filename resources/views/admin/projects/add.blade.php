@@ -912,7 +912,12 @@
                 </div>
                 <div class="col-2">
                     <label for="feature_image">Image:</label>
-                    <input name="floor_plans[${index}][feature_image]" type="file" class="form-control" required>
+                    <input name="floor_plans[${index}][feature_image]" type="file" class="form-control">
+                    <input type="hidden" name="floor_plans[${index}][is_coming_soon]" value="0">
+                    <label class="d-block mt-2 text-end">
+                        <input name="floor_plans[${index}][is_coming_soon]" type="checkbox" value="1">
+                        Coming Soon
+                    </label>
                 </div>
             </div>
             <span class="bg-danger minusBtn">
@@ -940,7 +945,12 @@
                 </div>
                 <div class="col-2">
                     <label for="feature_image">Image:</label>
-                    <input name="floor_plans[${index}][feature_image]" type="file" class="form-control" required>
+                    <input name="floor_plans[${index}][feature_image]" type="file" class="form-control">
+                    <input type="hidden" name="floor_plans[${index}][is_coming_soon]" value="0">
+                    <label class="d-block mt-2 text-end">
+                        <input name="floor_plans[${index}][is_coming_soon]" type="checkbox" value="1">
+                        Coming Soon
+                    </label>
                 </div>
             </div>
             <span class="bg-danger minusBtn">
@@ -1015,6 +1025,11 @@
                         name="floor_plans[${index}][feature_image]"
                         type="file"
                         class="form-control">
+                    <input type="hidden" name="floor_plans[${index}][is_coming_soon]" value="0">
+                    <label class="d-block mt-2 text-end">
+                        <input name="floor_plans[${index}][is_coming_soon]" type="checkbox" value="1">
+                        Coming Soon
+                    </label>
                 </div>
 
             </div>

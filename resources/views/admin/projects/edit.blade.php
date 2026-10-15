@@ -933,6 +933,11 @@ function generateFloorPlanFields(type, index) {
                         name="floor_plans[${index}][feature_image]"
                         type="file"
                         class="form-control">
+                    <input type="hidden" name="floor_plans[${index}][is_coming_soon]" value="0">
+                    <label class="d-block mt-2 text-end">
+                        <input name="floor_plans[${index}][is_coming_soon]" type="checkbox" value="1">
+                        Coming Soon
+                    </label>
                 </div>
 
             </div>
@@ -1000,6 +1005,11 @@ function generateFloorPlanFields(type, index) {
                         name="floor_plans[${index}][feature_image]"
                         type="file"
                         class="form-control">
+                    <input type="hidden" name="floor_plans[${index}][is_coming_soon]" value="0">
+                    <label class="d-block mt-2 text-end">
+                        <input name="floor_plans[${index}][is_coming_soon]" type="checkbox" value="1">
+                        Coming Soon
+                    </label>
                 </div>
 
             </div>
@@ -1092,6 +1102,12 @@ function generateCommercialFloorFields(index, data = {}) {
                     name="floor_plans[${index}][feature_image]"
                     type="file"
                     class="form-control">
+                <input type="hidden" name="floor_plans[${index}][is_coming_soon]" value="0">
+                <label class="d-block mt-2 text-end">
+                    <input name="floor_plans[${index}][is_coming_soon]" type="checkbox" value="1"
+                        ${data.is_coming_soon === true || data.is_coming_soon === 1 || data.is_coming_soon === '1' ? 'checked' : ''}>
+                    Coming Soon
+                </label>
             </div>
 
         </div>
@@ -1254,7 +1270,7 @@ $('#area_type').val(selectedAreaType);
 
             Object.keys(plan).forEach(function(key) {
 
-                if (key === 'feature_image') {
+                if (key === 'feature_image' || key === 'is_coming_soon') {
                     return;
                 }
 
@@ -1262,6 +1278,9 @@ $('#area_type').val(selectedAreaType);
                     .find(`[name="floor_plans[${index}][${key}]"]`)
                     .val(plan[key] ?? '');
             });
+
+            $item.find('input[type="checkbox"][name$="[is_coming_soon]"]')
+                .prop('checked', plan.is_coming_soon === true || plan.is_coming_soon === 1 || plan.is_coming_soon === '1');
 
         });
 
@@ -1393,10 +1412,12 @@ $(document).on('click', '.commercialPlusBtn', function () {
                 appendEditPlanMetadata($row, nextIndex, 'residential', areaType, item.originalIndex);
                 $('#residentialFloors').append($row);
                 Object.keys(item.plan).forEach(function(key) {
-                    if (!['image', 'feature_image', 'plan_type', 'area_type'].includes(key)) {
+                    if (!['image', 'feature_image', 'plan_type', 'area_type', 'is_coming_soon'].includes(key)) {
                         $row.find(`[name="floor_plans[${nextIndex}][${key}]"]`).val(item.plan[key] ?? '');
                     }
                 });
+                $row.find('input[type="checkbox"][name$="[is_coming_soon]"]')
+                    .prop('checked', item.plan.is_coming_soon === true || item.plan.is_coming_soon === 1 || item.plan.is_coming_soon === '1');
                 nextIndex++;
             });
         }
