@@ -31,7 +31,8 @@
 @keyframes plPop{from{transform:scale(.6);opacity:0}to{transform:none;opacity:1}}
 
 /* ---------- Sidebar ---------- */
-.pl .filters-sidebar{position:sticky;top:80px;background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:14px}
+.pl .filters-sidebar{position:sticky;top:80px;max-height:calc(100vh - 100px);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none;-ms-overflow-style:none;background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:14px}
+.pl .filters-sidebar::-webkit-scrollbar{display:none}
 .pl input[type=checkbox],#mobileFilter input[type=checkbox]{accent-color:var(--brand)}
 #mobileFilter{border-radius:0 var(--r) var(--r) 0}
 
@@ -315,3 +316,30 @@
 /* "Check availability": purani .check-availability CSS ka colour override */
 .pl .pl-btn.pl-ghost{background:var(--brand)!important;border-color:var(--brand)!important;color:#fff!important}
 .pl .pl-btn.pl-ghost:hover{background:#1446a0!important;border-color:#1446a0!important}
+
+#propertyScrollSentinel {
+    min-height: 1px;
+}
+
+.pl-ajax-loader {
+    position: static;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: max-content;
+    max-width: calc(100vw - 32px);
+    margin: 16px auto;
+    text-align: center;
+    padding: 16px;
+    font-weight: 600;
+    color: var(--ink2);
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    box-shadow: 0 4px 16px rgba(11, 27, 46, .16);
+}
+
+.pl-ajax-loader[hidden] {
+    display: none;
+}

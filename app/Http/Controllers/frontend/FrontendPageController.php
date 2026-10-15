@@ -77,9 +77,15 @@ class FrontendPageController extends Controller
 	private function facebookPostData()
 	{
 		return Cache::remember('homepage.facebook-feed', now()->addMinutes(30), function () {
+			$accessToken = config('services.meta.page_access_token');
+			if (!$accessToken) {
+				return [];
+			}
+
 			$ch = curl_init();
 			curl_setopt_array($ch, [
-				CURLOPT_URL => 'https://graph.facebook.com/v21.0/me?fields=id%2Cname%2Cfeed%7Bfull_picture%2Ccreated_time%2Cmessage%2Cpermalink_url%7D&access_token=EAAIxmpZAdhYwBRzUBWc54LRTZCfF7xlD95hIzhh5T6ZA9X7IqybCIpXnNuzZBnXGfx705vyyOAih2BDFPoyCYPecYMPdfAXpSPklI28c1Q0ZC302lg0YOgd5iRw01ZCPZC9590D1DpXzHkWaOCfnKZBu7dWoHNWDfZCvF68OBnRJUUgMEneH2TFGCAl2uAYMqkV77zMsZD',
+				CURLOPT_URL => 'https://graph.facebook.com/v21.0/me?fields=id%2Cname%2Cfeed%7Bfull_picture%2Ccreated_time%2Cmessage%2Cpermalink_url%7D',
+				CURLOPT_HTTPHEADER => ['Authorization: Bearer ' . $accessToken],
 				CURLOPT_RETURNTRANSFER => true,
 				CURLOPT_CONNECTTIMEOUT => 2,
 				CURLOPT_TIMEOUT => 4,
@@ -1822,12 +1828,10 @@ You can use this page to discover and compare <strong>{$configurationText}{$prop
 				$query->latest();
 			}
 
-			// Pagination
-			$properties = $query->paginate(6);
-			// â”€â”€ Dynamic title 
+			$page = max(1, (int) $request->query('page', 1));
+			$properties = $query->paginate(6, ['*'], 'page', $page);
 			$totalResults = $properties->total();
-			$titleParts   = [];
-
+			$titleParts = [];
 			if ($configurations !== []) {
 				$formatted = array_map(function ($c) {
 					return strtoupper(str_replace('_', ' ', $c));

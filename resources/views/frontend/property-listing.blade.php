@@ -246,9 +246,10 @@
                     @endif
                 </div>
 
-                <div class="text-center my-4">
-                    <button type="button" class="pl-more-btn" id="plMore" hidden>Show more properties</button>
-                    <p class="pl-end" id="plEnd" hidden>You've viewed all properties.</p>
+                <div id="propertyScrollSentinel" class="text-center my-4" aria-hidden="true"></div>
+                <div id="propertyAjaxLoader" class="pl-ajax-loader" role="status" aria-live="polite" hidden>
+                    <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                    <span>Loading more properties...</span>
                 </div>
                 @if(isset($properties) && method_exists($properties, 'hasMorePages') && $properties->hasMorePages())
                     <noscript><a class="pl-seo" href="{{ $properties->nextPageUrl() }}">Next page</a></noscript>
@@ -290,6 +291,10 @@
         cur: {{ isset($properties) && method_exists($properties, 'currentPage') ? (int) $properties->currentPage() : 1 }},
         last: {{ isset($properties) && method_exists($properties, 'lastPage') ? (int) $properties->lastPage() : 1 }}
     };
+    var plRequestId = 0;
+    var plLoadingRequest = false;
+    var plLoadingMore = false;
+    var propertyScrollCheckQueued = false;
     /* DB keys — Blade ke $KEYS jaise hi rakho */
     var PL_KEYS = {
         area: ['carpet_area', 'super_area', 'builtup_area', 'area'],
@@ -460,17 +465,32 @@
     function plEmpty() {
         return '<div class="pl-empty"><i class="fa-solid fa-house-circle-xmark"></i><h4>No properties found</h4><p class="text-muted">Try removing a few filters.</p><button type="button" class="pl-chip pl-reset-btn">Reset filters</button></div>';
     }
+    function updatePropertyListingEnd() {
+        var hideEndContent = plLoadingRequest || plState.cur < plState.last;
+        document.querySelectorAll('.commonLinks, body > footer').forEach(function (element) {
+            element.hidden = hideEndContent;
+        });
+    }
     $(document).on('click', '.pl-reset-btn, .pl-clear', function () { $('#resetFilters').trigger('click'); });
 
-    function plMoreUI() {
-        $('#plMore').prop('hidden', plState.cur >= plState.last).prop('disabled', false).text('Show more properties');
-        $('#plEnd').prop('hidden', plState.last < 2 || plState.cur < plState.last);
+    function checkPropertyScroll() {
+        propertyScrollCheckQueued = false;
+        var sentinel = document.getElementById('propertyScrollSentinel');
+        if (!sentinel || plLoadingRequest || plLoadingMore || plState.cur >= plState.last) return;
+
+        if (sentinel.getBoundingClientRect().top <= window.innerHeight * 2) {
+            plLoadingMore = true;
+            filtersData['pageId'] = plState.cur + 1;
+            applyFilters(filtersData, true);
+        }
     }
-    $('#plMore').on('click', function () {
-        $(this).prop('disabled', true).text('Loading…');
-        filtersData['pageId'] = plState.cur + 1;
-        applyFilters(filtersData, true);
-    });
+    function schedulePropertyScrollCheck() {
+        if (propertyScrollCheckQueued) return;
+        propertyScrollCheckQueued = true;
+        window.requestAnimationFrame(checkPropertyScroll);
+    }
+    window.addEventListener('scroll', schedulePropertyScrollCheck, {passive: true});
+    window.addEventListener('resize', schedulePropertyScrollCheck, {passive: true});
 
     /* ---------- active filter chips + quick chip sync ---------- */
     function plChips() {
@@ -518,27 +538,43 @@
 
     /* ---------- AJAX ---------- */
     function applyFilters(fd, append) {
+        var requestId = ++plRequestId;
+        var requestSucceeded = false;
         var pageNumber = (fd && fd['pageId'] !== undefined) ? fd['pageId'] : 1;
-        if (!append) $('#property-list').html(plSkeleton(3));
+        plLoadingRequest = true;
+        updatePropertyListingEnd();
+        var $loader = $('#propertyAjaxLoader');
+        $loader.prop('hidden', false);
+
+        if (append) {
+            $('#property-list').append(plSkeleton(3));
+        } else {
+            plLoadingMore = false;
+            $('#property-list').html(plSkeleton(3));
+        }
 
         $.ajax({
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
+            headers: {'Accept': 'application/json'},
             url: "{{ route('property.filters', [], false) }}?page=" + pageNumber,
-            method: 'POST',
-            data: JSON.stringify({'filters': fd}),
+            method: 'GET',
+            data: {'filters': fd},
             success: function (response) {
+                if (requestId !== plRequestId) return;
+                requestSucceeded = !!response && response.status !== false;
                 var items = (response && response.data && Array.isArray(response.data.data)) ? response.data.data : [];
                 if (!append) $('#results-title').text((response && response.dynamicTitle) ? response.dynamicTitle : 'All Properties');
+                if (append) $('#property-list .pl-skel').remove();
 
                 if (!response || response.status === false || items.length === 0) {
-                    if (append) { plMoreUI(); return; }
+                    if (append) {
+                        if (requestSucceeded) {
+                            plState.cur = plState.last;
+                        }
+                        return;
+                    }
                     $('#property-list').html(plEmpty());
                     $('#results-count').text('0 Results');
-                    plState = {cur: 1, last: 1}; plMoreUI(); plChips();
+                    plState = {cur: 1, last: 1}; plChips();
                     return;
                 }
                 var html = items.map(plCard).join('');
@@ -546,14 +582,31 @@
                 $('#results-count').text((response.totalResults || items.length) + ' Results');
                 var pg = response.pagination || {};
                 plState = {cur: pg.current_page || 1, last: pg.last_page || 1};
-                plMoreUI(); plReveal(); plChips();
+                plReveal(); plChips();
             },
             error: function () {
-                if (append) { plMoreUI(); return; }
+                if (requestId !== plRequestId) return;
+                if (append) {
+                    $('#property-list .pl-skel').remove();
+                    return;
+                }
                 $('#property-list').html(plEmpty());
                 $('#results-count').text('0 Results');
-                plState = {cur: 1, last: 1}; plMoreUI(); plChips();
+                plState = {cur: 1, last: 1}; plChips();
+            },
+        complete: function () {
+            if (requestId === plRequestId) {
+                plLoadingRequest = false;
+                plLoadingMore = false;
+                $('#propertyAjaxLoader').prop('hidden', true);
+
+                if (requestSucceeded) {
+                    schedulePropertyScrollCheck();
+                }
+                updatePropertyListingEnd();
             }
+        }
+
         });
     }
 
@@ -612,8 +665,9 @@
     /* ---------- DOM ready ---------- */
     $(document).ready(function () {
         $('#plRoot').addClass('pl-js');
-        plMoreUI();
+        updatePropertyListingEnd();
         plReveal();
+        schedulePropertyScrollCheck();
         try { plView(localStorage.getItem('pl_view') || 'list'); } catch (e) {}
 
         /* filter form: sidebar <-> offcanvas (pehle move, phir filters apply) */
@@ -629,19 +683,6 @@
         moveFilters();
         window.addEventListener('resize', moveFilters);
 
-        /* sidebar: jab tak pura nahi dikhta tab tak page ke saath scroll, bottom dikhte hi fix (sticky) */
-      /* sidebar: pehle page ke saath scroll, pura dikhte hi fix */
-var plSide = document.getElementById('propertyFilters');
-function plStickySidebar() {
-    if (!plSide || !plSide.offsetParent) return;
-    var TOP = 80, GAP = 20;                  // TOP = site header ki height
-    var h = plSide.offsetHeight, vh = window.innerHeight;
-    plSide.style.top = (h + TOP + GAP > vh ? vh - h - GAP : TOP) + 'px';
-}
-plStickySidebar();
-window.addEventListener('resize', plStickySidebar);
-window.addEventListener('load', plStickySidebar);
-if (window.ResizeObserver && plSide) new ResizeObserver(plStickySidebar).observe(plSide);
         var ft = document.getElementById('filterToggle');
         if (ft) ft.addEventListener('click', function () { new bootstrap.Offcanvas(document.getElementById('mobileFilter')).show(); });
 
@@ -670,14 +711,17 @@ if (window.ResizeObserver && plSide) new ResizeObserver(plStickySidebar).observe
                     if (input.length) filtersData['listingType'] = (filtersData['listingType'] || []).concat(input.val());
                 });
             }
-            filtersData['pageId'] = 1;
-            applyFilters(filtersData);
         } else {
             applyQueryParams();
             updateListingType(false);
             updatePropertyType(false);
             updateConfiguration(false);
             updateLocation(false);
+        }
+        if (!plLoadingRequest && plState.cur < plState.last) {
+            filtersData['pageId'] = plState.cur + 1;
+            plLoadingMore = true;
+            applyFilters(filtersData, true);
         }
         plChips();
 

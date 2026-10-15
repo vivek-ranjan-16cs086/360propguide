@@ -317,13 +317,13 @@ class FacebookWebhookController extends Controller
             |--------------------------------------------------------------------------
             */
 				
-				$response = Http::timeout(15)
+                $response = Http::withToken($pageAccessToken)
+                ->timeout(15)
 				->retry(2, 500, null, false)
 				->get(
 					"https://graph.facebook.com/{$version}/{$leadId}",
 					[
 						'fields' => 'id,created_time,field_data',
-						'access_token' => $pageAccessToken,
 					]
 				);
 
