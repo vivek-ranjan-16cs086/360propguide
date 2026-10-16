@@ -1667,12 +1667,17 @@ You can use this page to discover and compare <strong>{$configurationText}{$prop
 			}
 		}
 
-		// Price range for approved properties
-		$minPrice = Property::where('status', 'approved')->min('total_price') ?? 100000;
-		$maxPrice = Property::where('status', 'approved')->max('total_price') ?? 0;
+		$propertyStats = Property::where('status', 'approved')
+			->selectRaw('COUNT(*) as total, MIN(total_price) as min_price, MAX(total_price) as max_price')
+			->first();
+		$minPrice = $propertyStats->min_price ?? 100000;
+		$maxPrice = $propertyStats->max_price ?? 0;
 
 		// Locations of approved properties only
 		$locations = Property::where('status', 'approved')
+			->whereNotNull('city')
+			->distinct()
+			->orderBy('city')
 			->pluck('city')
 			->filter()
 			->map(function ($item) {
@@ -1682,9 +1687,11 @@ You can use this page to discover and compare <strong>{$configurationText}{$prop
 			->values()
 			->all();
 
-		$configurations = Property::pluck('configuration')
+		$configurations = Property::where('status', 'approved')
+			->whereNotNull('configuration')
+			->distinct()
+			->pluck('configuration')
 			->filter()
-			->unique()
 			->sortBy(function ($item) {
 				return (int) filter_var($item, FILTER_SANITIZE_NUMBER_INT);
 			})
@@ -1692,21 +1699,23 @@ You can use this page to discover and compare <strong>{$configurationText}{$prop
 			->all();
 
 		$constructionStatuses = Property::where('status', 'approved')
+			->whereNotNull('construction_status')
+			->distinct()
 			->pluck('construction_status')
 			->filter()
-			->unique()
 			->values()
 			->all();
 
 		$furnishingTypes = Property::where('status', 'approved')
+			->whereNotNull('furnishing_types')
+			->distinct()
 			->pluck('furnishing_types')
 			->filter()
-			->unique()
 			->values()
 			->all();
 
 		$links_description = null;
-		$totalResults = Property::where('status', 'approved')->count();
+		$totalResults = (int) ($propertyStats->total ?? 0);
 		$dynamicTitle = 'All Properties';
 
 		return view('frontend.property-listing', compact(
@@ -1745,8 +1754,7 @@ You can use this page to discover and compare <strong>{$configurationText}{$prop
 				}));
 			};
 
-			$query = Property::with(['project', 'user'])
-				->where('status', 'approved');
+			$query = Property::where('status', 'approved');
 
 			if (!empty($filters['search'])) {
 				$search = trim((string) $filters['search']);
@@ -1829,90 +1837,43 @@ You can use this page to discover and compare <strong>{$configurationText}{$prop
 			}
 
 			$page = max(1, (int) $request->query('page', 1));
-			$properties = $query->paginate(6, ['*'], 'page', $page);
-			$totalResults = $properties->total();
-			$titleParts = [];
-			if ($configurations !== []) {
-				$formatted = array_map(function ($c) {
-					return strtoupper(str_replace('_', ' ', $c));
-				}, $configurations);
-				$titleParts[] = implode(', ', $formatted);
-			}
+			$properties = $query->simplePaginate(6, ['*'], 'page', $page);
 
-			if ($propertyTypes !== []) {
-				$titleParts[] = implode(', ', $propertyTypes);
-			}
+			$cardFields = [
+				'slug', 'title', 'galleries', 'listing_type', 'construction_status', 'total_price',
+				'area', 'carpet_area', 'super_area', 'builtup_area', 'builder', 'builder_name', 'developer',
+				'rera_number', 'rera_no', 'rera', 'bathrooms', 'bathroom', 'floor', 'floor_no',
+				'possession_date', 'possession', 'created_at', 'short_description', 'description', 'overview',
+				'amenities', 'highlights', 'configuration', 'furnishing_types', 'property_type', 'city', 'price_details',
+			];
+			$propertyCards = $properties->getCollection()->map(function ($property) use ($cardFields) {
+				$card = $property->only($cardFields);
+				$galleries = (array) $property->galleries;
+				$card['galleries'] = array_slice(array_values($galleries), 0, 6);
+				$card['gallery_count'] = count($galleries);
 
-			$locationLabels = $list('location');
-			if ($locationLabels !== []) {
-				$titleParts[] = 'in ' . implode(', ', $locationLabels);
-			}
+				$description = $property->short_description ?? $property->description ?? $property->overview ?? null;
+				$card['short_description'] = $description
+					? \Illuminate\Support\Str::limit(trim(preg_replace('/\\s+/', ' ', strip_tags((string) $description))), 140)
+					: null;
+				unset($card['description'], $card['overview']);
+				$card['price_details'] = !empty($property->price_details);
 
-			if (!empty($filters['search'])) {
-				$searchLabel = trim((string) $filters['search']);
-				if ($searchLabel !== '') {
-					$titleParts[] = '"' . $searchLabel . '"';
-				}
-			}
-
-			$dynamicTitle = count($titleParts)
-				? implode(' ', $titleParts)
-				: 'All Properties';
-
-			$totalResultsText = $totalResults . ' Result' . ($totalResults !== 1 ? 's' : '');
-			// â”€â”€ end Dynamic title 
-
-			// Filter UI Data
-			$minPrice = Property::min('total_price') ?? 100000;
-			$maxPrice = Property::max('total_price') ?? 0;
-			$locations = Property::pluck('city')
-				->filter()
-				->map(function ($item) {
-					return ucwords(strtolower(trim($item)));
-				})
-				->unique()
-				->values()
-				->all();
+				return $card;
+			});
 
 			return response()->json([
 				'status' => true,
-				'data' => $properties,
-				'dynamicTitle'     => $dynamicTitle,        // â† add
-				'totalResults'     => $totalResults,         // â† add
-				'totalResultsText' => $totalResultsText,
-				'filtersData' => [
-					'locations' => $locations,
-					'minPrice' => $minPrice,
-					'maxPrice' => $maxPrice,
-				],
-				'pagination' => [
-					'last_page' => $properties->lastPage(),
-					'current_page' => $properties->currentPage(),
-				]
+				'data' => $propertyCards->values()->all(),
+				'hasMore' => $properties->hasMorePages(),
 			]);
 		} catch (\Throwable $e) {
 			report($e);
 
 			return response()->json([
 				'status' => false,
-				'data' => [
-					'data' => [],
-					'current_page' => 1,
-					'last_page' => 1,
-					'total' => 0,
-				],
-				'dynamicTitle' => 'All Properties',
-				'totalResults' => 0,
-				'totalResultsText' => '0 Results',
-				'filtersData' => [
-					'locations' => [],
-					'minPrice' => 0,
-					'maxPrice' => 0,
-				],
-				'pagination' => [
-					'last_page' => 1,
-					'current_page' => 1,
-				],
+				'data' => [],
+				'hasMore' => false,
 			], 200);
 		}
 	}

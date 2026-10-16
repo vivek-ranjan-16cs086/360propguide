@@ -48,10 +48,7 @@
                 <h1 class="pl-h1" id="results-title">{{ isset($dynamicTitle) ? $dynamicTitle : 'All Properties' }}</h1>
                 <span class="pl-count" id="results-count">{{ isset($totalResults) ? $totalResults : ($properties->total() ?? 0) }} Results</span>
             </div>
-            <div class="pl-search">
-                <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" id="search-input" name="search" placeholder="Search project, locality or builder" autocomplete="off">
-            </div>
+           
         </div>
     </section>
 

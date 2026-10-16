@@ -96,6 +96,13 @@ $resultCount = isset($projects) ? $projects->total() : 0;
                             </option>
                         </select>
                     </label>
+
+                    {{-- <div class="pl-view" role="group" aria-label="Project view">
+                        <button type="button" class="pl-vbtn is-on" data-view="list" aria-label="List view"
+                            aria-pressed="true" title="List view"><i class="fa-solid fa-list" aria-hidden="true"></i></button>
+                        <button type="button" class="pl-vbtn" data-view="grid" aria-label="Grid view"
+                            aria-pressed="false" title="Grid view"><i class="fa-solid fa-table-cells-large" aria-hidden="true"></i></button>
+                    </div> --}}
                 </div>
             </div>
         </header>
@@ -171,36 +178,18 @@ $resultCount = isset($projects) ? $projects->total() : 0;
          </details>
           @endif
 
-                <div class="projects-grid">
+                <div class="projects-grid"
+                    data-current-page="{{ $projects->currentPage() }}"
+                    data-last-page="{{ $projects->lastPage() }}">
                     @include('frontend.partials._project-list', ['projects' => $projects])
                 </div>
-
-                @if(isset($projects) && $projects->lastPage() > 1)
-                <nav id="pagination-links" aria-label="Projects pagination">
-                    <ul class="pagination">
-                        <li class="page-item {{ $projects->onFirstPage() ? 'disabled' : '' }}">
-                            @if($projects->onFirstPage())
-                            <span class="page-link">Previous</span>
-                            @else
-                            <a class="page-link" href="{{ $projects->previousPageUrl() }}">Previous</a>
-                            @endif
-                        </li>
-                        @foreach ($projects->getUrlRange(max(1, $projects->currentPage() - 2),
-                        min($projects->lastPage(), $projects->currentPage() + 2)) as $page => $url)
-                        <li class="page-item {{ $projects->currentPage() === $page ? 'active' : '' }}">
-                            <a class="page-link" href="{{ $url }}">{{ $page }}</a>
-                        </li>
-                        @endforeach
-                        <li
-                            class="page-item {{ $projects->currentPage() === $projects->lastPage() ? 'disabled' : '' }}">
-                            @if($projects->currentPage() === $projects->lastPage())
-                            <span class="page-link">Next</span>
-                            @else
-                            <a class="page-link" href="{{ $projects->nextPageUrl() }}">Next</a>
-                            @endif
-                        </li>
-                    </ul>
-                </nav>
+                <div id="projectsScrollSentinel" aria-hidden="true"></div>
+                <div id="projectsAjaxLoader" class="projects-ajax-loader" role="status" aria-live="polite" hidden>
+                    <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                    <span>Loading more projects...</span>
+                </div>
+                @if($projects->hasMorePages())
+                <noscript><a href="{{ $projects->nextPageUrl() }}">Load more projects</a></noscript>
                 @endif
             </div>
         </div>
@@ -217,6 +206,7 @@ $resultCount = isset($projects) ? $projects->total() : 0;
         var count = form.querySelector('.projects-header__count');
         var csrfToken = document.querySelector('meta[name="csrf-token"]').content;
         var activeRequest = null;
+        var projectScrollCheckQueued = false;
 
         function filterState(page) {
             var data = new FormData(form);
@@ -235,11 +225,26 @@ $resultCount = isset($projects) ? $projects->total() : 0;
             };
         }
 
-        function setLoading(loading) {
+        function setLoading(loading, append) {
             results.setAttribute('aria-busy', loading ? 'true' : 'false');
             results.style.opacity = loading ? '0.6' : '';
             results.style.pointerEvents = loading ? 'none' : '';
+            var loader = results.querySelector('#projectsAjaxLoader');
+            if (loader) loader.hidden = !loading || !append;
+            updateProjectListingEnd();
         }
+
+        function updateProjectListingEnd() {
+            var grid = results.querySelector('.projects-grid');
+            var currentPage = grid ? Number(grid.dataset.currentPage) || 1 : 1;
+            var lastPage = grid ? Number(grid.dataset.lastPage) || 1 : 1;
+            var hideEndContent = !!activeRequest || currentPage < lastPage;
+            document.querySelectorAll('.commonLinks, body > footer').forEach(function(element) {
+                element.hidden = hideEndContent;
+            });
+        }
+
+        updateProjectListingEnd();
 
         function showFilterError() {
             var error = results.querySelector('#projectsFilterError');
@@ -254,13 +259,17 @@ $resultCount = isset($projects) ? $projects->total() : 0;
             error.textContent = 'Unable to update projects. Please try again.';
         }
 
-        function applyProjectFilters(page) {
+        function applyProjectFilters(page, append) {
+            append = append === true;
             if (activeRequest) activeRequest.abort();
             var request = new AbortController();
             activeRequest = request;
-            setLoading(true);
+            setLoading(true, append);
+            var shouldCheckProjectScroll = false;
+            var endpoint = new URL(form.dataset.filterEndpoint, window.location.href);
+            endpoint.searchParams.set('page', String(page || 1));
 
-            fetch(form.dataset.filterEndpoint, {
+            fetch(endpoint.toString(), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -281,9 +290,26 @@ $resultCount = isset($projects) ? $projects->total() : 0;
                     var page = new DOMParser().parseFromString(html, 'text/html');
                     var nextResults = page.querySelector('.projects-results');
                     var nextCount = page.querySelector('.projects-header__count');
-                    if (!nextResults || !nextCount) throw new Error('Invalid filter response');
+                    var nextGrid = nextResults && nextResults.querySelector('.projects-grid');
+                    if (!nextResults || !nextCount || !nextGrid) throw new Error('Invalid filter response');
 
-                    results.innerHTML = nextResults.innerHTML;
+                    var error = results.querySelector('#projectsFilterError');
+                    if (error) error.remove();
+
+                    if (append) {
+                        var currentGrid = results.querySelector('.projects-grid');
+                        if (!currentGrid) throw new Error('Project list is unavailable');
+                        Array.prototype.forEach.call(nextGrid.children, function(item) {
+                            if (!item.classList.contains('projects-grid__empty')) {
+                                currentGrid.appendChild(document.importNode(item, true));
+                            }
+                        });
+                        currentGrid.dataset.currentPage = nextGrid.dataset.currentPage;
+                        currentGrid.dataset.lastPage = nextGrid.dataset.lastPage;
+                        shouldCheckProjectScroll = true;
+                    } else {
+                        results.innerHTML = nextResults.innerHTML;
+                    }
                     count.textContent = nextCount.textContent;
 
                     var clearSearch = form.querySelector('[data-clear-project-search]');
@@ -296,8 +322,31 @@ $resultCount = isset($projects) ? $projects->total() : 0;
                     if (activeRequest !== request) return;
                     activeRequest = null;
                     setLoading(false);
+                    if (shouldCheckProjectScroll) scheduleProjectScrollCheck();
                 });
         }
+
+        function checkProjectScroll() {
+            projectScrollCheckQueued = false;
+            var sentinel = results.querySelector('#projectsScrollSentinel');
+            var grid = results.querySelector('.projects-grid');
+            if (!sentinel || !grid || activeRequest) return;
+
+            var currentPage = Number(grid.dataset.currentPage) || 1;
+            var lastPage = Number(grid.dataset.lastPage) || 1;
+            if (currentPage >= lastPage || sentinel.getBoundingClientRect().top > window.innerHeight * 1.25) return;
+
+            applyProjectFilters(currentPage + 1, true);
+        }
+
+        function scheduleProjectScrollCheck() {
+            if (projectScrollCheckQueued) return;
+            projectScrollCheckQueued = true;
+            window.requestAnimationFrame(checkProjectScroll);
+        }
+
+        window.addEventListener('scroll', scheduleProjectScrollCheck, {passive: true});
+        window.addEventListener('resize', scheduleProjectScrollCheck, {passive: true});
 
         function clearFilterControls() {
             form.querySelectorAll('input[type="checkbox"]').forEach(function(input) {
@@ -372,14 +421,6 @@ $resultCount = isset($projects) ? $projects->total() : 0;
         });
 
         form.addEventListener('click', function(event) {
-            var pagination = event.target.closest('[data-project-page], #pagination-links a');
-            if (pagination) {
-                event.preventDefault();
-                var page = Number(pagination.dataset.projectPage || new URL(pagination.href).searchParams.get('page')) || 1;
-                applyProjectFilters(page);
-                return;
-            }
-
             var chip = event.target.closest('.active-filter-chip');
             if (chip) {
                 event.preventDefault();

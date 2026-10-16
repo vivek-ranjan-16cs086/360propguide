@@ -79,19 +79,17 @@
 <div class="pl" id="plRoot">
 
     {{-- ===== Compact hero ===== --}}
-    <div class="pl-crumb container"><a href="{{ url('/') }}">Home</a><span>›</span><b>Properties</b></div>
-    <section class="pl-hero">
-        <div class="container pl-hero-in">
+    <div class="pl-crumb container">
+        <a href="{{ url('/') }}">Home</a><span>›</span><b>Properties</b>
+            <div class="container pl-hero-in">
             <div class="pl-hero-txt">
                 <h1 class="pl-h1" id="results-title">{{ isset($dynamicTitle) ? $dynamicTitle : 'All Properties' }}</h1>
                 <span class="pl-count" id="results-count">{{ isset($totalResults) ? $totalResults : ($properties->total() ?? 0) }} Results</span>
             </div>
-            <div class="pl-search">
-                <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" id="search-input" name="search" placeholder="Search project, locality or builder" autocomplete="off">
             </div>
+            
         </div>
-    </section>
+    
 
     {{-- ===== Quick filters + sort ===== --}}
     <div class="container pl-bar">
@@ -103,7 +101,12 @@
                 <button type="button" class="pl-chip sort-link" data-filter="HighToLow">Price: High to Low</button>
                 <button type="button" class="pl-chip sort-link" data-filter="NewestFirst">Newest First</button>
             </div>
+            <div class="pl-search">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="search-input" name="search" placeholder="Search project, locality or builder" autocomplete="off">
+            </div>
             <div class="pl-view">
+                
                 <button type="button" class="pl-vbtn is-on" data-view="list" aria-label="List view"><i class="fa-solid fa-list"></i></button>
                 <button type="button" class="pl-vbtn" data-view="grid" aria-label="Grid view"><i class="fa-solid fa-table-cells-large"></i></button>
             </div>
@@ -289,7 +292,7 @@
     var filtersData = {};
     var plState = {
         cur: {{ isset($properties) && method_exists($properties, 'currentPage') ? (int) $properties->currentPage() : 1 }},
-        last: {{ isset($properties) && method_exists($properties, 'lastPage') ? (int) $properties->lastPage() : 1 }}
+        hasMore: {{ isset($properties) && method_exists($properties, 'hasMorePages') && $properties->hasMorePages() ? 'true' : 'false' }}
     };
     var plRequestId = 0;
     var plLoadingRequest = false;
@@ -328,6 +331,19 @@
     function plEmi(price) {
         var P = price * 0.8, r = 0.085 / 12, n = 240;
         return P > 0 ? P * r * Math.pow(1 + r, n) / (Math.pow(1 + r, n) - 1) : 0;
+    }
+    function plDynamicTitle() {
+        var parts = [];
+        var configurations = filtersData.configuration || [];
+        var propertyTypes = filtersData.propertyType || [];
+        var locations = filtersData.location || [];
+
+        if (configurations.length) parts.push(configurations.map(function (value) { return String(value).replace(/_/g, ' ').toUpperCase(); }).join(', '));
+        if (propertyTypes.length) parts.push(propertyTypes.join(', '));
+        if (locations.length) parts.push('in ' + locations.join(', '));
+        if (filtersData.search) parts.push('"' + String(filtersData.search).trim() + '"');
+
+        return parts.length ? parts.join(' ') : 'All Properties';
     }
 
     /* ---------- shortlist ---------- */
@@ -384,7 +400,8 @@
     }
     function plCard(p) {
         var g = Array.isArray(p.galleries) ? p.galleries : [];
-        var imgs = g.slice(0, 6), slides = imgs.length + (g.length > imgs.length ? 1 : 0);
+        var galleryCount = Number(p.gallery_count) || g.length;
+        var imgs = g.slice(0, 6), slides = imgs.length + (galleryCount > imgs.length ? 1 : 0);
         var url = "{{ url('properties') }}/" + p.slug;
         var title = escapeHtml(p.title);
         var rent = String(p.listing_type).toLowerCase() === 'rent';
@@ -411,7 +428,7 @@
         var track = imgs.length ? imgs.map(function (x, i) {
             return '<a href="' + url + '" aria-label="' + title + '"><img loading="' + (i ? 'lazy' : 'eager') + '" src="/storage/' + x + '" alt="' + title + '" onerror="this.onerror=null;this.src=\'/images/no-image.jpg\'"></a>';
         }).join('') : '<a href="' + url + '"><img src="/images/no-image.jpg" alt="' + title + '"></a>';
-        if (g.length > imgs.length) track += '<a class="pl-moreph" href="' + url + '"><i class="fa-regular fa-images"></i> View all ' + g.length + ' photos</a>';
+        if (galleryCount > imgs.length) track += '<a class="pl-moreph" href="' + url + '"><i class="fa-regular fa-images"></i> View all ' + galleryCount + ' photos</a>';
         return `
 <article class="pl-card" data-key="${escapeHtml(p.slug)}">
   <div class="pl-media">
@@ -466,7 +483,7 @@
         return '<div class="pl-empty"><i class="fa-solid fa-house-circle-xmark"></i><h4>No properties found</h4><p class="text-muted">Try removing a few filters.</p><button type="button" class="pl-chip pl-reset-btn">Reset filters</button></div>';
     }
     function updatePropertyListingEnd() {
-        var hideEndContent = plLoadingRequest || plState.cur < plState.last;
+        var hideEndContent = plLoadingRequest || plState.hasMore;
         document.querySelectorAll('.commonLinks, body > footer').forEach(function (element) {
             element.hidden = hideEndContent;
         });
@@ -476,7 +493,7 @@
     function checkPropertyScroll() {
         propertyScrollCheckQueued = false;
         var sentinel = document.getElementById('propertyScrollSentinel');
-        if (!sentinel || plLoadingRequest || plLoadingMore || plState.cur >= plState.last) return;
+        if (!sentinel || plLoadingRequest || plLoadingMore || !plState.hasMore) return;
 
         if (sentinel.getBoundingClientRect().top <= window.innerHeight * 2) {
             plLoadingMore = true;
@@ -561,27 +578,25 @@
             success: function (response) {
                 if (requestId !== plRequestId) return;
                 requestSucceeded = !!response && response.status !== false;
-                var items = (response && response.data && Array.isArray(response.data.data)) ? response.data.data : [];
-                if (!append) $('#results-title').text((response && response.dynamicTitle) ? response.dynamicTitle : 'All Properties');
+                var items = (response && Array.isArray(response.data)) ? response.data : [];
+                if (!append) $('#results-title').text(plDynamicTitle());
                 if (append) $('#property-list .pl-skel').remove();
 
                 if (!response || response.status === false || items.length === 0) {
                     if (append) {
-                        if (requestSucceeded) {
-                            plState.cur = plState.last;
-                        }
+                        plState = {cur: Math.max(1, Number(pageNumber) - 1), hasMore: false};
                         return;
                     }
                     $('#property-list').html(plEmpty());
-                    $('#results-count').text('0 Results');
-                    plState = {cur: 1, last: 1}; plChips();
+                    $('#results-count').text('0 Results shown');
+                    plState = {cur: 1, hasMore: false}; plChips();
                     return;
                 }
                 var html = items.map(plCard).join('');
                 if (append) $('#property-list').append(html); else $('#property-list').html(html);
-                $('#results-count').text((response.totalResults || items.length) + ' Results');
-                var pg = response.pagination || {};
-                plState = {cur: pg.current_page || 1, last: pg.last_page || 1};
+                var loadedCount = $('#property-list .pl-card:not(.pl-skel)').length;
+                $('#results-count').text(loadedCount + ' Results shown');
+                plState = {cur: Number(pageNumber) || 1, hasMore: response.hasMore === true};
                 plReveal(); plChips();
             },
             error: function () {
@@ -591,8 +606,8 @@
                     return;
                 }
                 $('#property-list').html(plEmpty());
-                $('#results-count').text('0 Results');
-                plState = {cur: 1, last: 1}; plChips();
+                $('#results-count').text('0 Results shown');
+                plState = {cur: 1, hasMore: false}; plChips();
             },
         complete: function () {
             if (requestId === plRequestId) {
@@ -667,7 +682,6 @@
         $('#plRoot').addClass('pl-js');
         updatePropertyListingEnd();
         plReveal();
-        schedulePropertyScrollCheck();
         try { plView(localStorage.getItem('pl_view') || 'list'); } catch (e) {}
 
         /* filter form: sidebar <-> offcanvas (pehle move, phir filters apply) */
@@ -682,9 +696,6 @@
         }
         moveFilters();
         window.addEventListener('resize', moveFilters);
-
-        var ft = document.getElementById('filterToggle');
-        if (ft) ft.addEventListener('click', function () { new bootstrap.Offcanvas(document.getElementById('mobileFilter')).show(); });
 
         var serverInitialFilters = {!! isset($initialFilters) ? json_encode($initialFilters) : 'null' !!};
         if (serverInitialFilters) {
@@ -718,17 +729,17 @@
             updateConfiguration(false);
             updateLocation(false);
         }
-        if (!plLoadingRequest && plState.cur < plState.last) {
-            filtersData['pageId'] = plState.cur + 1;
-            plLoadingMore = true;
-            applyFilters(filtersData, true);
-        }
         plChips();
 
         $('#plAboutBtn').on('click', function () {
             var box = $('#plAbout').toggleClass('open');
             $(this).text(box.hasClass('open') ? 'Show less' : 'Read more');
         });
+    });
+
+    document.addEventListener('click', function (event) {
+        if (!event.target.closest('#filterToggle')) return;
+        bootstrap.Offcanvas.getOrCreateInstance(document.getElementById('mobileFilter')).show();
     });
 
     /* ---------- enquiry modal: property ka naam jaye (hidden field: property_name) ---------- */
