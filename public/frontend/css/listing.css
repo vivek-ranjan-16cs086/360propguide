@@ -325,8 +325,17 @@
     min-width: 0;
     width: 315px;
     position: sticky;
-    top: 92px;
+    top: 80px;
+    max-height: calc(100vh - 100px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
     z-index: 10;
+}
+
+.filters-sidebar::-webkit-scrollbar {
+    display: none;
 }
 
 .filters-sidebar__mobile-head {
@@ -1030,6 +1039,25 @@ a.project-empty-state__reset {
     min-width: 0;
 }
 
+.projects-ajax-loader {
+    align-items: center;
+    background: #ffffff;
+    border: 1px solid var(--projects-gray-200);
+    border-radius: 999px;
+    color: var(--projects-gray-600, #64748b);
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin: 16px auto;
+    max-width: calc(100vw - 32px);
+    padding: 14px 18px;
+    width: max-content;
+}
+
+.projects-ajax-loader[hidden] {
+    display: none;
+}
+
 /* --------------------------------------------------------------------------
    Project Card Hierarchy & Consistent 195px Image Area
    -------------------------------------------------------------------------- */
@@ -1476,6 +1504,7 @@ a.project-empty-state__reset {
         height: 100%;
         left: 0;
         overflow: auto;
+        max-height: 100vh;
         position: fixed;
         top: 0;
         width: min(90vw, 360px);
@@ -1549,6 +1578,9 @@ a.project-empty-state__reset {
         height: 42px;
     }
 
+}
+
+@media (max-width: 575.98px) {
     .projects-grid {
         grid-template-columns: 1fr;
         gap: 16px;
