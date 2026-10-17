@@ -225,6 +225,97 @@ $resultCount = isset($projects) ? $projects->total() : 0;
             };
         }
 
+        function escapeHtml(value) {
+            return String(value == null ? '' : value).replace(/[&<>"']/g, function(character) {
+                return {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[character];
+            });
+        }
+
+        function renderProjectCard(project) {
+            var name = escapeHtml(project.project_name);
+            var url = escapeHtml(project.url);
+            var image = escapeHtml(project.image_url || '');
+            var status = project.status
+                ? '<span class="project-card__status">' + escapeHtml(project.status) + '</span>'
+                : '';
+            var rera = project.has_rera
+                ? '<span class="project-card__rera"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> RERA</span>'
+                : '';
+            var maxPrice = project.max_price
+                ? '<em>– ₹' + escapeHtml(project.max_price) + '</em>'
+                : '';
+
+            return '<article class="projects-grid__item">' +
+                '<a href="' + url + '" class="project-card" aria-label="View ' + name + '">' +
+                    '<div class="project-card__media"><img src="' + image + '" alt="' + name + ' - 360 PropGuide" loading="lazy">' +
+                        '<div class="project-card__badges"><div class="project-card__badge-left">' + status + '</div>' +
+                            '<div class="project-card__badge-right">' + rera + '</div></div></div>' +
+                    '<div class="project-card__body"><h3 class="project-card__title" title="' + name + '">' + name + '</h3>' +
+                        '<div class="project-card__meta"><div class="project-card__meta-item"><i class="fa-solid fa-location-dot" aria-hidden="true"></i>' +
+                            '<span>' + escapeHtml(project.location) + '</span></div>' +
+                            '<div class="project-card__meta-item"><i class="fa-solid fa-building" aria-hidden="true"></i>' +
+                            '<span>' + escapeHtml(project.typology) + '</span></div></div>' +
+                        '<div class="project-card__divider"></div><div class="project-card__footer">' +
+                            '<div class="project-card__price-wrap"><span class="project-card__price-label">Starting from</span>' +
+                                '<p class="project-card__price">₹' + escapeHtml(project.price) + maxPrice + '</p></div>' +
+                            '<span class="project-card__cta">View <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>' +
+                        '</div></div>' +
+                '</a></article>';
+        }
+
+        function updateActiveProjectFilters() {
+            var chips = [];
+            form.querySelectorAll('input[type="checkbox"]:checked').forEach(function(input) {
+                var label = input.closest('label');
+                var text = label ? label.textContent.replace(/\s+/g, ' ').trim() : input.value;
+                chips.push({key: input.name.replace(/\[\]$/, ''), value: input.value, label: text});
+            });
+
+            var query = (form.querySelector('input[name="q"]').value || '').trim();
+            if (query) chips.push({key: 'q', value: '', label: '“' + query + '”'});
+
+            var minPrice = form.querySelector('input[name="min_price"]').value;
+            var maxPrice = form.querySelector('input[name="max_price"]').value;
+            if (minPrice || maxPrice) {
+                chips.push({key: 'budget', value: '', label: 'Budget' + (minPrice ? ' ₹' + minPrice : '') + (maxPrice ? ' – ₹' + maxPrice : '')});
+            }
+
+            var active = results.querySelector('.projects-active-filters');
+            if (!chips.length) {
+                if (active) active.remove();
+                return;
+            }
+
+            if (!active) {
+                active = document.createElement('div');
+                active.className = 'projects-active-filters';
+                var description = results.querySelector('.projects-description');
+                results.insertBefore(active, description || results.querySelector('.projects-grid'));
+            }
+
+            active.replaceChildren();
+            var label = document.createElement('span');
+            label.className = 'projects-active-filters__label';
+            label.textContent = 'Active';
+            var list = document.createElement('div');
+            list.className = 'projects-active-filters__list';
+            chips.forEach(function(chip) {
+                var button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'active-filter-chip';
+                button.dataset.filterKey = chip.key;
+                button.dataset.filterValue = chip.value;
+                button.textContent = chip.label + ' ×';
+                list.appendChild(button);
+            });
+            var clear = document.createElement('button');
+            clear.type = 'button';
+            clear.className = 'projects-active-filters__clear';
+            clear.dataset.clearProjectFilters = '';
+            clear.textContent = 'Clear all';
+            active.append(label, list, clear);
+        }
+
         function setLoading(loading, append) {
             results.setAttribute('aria-busy', loading ? 'true' : 'false');
             results.style.opacity = loading ? '0.6' : '';
@@ -246,7 +337,7 @@ $resultCount = isset($projects) ? $projects->total() : 0;
 
         updateProjectListingEnd();
 
-        function showFilterError() {
+        function showFilterError(message) {
             var error = results.querySelector('#projectsFilterError');
             if (!error) {
                 error = document.createElement('div');
@@ -256,7 +347,7 @@ $resultCount = isset($projects) ? $projects->total() : 0;
                 results.prepend(error);
             }
             error.hidden = false;
-            error.textContent = 'Unable to update projects. Please try again.';
+            error.textContent = message || 'Unable to update projects. Please try again.';
         }
 
         function applyProjectFilters(page, append) {
@@ -273,7 +364,7 @@ $resultCount = isset($projects) ? $projects->total() : 0;
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Accept': 'text/html',
+                    'Accept': 'application/json',
                     'X-CSRF-TOKEN': csrfToken,
                     'X-Requested-With': 'XMLHttpRequest'
                 },
@@ -281,42 +372,52 @@ $resultCount = isset($projects) ? $projects->total() : 0;
                 signal: request.signal
             })
                 .then(function(response) {
-                    if (!response.ok) throw new Error('Filter request failed');
-                    return response.text();
+                    return response.json().then(function(data) {
+                        if (!response.ok || !data || data.status !== true) {
+                            throw new Error(data && data.message ? data.message : 'Unable to update projects. Please try again.');
+                        }
+                        return data;
+                    });
                 })
-                .then(function(html) {
+                .then(function(data) {
                     if (activeRequest !== request) return;
 
-                    var page = new DOMParser().parseFromString(html, 'text/html');
-                    var nextResults = page.querySelector('.projects-results');
-                    var nextCount = page.querySelector('.projects-header__count');
-                    var nextGrid = nextResults && nextResults.querySelector('.projects-grid');
-                    if (!nextResults || !nextCount || !nextGrid) throw new Error('Invalid filter response');
+                    if (!data.data || !Array.isArray(data.data.items)) throw new Error('Invalid project response.');
 
                     var error = results.querySelector('#projectsFilterError');
                     if (error) error.remove();
 
+                    var grid = results.querySelector('.projects-grid');
+                    var items = data.data.items;
+                    var pagination = data.data.pagination || {};
                     if (append) {
-                        var currentGrid = results.querySelector('.projects-grid');
-                        if (!currentGrid) throw new Error('Project list is unavailable');
-                        Array.prototype.forEach.call(nextGrid.children, function(item) {
-                            if (!item.classList.contains('projects-grid__empty')) {
-                                currentGrid.appendChild(document.importNode(item, true));
-                            }
-                        });
-                        currentGrid.dataset.currentPage = nextGrid.dataset.currentPage;
-                        currentGrid.dataset.lastPage = nextGrid.dataset.lastPage;
-                        shouldCheckProjectScroll = true;
-                    } else {
-                        results.innerHTML = nextResults.innerHTML;
+                        if (!grid) throw new Error('Project list is unavailable.');
+                        grid.insertAdjacentHTML('beforeend', items.map(renderProjectCard).join(''));
+                    } else if (grid) {
+                        grid.innerHTML = items.length
+                            ? items.map(renderProjectCard).join('')
+                            : '<div class="projects-grid__empty"><div class="project-empty-state"><span class="project-empty-state__icon"><i class="fa-solid fa-house-circle-xmark" aria-hidden="true"></i></span><h3>' + escapeHtml(data.message || 'No projects found.') + '</h3><p>Try adjusting your search or filters to discover more projects.</p><button type="button" class="project-empty-state__reset" data-clear-project-filters>Reset filters</button></div></div>';
                     }
-                    count.textContent = nextCount.textContent;
+
+                    if (grid) {
+                        grid.dataset.currentPage = pagination.current_page || page || 1;
+                        grid.dataset.lastPage = pagination.last_page || 1;
+                    }
+                    var total = Number(pagination.total);
+                    if (Number.isFinite(total)) {
+                        count.textContent = total + ' ' + (total === 1 ? 'project' : 'projects') + ' found';
+                    }
+                    if (!append) updateActiveProjectFilters();
+
+                    if (append && items.length) {
+                        shouldCheckProjectScroll = true;
+                    }
 
                     var clearSearch = form.querySelector('[data-clear-project-search]');
                     if (clearSearch) clearSearch.hidden = !form.querySelector('input[name="q"]').value.trim();
                 })
                 .catch(function(error) {
-                    if (error.name !== 'AbortError') showFilterError();
+                    if (error.name !== 'AbortError') showFilterError(error.message);
                 })
                 .finally(function() {
                     if (activeRequest !== request) return;

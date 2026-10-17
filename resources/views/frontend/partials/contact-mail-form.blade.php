@@ -1,5 +1,10 @@
 <form method="POST" class="popupForm" action="{{ route('contact-mail') }}">
     @csrf
+    @php
+        $contactMessage = old('message', isset($projects) && !empty($projects->project_name)
+            ? 'I would like more information about ' . $projects->project_name
+            : '');
+    @endphp
 
     <input type="hidden" name="formName" value="popup" />
 
@@ -60,8 +65,7 @@
             <textarea placeholder="Message"
                       name="message"
                       class="form-control"
-                      rows="3
-                      "></textarea>
+                      rows="3">{{ $contactMessage }}</textarea>
         </div>
     </div>
 

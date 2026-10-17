@@ -578,7 +578,8 @@
             success: function (response) {
                 if (requestId !== plRequestId) return;
                 requestSucceeded = !!response && response.status !== false;
-                var items = (response && Array.isArray(response.data)) ? response.data : [];
+                var resultData = response && response.data ? response.data : {};
+                var items = Array.isArray(resultData.items) ? resultData.items : [];
                 if (!append) $('#results-title').text(plDynamicTitle());
                 if (append) $('#property-list .pl-skel').remove();
 
@@ -596,7 +597,8 @@
                 if (append) $('#property-list').append(html); else $('#property-list').html(html);
                 var loadedCount = $('#property-list .pl-card:not(.pl-skel)').length;
                 $('#results-count').text(loadedCount + ' Results shown');
-                plState = {cur: Number(pageNumber) || 1, hasMore: response.hasMore === true};
+                var pagination = resultData.pagination || {};
+                plState = {cur: Number(pagination.current_page) || Number(pageNumber) || 1, hasMore: pagination.has_more === true};
                 plReveal(); plChips();
             },
             error: function () {

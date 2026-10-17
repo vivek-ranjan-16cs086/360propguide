@@ -758,7 +758,7 @@
               <span class="text-danger error-mobile"></span>
               <div class="form-group">
                 <textarea type="text" placeholder="Message" name="message" class="form-control" row="5"
-                  col="1"></textarea>
+                  col="1">{{ old('message', 'I would like more information about ' . $projects->project_name) }}</textarea>
               </div>
               <div class="g-recaptcha mb-3" data-sitekey="{{ config('services.recaptcha.site_key') }}"></div>
               <span class="text-danger error-recaptcha"></span>
@@ -825,7 +825,7 @@
             <span class="text-danger error-mobile"></span>
             <div class="form-group">
               <textarea type="text" placeholder="Message" name="message" class="form-control" row="5"
-                col="1"></textarea>
+                col="1">{{ old('message', 'I would like more information about ' . $projects->project_name) }}</textarea>
             </div>
             <div class="g-recaptcha mb-3 mt-3" data-sitekey="{{ config('services.recaptcha.site_key') }}">
             </div>
