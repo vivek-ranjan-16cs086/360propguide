@@ -151,18 +151,7 @@ class FrontendPageController extends Controller
 		$localityCityMap = Location::sublocationParentMap();
 		$locations = Location::parentCityNames()->all();
 		$locality = Location::sublocationNames();
-		// $locations = Location::query()
-		// 	->whereNull('parent_id')
-		// 	->active()
-		// 	->select('id', 'city')
-		// 	->orderBy('city')
-		// 	->get();
-		// $locality = Location::query()
-		// 	->whereNotNull('parent_id')
-		// 	->active()
-		// 	->select('id', 'parent_id', 'city')
-		// 	->orderBy('city')
-		// 	->get();
+		
 		$developers = Developer::select('id', 'developer_name')->orderBy('developer_name')->get();
 
 		$projectsQuery = Project::query()->where('status', '1');
