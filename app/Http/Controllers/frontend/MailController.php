@@ -18,7 +18,6 @@ class MailController extends Controller
 
 	public function SendContactMail(Request $request) 
 	{
-		// reCAPTCHA validation
 		$recaptchaResponse = $request->input('g-recaptcha-response');
 		$response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
 			'secret' => config('services.recaptcha.secret_key'),
@@ -46,8 +45,27 @@ class MailController extends Controller
 		}
 
 		// Prepare mail data
+		$submittedVia = $request->headers->get('referer');
+		$path = parse_url((string) $submittedVia, PHP_URL_PATH) ?: '';
+		$projectSlug = basename(trim($path, '/'));
+		$projectName = $projectSlug !== ''
+			? Project::where('slug', $projectSlug)->value('project_name')
+			: null;
+
+		$message = $request->input('message');
+		$message = is_string($message) ? trim($message) : '';
+
+		if ($message === '') {
+			$message = $projectName
+				? 'I would like more information about ' . $projectName
+				: 'I would like more information';
+		}
+		$request->merge(['message' => $message]);
+
 		$mailData = $request->all();
-		$mailData['submittedVia'] = $request->headers->get('referer');
+		$mailData['submittedVia'] = $submittedVia;
+		$mailData['project_name'] = $projectName;
+		$mailData['page_url'] = $submittedVia;
 
 		$query = Query::create($mailData);
 		        try {
@@ -61,6 +79,8 @@ class MailController extends Controller
 						'name' => $query->name,
 						'phone' => $query->mobile,
 						'email' => $query->email,
+						'project_name' => $projectName,
+						'page_url' => $submittedVia,
 						'message' => $query->message,
 					]);
 
@@ -199,4 +219,3 @@ class MailController extends Controller
 		}
 	}
 }
-

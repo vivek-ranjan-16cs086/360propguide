@@ -251,9 +251,80 @@ class FrontendPageController extends Controller
 		}
 
 		if ($request->ajax()) {
-			$request->merge($selected);
+			try {
+				$page = max(1, (int) $request->query('page', $selected['page'] ?? 1));
+				$projectsQuery = Project::query()->where('status', '1');
+				$this->applyProjectListingFilters($projectsQuery, $selected);
+				$projects = $projectsQuery->paginate(9, ['*'], 'page', $page);
 
-			return $this->getListingsPageData($request);
+				$data = $projects->getCollection()->map(function (Project $project) {
+					$typologyDisplay = !empty($project->typology_text)
+						? $project->typology_text
+						: (!empty($project->typology) && is_string($project->typology)
+							? $project->typology
+							: 'Details on request');
+					$typologies = json_decode($project->typology, true);
+					$typologies = is_array($typologies)
+						? $typologies
+						: explode(',', (string) $project->typology);
+					$isShopsProject = collect($typologies)->contains(
+						fn ($typology) => strcasecmp(trim((string) $typology), 'Shops') === 0
+					);
+				$isCommercialProject = strtolower(trim((string) $project->project_type)) === 'commercial'
+					|| $isShopsProject;
+
+					return [
+						'project_name' => $project->project_name,
+					'url' => $isCommercialProject
+							? route('projects.commercial', ['slug' => $project->slug])
+							: route('projects.details', $project->slug),
+						'image_url' => $project->logo_image
+							? asset('storage/' . ltrim($project->logo_image, '/'))
+							: null,
+						'status' => $project->project_status
+							? ucfirst(str_replace('_', ' ', clean($project->project_status)))
+							: null,
+						'has_rera' => !empty($project->rera_no)
+							&& strtoupper(trim($project->rera_no)) !== 'N/A',
+						'location' => $project->location ?: 'Location on request',
+						'typology' => $typologyDisplay,
+						'price' => formatPrice($project->price),
+						'max_price' => !empty($project->max_price) && $project->max_price != $project->price
+							? formatPrice($project->max_price)
+							: null,
+					];
+				});
+
+				return response()->json([
+					'status' => true,
+					'data' => [
+						'items' => $data->values(),
+						'pagination' => [
+							'current_page' => $projects->currentPage(),
+							'last_page' => $projects->lastPage(),
+							'total' => $projects->total(),
+							'has_more' => $projects->hasMorePages(),
+						],
+					],
+					'message' => $projects->isEmpty() ? 'No projects found.' : 'Projects loaded successfully.',
+				]);
+			} catch (\Throwable $e) {
+				report($e);
+
+				return response()->json([
+					'status' => false,
+					'data' => [
+						'items' => [],
+						'pagination' => [
+							'current_page' => 1,
+						'last_page' => 1,
+						'total' => 0,
+						'has_more' => false,
+						],
+					],
+					'message' => 'Unable to load projects. Please try again.',
+				], 500);
+			}
 		}
 
 		return redirect()->route('projects', $this->listingQueryParams($selected));
@@ -266,6 +337,7 @@ class FrontendPageController extends Controller
 
 		return view('frontend.thankyou');
 	}
+
 	public function showFilteredProjects(Request $request, $slug)
 	{
 		$path = $request->getPathInfo();
@@ -1864,16 +1936,28 @@ You can use this page to discover and compare <strong>{$configurationText}{$prop
 
 			return response()->json([
 				'status' => true,
-				'data' => $propertyCards->values()->all(),
-				'hasMore' => $properties->hasMorePages(),
+				'data' => [
+					'items' => $propertyCards->values()->all(),
+					'pagination' => [
+						'current_page' => $properties->currentPage(),
+						'has_more' => $properties->hasMorePages(),
+					],
+				],
+				'message' => $properties->isEmpty() ? 'No properties found.' : 'Properties loaded successfully.',
 			]);
 		} catch (\Throwable $e) {
 			report($e);
 
 			return response()->json([
 				'status' => false,
-				'data' => [],
-				'hasMore' => false,
+				'data' => [
+					'items' => [],
+					'pagination' => [
+						'current_page' => 1,
+						'has_more' => false,
+					],
+				],
+				'message' => 'Unable to load properties. Please try again.',
 			], 200);
 		}
 	}
