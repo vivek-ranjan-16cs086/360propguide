@@ -66,6 +66,7 @@ class MailController extends Controller
 		$mailData['submittedVia'] = $submittedVia;
 		$mailData['project_name'] = $projectName;
 		$mailData['page_url'] = $submittedVia;
+		$mailData['source_url'] = $submittedVia;
 
 		$query = Query::create($mailData);
 		        try {
@@ -81,6 +82,7 @@ class MailController extends Controller
 						'email' => $query->email,
 						'project_name' => $projectName,
 						'page_url' => $submittedVia,
+						'source_url' => $submittedVia,
 						'message' => $query->message,
 					]);
 
