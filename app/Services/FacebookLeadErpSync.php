@@ -135,6 +135,11 @@ class FacebookLeadErpSync
 
     private function payloadFor(Lead $lead): array
     {
+        $externalId = filter_var($lead->facebook_lead_id, FILTER_VALIDATE_INT);
+        if ($externalId === false) {
+            throw new \UnexpectedValueException('Facebook lead ID must be a numeric ERP external ID.');
+        }
+
         $facebook = data_get($lead->raw_data, 'facebook', []);
         $fields = data_get($lead->raw_data, 'fields', []);
         $messageParts = ['Facebook Lead Ads'];
@@ -164,7 +169,7 @@ class FacebookLeadErpSync
         }
 
         return [
-            'external_id' => 'facebook:' . $lead->facebook_lead_id,
+            'external_id' => $externalId,
             'source_website' => '360propguide.com',
             'name' => $lead->name,
             'phone' => $phone,
