@@ -18,7 +18,6 @@ class MailController extends Controller
 
 	public function SendContactMail(Request $request) 
 	{
-		// reCAPTCHA validation
 		$recaptchaResponse = $request->input('g-recaptcha-response');
 		$response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
 			'secret' => config('services.recaptcha.secret_key'),
@@ -46,8 +45,46 @@ class MailController extends Controller
 		}
 
 		// Prepare mail data
+		$submittedVia = $request->headers->get('referer');
+		$path = parse_url((string) $submittedVia, PHP_URL_PATH) ?: '';
+		$projectSlug = basename(trim($path, '/'));
+		$projectName = $projectSlug !== ''
+			? Project::where('slug', $projectSlug)->value('project_name')
+			: null;
+
+		$message = $request->input('message');
+		$message = is_string($message) ? trim($message) : '';
+
+		if ($message === '') {
+			$message = $projectName
+				? 'I would like more information about ' . $projectName
+				: 'I would like more information';
+		}
+		$request->merge(['message' => $message]);
+
 		$mailData = $request->all();
-		$mailData['submittedVia'] = $request->headers->get('referer');
+		$mailData['submittedVia'] = $submittedVia;
+		$mailData['project_name'] = $projectName;
+		$mailData['page_url'] = $submittedVia;
+		$mailData['source_url'] = $submittedVia;
+		
+		// Extract page name from the source URL
+		$sourceUrl = $mailData['source_url'];
+		$pageName = null;
+
+		if (!empty($sourceUrl)) {
+			$path = parse_url($sourceUrl, PHP_URL_PATH);
+			$segments = explode('/', trim($path ?? '', '/'));
+
+			// Match URLs like /projects/{slug}
+			if (
+				count($segments) === 2 &&
+				$segments[0] === 'projects' &&
+				!empty($segments[1])
+			) {
+				$pageName = $segments[1];
+			}
+		}
 
 		$query = Query::create($mailData);
 		        try {
@@ -61,6 +98,9 @@ class MailController extends Controller
 						'name' => $query->name,
 						'phone' => $query->mobile,
 						'email' => $query->email,
+						'project_name' => $projectName,
+						'source_page_name' => $pageName, 
+						'source_url' => $submittedVia,
 						'message' => $query->message,
 					]);
 
@@ -77,6 +117,7 @@ class MailController extends Controller
 			$mailData['reciever'] = 'admin';
 
 			 SendContactEmailJob::dispatch($mailData, 'rohit.mis.360@gmail.com');
+			 // SendContactEmailJob::dispatch($mailData, '16cs086vive@gmail.com');
 			 
 
 			// Store form name in session
@@ -199,4 +240,3 @@ class MailController extends Controller
 		}
 	}
 }
-

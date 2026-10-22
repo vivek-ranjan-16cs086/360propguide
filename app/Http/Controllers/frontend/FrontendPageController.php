@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class FrontendPageController extends Controller
 {
@@ -45,19 +46,20 @@ class FrontendPageController extends Controller
 		$feeds = data_get($this->facebookPostData(), 'feed', []);
 
 		//Youtube video Api
-		$videos = YouTubeVideo::orderBy('published_time', 'DESC')->take(30)->get();
+		$videos = YouTubeVideo::orderBy('published_time', 'DESC')->get();
 
 		// helper: ISO 8601 duration ko total seconds me convert karo
 		$toSeconds = function ($duration) {
-			preg_match('/PT(?:(\d+)M)?(?:(\d+)S)?/', $duration, $matches);
-			$minutes = isset($matches[1]) ? intval($matches[1]) : 0;
-			$seconds = isset($matches[2]) ? intval($matches[2]) : 0;
-			return ($minutes * 60) + $seconds;
+			preg_match('/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/', $duration, $matches);
+			$hours = isset($matches[1]) ? intval($matches[1]) : 0;
+			$minutes = isset($matches[2]) ? intval($matches[2]) : 0;
+			$seconds = isset($matches[3]) ? intval($matches[3]) : 0;
+			return ($hours * 3600) + ($minutes * 60) + $seconds;
 		};
 
-		// Long videos: > 2 minutes (120 seconds)
+		// Regular videos: > 60 seconds
 		$filteredVideos = $videos->filter(function ($video) use ($toSeconds) {
-			return $toSeconds($video->duration) > 120;
+			return $toSeconds($video->duration) > 60;
 		})->take(6);
 
 		// Shorts: <= 60 seconds
@@ -75,9 +77,15 @@ class FrontendPageController extends Controller
 	private function facebookPostData()
 	{
 		return Cache::remember('homepage.facebook-feed', now()->addMinutes(30), function () {
+			$accessToken = config('services.meta.page_access_token');
+			if (!$accessToken) {
+				return [];
+			}
+
 			$ch = curl_init();
 			curl_setopt_array($ch, [
-				CURLOPT_URL => 'https://graph.facebook.com/v21.0/me?fields=id%2Cname%2Cfeed%7Bfull_picture%2Ccreated_time%2Cmessage%2Cpermalink_url%7D&access_token=EAAIxmpZAdhYwBRzUBWc54LRTZCfF7xlD95hIzhh5T6ZA9X7IqybCIpXnNuzZBnXGfx705vyyOAih2BDFPoyCYPecYMPdfAXpSPklI28c1Q0ZC302lg0YOgd5iRw01ZCPZC9590D1DpXzHkWaOCfnKZBu7dWoHNWDfZCvF68OBnRJUUgMEneH2TFGCAl2uAYMqkV77zMsZD',
+				CURLOPT_URL => 'https://graph.facebook.com/v21.0/me?fields=id%2Cname%2Cfeed%7Bfull_picture%2Ccreated_time%2Cmessage%2Cpermalink_url%7D',
+				CURLOPT_HTTPHEADER => ['Authorization: Bearer ' . $accessToken],
 				CURLOPT_RETURNTRANSFER => true,
 				CURLOPT_CONNECTTIMEOUT => 2,
 				CURLOPT_TIMEOUT => 4,
@@ -118,29 +126,32 @@ class FrontendPageController extends Controller
 	}
 
 	// Project Listing Page
+	public function getCommercialListings(Request $request)
+	{
+		// Reuse the standard project listing workflow with the commercial typology
+		// fixed to Shops, while preserving location, keyword, and other filters.
+		$request->attributes->set('commercial_listing', true);
 
-	public function getListingsPageData(Request $request)
+		return $this->getListingsPageData($request, [
+			'title' => 'Best Commercial Projects in Noida for Investment 2026',
+			'description' => 'Explore the best commercial projects in Noida for investment. Compare shops, office spaces and retail projects with prices, rental returns and top locations.',
+		]);
+	}
+
+	public function getListingsPageData(Request $request, array $seoData = [])
 	{
 
 		$selected = $this->resolveListingSelection($request);
+		if ($request->attributes->get('commercial_listing')) {
+			$selected['type'] = ['Shops'];
+		}
 		$minPrice = (int) Project::where('status', '1')->min('price');
 		$maxPrice = (int) Project::where('status', '1')->max('price');
 
 		$localityCityMap = Location::sublocationParentMap();
 		$locations = Location::parentCityNames()->all();
 		$locality = Location::sublocationNames();
-		// $locations = Location::query()
-		// 	->whereNull('parent_id')
-		// 	->active()
-		// 	->select('id', 'city')
-		// 	->orderBy('city')
-		// 	->get();
-		// $locality = Location::query()
-		// 	->whereNotNull('parent_id')
-		// 	->active()
-		// 	->select('id', 'parent_id', 'city')
-		// 	->orderBy('city')
-		// 	->get();
+		
 		$developers = Developer::select('id', 'developer_name')->orderBy('developer_name')->get();
 
 		$projectsQuery = Project::query()->where('status', '1');
@@ -165,6 +176,11 @@ class FrontendPageController extends Controller
 
 		$schema = '<script type="application/ld+json">' . json_encode($itemList, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . '</script>';
 		$filters = [];
+		$title = $seoData['title'] ?? null;
+		$description = $seoData['description'] ?? null;
+		$dynamicTitle = $request->attributes->get('commercial_listing')
+			? 'Commercial Projects in Delhi NCR'
+			: null;
 
 		return view('frontend.listing', compact(
 			'projects',
@@ -176,7 +192,10 @@ class FrontendPageController extends Controller
 			'locality',
 			'localityCityMap',
 			'selected',
-			'filters'
+			'filters',
+			'title',
+			'description',
+			'dynamicTitle'
 		));
 	}
 
@@ -221,9 +240,80 @@ class FrontendPageController extends Controller
 		}
 
 		if ($request->ajax()) {
-			$request->merge($selected);
+			try {
+				$page = max(1, (int) $request->query('page', $selected['page'] ?? 1));
+				$projectsQuery = Project::query()->where('status', '1');
+				$this->applyProjectListingFilters($projectsQuery, $selected);
+				$projects = $projectsQuery->paginate(9, ['*'], 'page', $page);
 
-			return $this->getListingsPageData($request);
+				$data = $projects->getCollection()->map(function (Project $project) {
+					$typologyDisplay = !empty($project->typology_text)
+						? $project->typology_text
+						: (!empty($project->typology) && is_string($project->typology)
+							? $project->typology
+							: 'Details on request');
+					$typologies = json_decode($project->typology, true);
+					$typologies = is_array($typologies)
+						? $typologies
+						: explode(',', (string) $project->typology);
+					$isShopsProject = collect($typologies)->contains(
+						fn ($typology) => strcasecmp(trim((string) $typology), 'Shops') === 0
+					);
+				$isCommercialProject = strtolower(trim((string) $project->project_type)) === 'commercial'
+					|| $isShopsProject;
+
+					return [
+						'project_name' => $project->project_name,
+					'url' => $isCommercialProject
+							? route('projects.commercial', ['slug' => $project->slug])
+							: route('projects.details', $project->slug),
+						'image_url' => $project->logo_image
+							? asset('storage/' . ltrim($project->logo_image, '/'))
+							: null,
+						'status' => $project->project_status
+							? ucfirst(str_replace('_', ' ', clean($project->project_status)))
+							: null,
+						'has_rera' => !empty($project->rera_no)
+							&& strtoupper(trim($project->rera_no)) !== 'N/A',
+						'location' => $project->location ?: 'Location on request',
+						'typology' => $typologyDisplay,
+						'price' => formatPrice($project->price),
+						'max_price' => !empty($project->max_price) && $project->max_price != $project->price
+							? formatPrice($project->max_price)
+							: null,
+					];
+				});
+
+				return response()->json([
+					'status' => true,
+					'data' => [
+						'items' => $data->values(),
+						'pagination' => [
+							'current_page' => $projects->currentPage(),
+							'last_page' => $projects->lastPage(),
+							'total' => $projects->total(),
+							'has_more' => $projects->hasMorePages(),
+						],
+					],
+					'message' => $projects->isEmpty() ? 'No projects found.' : 'Projects loaded successfully.',
+				]);
+			} catch (\Throwable $e) {
+				report($e);
+
+				return response()->json([
+					'status' => false,
+					'data' => [
+						'items' => [],
+						'pagination' => [
+							'current_page' => 1,
+						'last_page' => 1,
+						'total' => 0,
+						'has_more' => false,
+						],
+					],
+					'message' => 'Unable to load projects. Please try again.',
+				], 500);
+			}
 		}
 
 		return redirect()->route('projects', $this->listingQueryParams($selected));
@@ -236,9 +326,14 @@ class FrontendPageController extends Controller
 
 		return view('frontend.thankyou');
 	}
+
 	public function showFilteredProjects(Request $request, $slug)
 	{
-		// dd($request);
+		$path = $request->getPathInfo();
+
+		if (str_ends_with($path, '//')) {
+			abort(404);
+		}
 
 		if (preg_match('/^(\d+-bhk-)?projects-in-(.+)$/', $slug, $matches)) {
 			return redirect('/' . ($matches[1] ?? '') . 'flats-in-' . $matches[2], 301);
@@ -265,8 +360,11 @@ class FrontendPageController extends Controller
 		$keywords = $link->keywords ?? null;
 		$linkType = $link->type ?? null;
 
-		// Handle property custom links
-		if ($linkType === 'property') {
+		// Handle property custom links, including links without a stored custom-link row.
+		if (
+			$linkType === 'property'
+			|| preg_match('/^(apartments-in-|plots-in-|sale-properties-in-|rent-properties-in-|\d+-bhk-apartments?-in-)/i', $slug)
+		) {
 			return $this->handlePropertyCustomLink($slug, $link, $title, $name, $description, $keywords);
 		}
 
@@ -937,34 +1035,50 @@ You can use this page to discover and compare <strong>{$configurationText}{$prop
 
 
 
+	private function projectTypologies(Project $project): array
+	{
+		$typologies = json_decode($project->typology, true);
+
+		return is_array($typologies) ? $typologies : explode(',', (string) $project->typology);
+	}
+
+	private function isCommercialProject(Project $project, array $typologies): bool
+	{
+		$isShopsProject = collect($typologies)->contains(
+			fn ($typology) => strcasecmp(trim((string) $typology), 'Shops') === 0
+		);
+
+		return strtolower(trim((string) $project->project_type)) === 'commercial' || $isShopsProject;
+	}
+
 	public function getCommercialProjectDetails($slug)
 	{
 		$project = Project::where('slug', $slug)->where('status', '1')->firstOrFail();
-		$typologies = json_decode($project->typology, true);
-		$typologies = is_array($typologies) ? $typologies : explode(',', (string) $project->typology);
-		$isShopsProject = collect($typologies)->contains(fn ($typology) => strcasecmp(trim((string) $typology), 'Shops') === 0);
-		$isCommercialProject = strtolower(trim((string) $project->project_type)) === 'commercial' || $isShopsProject;
-
+		$typologies = $this->projectTypologies($project);
+		$isCommercialProject = $this->isCommercialProject($project, $typologies);
 		abort_unless($isCommercialProject, 404);
 
-		return $this->getProjectDetails($project->slug, false);
+		return $this->renderProjectDetails($project, $typologies, $isCommercialProject);
 	}
 
-	public function getProjectDetails($slug, $redirectCommercial = true)
+	public function getProjectDetails($slug)
 	{
 		// projects
 		$projects = Project::where('slug', $slug)
 			->where('status', '1')
 			->firstOrFail();
 
-		$typologies = json_decode($projects->typology, true);
-		$typologies = is_array($typologies) ? $typologies : explode(',', (string) $projects->typology);
-		$isShopsProject = collect($typologies)->contains(fn ($typology) => strcasecmp(trim((string) $typology), 'Shops') === 0);
-		$isCommercialProject = strtolower(trim((string) $projects->project_type)) === 'commercial' || $isShopsProject;
-
-		if ($redirectCommercial && $isCommercialProject) {
+		$typologies = $this->projectTypologies($projects);
+		$isCommercialProject = $this->isCommercialProject($projects, $typologies);
+		if ($isCommercialProject) {
 			return redirect()->route('projects.commercial', ['slug' => $projects->slug], 301);
 		}
+
+		return $this->renderProjectDetails($projects, $typologies, $isCommercialProject);
+	}
+
+	private function renderProjectDetails(Project $projects, array $typologies, bool $isCommercialProject)
+	{
 
 		$projects->typology_string = is_array($typologies)
 			? implode(', ', $typologies)
@@ -1614,12 +1728,17 @@ You can use this page to discover and compare <strong>{$configurationText}{$prop
 			}
 		}
 
-		// Price range for approved properties
-		$minPrice = Property::where('status', 'approved')->min('total_price') ?? 100000;
-		$maxPrice = Property::where('status', 'approved')->max('total_price') ?? 0;
+		$propertyStats = Property::where('status', 'approved')
+			->selectRaw('COUNT(*) as total, MIN(total_price) as min_price, MAX(total_price) as max_price')
+			->first();
+		$minPrice = $propertyStats->min_price ?? 100000;
+		$maxPrice = $propertyStats->max_price ?? 0;
 
 		// Locations of approved properties only
 		$locations = Property::where('status', 'approved')
+			->whereNotNull('city')
+			->distinct()
+			->orderBy('city')
 			->pluck('city')
 			->filter()
 			->map(function ($item) {
@@ -1629,9 +1748,11 @@ You can use this page to discover and compare <strong>{$configurationText}{$prop
 			->values()
 			->all();
 
-		$configurations = Property::pluck('configuration')
+		$configurations = Property::where('status', 'approved')
+			->whereNotNull('configuration')
+			->distinct()
+			->pluck('configuration')
 			->filter()
-			->unique()
 			->sortBy(function ($item) {
 				return (int) filter_var($item, FILTER_SANITIZE_NUMBER_INT);
 			})
@@ -1639,21 +1760,23 @@ You can use this page to discover and compare <strong>{$configurationText}{$prop
 			->all();
 
 		$constructionStatuses = Property::where('status', 'approved')
+			->whereNotNull('construction_status')
+			->distinct()
 			->pluck('construction_status')
 			->filter()
-			->unique()
 			->values()
 			->all();
 
 		$furnishingTypes = Property::where('status', 'approved')
+			->whereNotNull('furnishing_types')
+			->distinct()
 			->pluck('furnishing_types')
 			->filter()
-			->unique()
 			->values()
 			->all();
 
 		$links_description = null;
-		$totalResults = Property::where('status', 'approved')->count();
+		$totalResults = (int) ($propertyStats->total ?? 0);
 		$dynamicTitle = 'All Properties';
 
 		return view('frontend.property-listing', compact(
@@ -1692,8 +1815,7 @@ You can use this page to discover and compare <strong>{$configurationText}{$prop
 				}));
 			};
 
-			$query = Property::with(['project', 'user'])
-				->where('status', 'approved');
+			$query = Property::where('status', 'approved');
 
 			if (!empty($filters['search'])) {
 				$search = trim((string) $filters['search']);
@@ -1714,12 +1836,18 @@ You can use this page to discover and compare <strong>{$configurationText}{$prop
 
 			$listingTypes = $list('listingType');
 			if ($listingTypes !== []) {
-				$query->whereIn('listing_type', $listingTypes);
+				$query->whereIn(
+					DB::raw('LOWER(TRIM(listing_type))'),
+					array_map('strtolower', $listingTypes)
+				);
 			}
 
 			$propertyTypes = $list('propertyType');
 			if ($propertyTypes !== []) {
-				$query->whereIn('property_type', $propertyTypes);
+				$query->whereIn(
+					DB::raw('LOWER(TRIM(property_type))'),
+					array_map('strtolower', $propertyTypes)
+				);
 			}
 
 			$configurations = $list('configuration');
@@ -1769,69 +1897,42 @@ You can use this page to discover and compare <strong>{$configurationText}{$prop
 				$query->latest();
 			}
 
-			// Pagination
-			$properties = $query->paginate(6);
-			// â”€â”€ Dynamic title 
-			$totalResults = $properties->total();
-			$titleParts   = [];
+			$page = max(1, (int) $request->query('page', 1));
+			$properties = $query->simplePaginate(6, ['*'], 'page', $page);
 
-			if ($configurations !== []) {
-				$formatted = array_map(function ($c) {
-					return strtoupper(str_replace('_', ' ', $c));
-				}, $configurations);
-				$titleParts[] = implode(', ', $formatted);
-			}
+			$cardFields = [
+				'slug', 'title', 'galleries', 'listing_type', 'construction_status', 'total_price',
+				'area', 'carpet_area', 'super_area', 'builtup_area', 'builder', 'builder_name', 'developer',
+				'rera_number', 'rera_no', 'rera', 'bathrooms', 'bathroom', 'floor', 'floor_no',
+				'possession_date', 'possession', 'created_at', 'short_description', 'description', 'overview',
+				'amenities', 'highlights', 'configuration', 'furnishing_types', 'property_type', 'city', 'price_details',
+			];
+			$propertyCards = $properties->getCollection()->map(function ($property) use ($cardFields) {
+				$card = $property->only($cardFields);
+				$galleries = (array) $property->galleries;
+				$card['galleries'] = array_slice(array_values($galleries), 0, 6);
+				$card['gallery_count'] = count($galleries);
 
-			if ($propertyTypes !== []) {
-				$titleParts[] = implode(', ', $propertyTypes);
-			}
+				$description = $property->short_description ?? $property->description ?? $property->overview ?? null;
+				$card['short_description'] = $description
+					? \Illuminate\Support\Str::limit(trim(preg_replace('/\\s+/', ' ', strip_tags((string) $description))), 140)
+					: null;
+				unset($card['description'], $card['overview']);
+				$card['price_details'] = !empty($property->price_details);
 
-			$locationLabels = $list('location');
-			if ($locationLabels !== []) {
-				$titleParts[] = 'in ' . implode(', ', $locationLabels);
-			}
-
-			if (!empty($filters['search'])) {
-				$searchLabel = trim((string) $filters['search']);
-				if ($searchLabel !== '') {
-					$titleParts[] = '"' . $searchLabel . '"';
-				}
-			}
-
-			$dynamicTitle = count($titleParts)
-				? implode(' ', $titleParts)
-				: 'All Properties';
-
-			$totalResultsText = $totalResults . ' Result' . ($totalResults !== 1 ? 's' : '');
-			// â”€â”€ end Dynamic title 
-
-			// Filter UI Data
-			$minPrice = Property::min('total_price') ?? 100000;
-			$maxPrice = Property::max('total_price') ?? 0;
-			$locations = Property::pluck('city')
-				->filter()
-				->map(function ($item) {
-					return ucwords(strtolower(trim($item)));
-				})
-				->unique()
-				->values()
-				->all();
+				return $card;
+			});
 
 			return response()->json([
 				'status' => true,
-				'data' => $properties,
-				'dynamicTitle'     => $dynamicTitle,        // â† add
-				'totalResults'     => $totalResults,         // â† add
-				'totalResultsText' => $totalResultsText,
-				'filtersData' => [
-					'locations' => $locations,
-					'minPrice' => $minPrice,
-					'maxPrice' => $maxPrice,
+				'data' => [
+					'items' => $propertyCards->values()->all(),
+					'pagination' => [
+						'current_page' => $properties->currentPage(),
+						'has_more' => $properties->hasMorePages(),
+					],
 				],
-				'pagination' => [
-					'last_page' => $properties->lastPage(),
-					'current_page' => $properties->currentPage(),
-				]
+				'message' => $properties->isEmpty() ? 'No properties found.' : 'Properties loaded successfully.',
 			]);
 		} catch (\Throwable $e) {
 			report($e);
@@ -1839,23 +1940,13 @@ You can use this page to discover and compare <strong>{$configurationText}{$prop
 			return response()->json([
 				'status' => false,
 				'data' => [
-					'data' => [],
-					'current_page' => 1,
-					'last_page' => 1,
-					'total' => 0,
+					'items' => [],
+					'pagination' => [
+						'current_page' => 1,
+						'has_more' => false,
+					],
 				],
-				'dynamicTitle' => 'All Properties',
-				'totalResults' => 0,
-				'totalResultsText' => '0 Results',
-				'filtersData' => [
-					'locations' => [],
-					'minPrice' => 0,
-					'maxPrice' => 0,
-				],
-				'pagination' => [
-					'last_page' => 1,
-					'current_page' => 1,
-				],
+				'message' => 'Unable to load properties. Please try again.',
 			], 200);
 		}
 	}
@@ -1863,62 +1954,72 @@ You can use this page to discover and compare <strong>{$configurationText}{$prop
 	/**
 	 * Handle property custom links
 	 */
-	private function handlePropertyCustomLink($slug, $link, $title, $name, $description, $keywords)
+	private function handlePropertyCustomLink($slug, ?CustomLink $link, $title, $name, $description, $keywords)
 	{
-		$slugParts = explode('-', $slug);
+		$slug = strtolower(trim((string) $slug, '/'));
+		$propertyType = null;
+		$listingType = null;
+		$configuration = null;
 
-		$bhk = null;
-		$city = null;
-
-		//bhk wise filter
-		for ($i = 0; $i < count($slugParts); $i++) {
-			if (is_numeric($slugParts[$i]) && isset($slugParts[$i + 1]) && $slugParts[$i + 1] === 'bhk') {
-				$bhk = $slugParts[$i] . ' BHK';
-				break;
-			}
+		if (preg_match('/^apartments-in-(.+)$/', $slug, $matches)) {
+			$propertyType = 'apartment';
+			$citySlug = $matches[1];
+		} elseif (preg_match('/^plots-in-(.+)$/', $slug, $matches)) {
+			$propertyType = 'plots';
+			$citySlug = $matches[1];
+		} elseif (preg_match('/^(sale|rent)-properties-in-(.+)$/', $slug, $matches)) {
+			$listingType = $matches[1];
+			$citySlug = $matches[2];
+		} elseif (preg_match('/^(\d+)-bhk-apartments?-in-(.+)$/', $slug, $matches)) {
+			$propertyType = 'apartment';
+			$configuration = strtolower($matches[1] . '_bhk');
+			$citySlug = $matches[2];
+		} else {
+			abort(404);
 		}
 
-		//city
-		if (str_contains($slug, 'apartment-in-') || str_contains($slug, 'apartments-in-')) {
-			$cityPart = str_contains($slug, 'apartment-in-')
-				? explode('apartment-in-', $slug)[1] ?? null
-				: explode('apartments-in-', $slug)[1] ?? null;
+		$matchedCity = Property::query()
+			->where('status', 'approved')
+			->whereNotNull('city')
+			->select('city')
+			->distinct()
+			->get()
+			->first(fn($property) => Str::slug($property->city) === $citySlug);
 
-			if ($cityPart) {
-				$city = trim(str_replace('-', ' ', $cityPart));
-			}
+		if (!$matchedCity) {
+			abort(404);
 		}
 
-		//query
-		$propertiesQuery = Property::query();
+		$city = trim((string) $matchedCity->city);
+		$initialFilters = ['location' => [$city]];
+		$propertiesQuery = Property::query()
+			->with(['project', 'user'])
+			->where('status', 'approved')
+			->whereRaw('LOWER(TRIM(city)) = ?', [strtolower($city)]);
 
-		// Always apartment type
-		$propertiesQuery->where('property_type', 'apartment');
-
-		if ($bhk) {
-			$configValue = strtolower(str_replace(' ', '_', $bhk));
-			$propertiesQuery->where('configuration', $configValue);
+		if ($propertyType !== null) {
+			$propertiesQuery->whereRaw('LOWER(TRIM(property_type)) = ?', [$propertyType]);
+			$initialFilters['propertyType'] = [$propertyType];
 		}
 
-		//FIX: Case-insensitive + partial match
-		if ($city) {
-			// Get exact matching city from DB (case insensitive)
-			$matchedCity = Property::whereRaw("LOWER(city) LIKE ?", ['%' . strtolower($city) . '%'])
-				->value('city');
-
-			if ($matchedCity) {
-				$initialFilters['location'] = [$matchedCity]; // exact DB value
-			}
+		if ($listingType !== null) {
+			$propertiesQuery->whereRaw('LOWER(TRIM(listing_type)) = ?', [$listingType]);
+			$initialFilters['listingType'] = [$listingType];
 		}
 
-		$properties = $propertiesQuery->paginate(12);
+		if ($configuration !== null) {
+			$propertiesQuery->whereRaw('LOWER(TRIM(configuration)) = ?', [$configuration]);
+			$initialFilters['configuration'] = [$configuration];
+		}
 
-		//filter with price
-		$minPrice = Property::min('total_price') ?? 100000;
-		$maxPrice = Property::max('total_price') ?? 10000000;
+		$properties = $propertiesQuery->orderByDesc('created_at')->paginate(12);
+		$approvedProperties = Property::query()->where('status', 'approved');
+		$minPrice = (clone $approvedProperties)->min('total_price') ?? 100000;
+		$maxPrice = (clone $approvedProperties)->max('total_price') ?? 10000000;
 
-		//$locations = Property::pluck('city')->filter()->unique()->values()->all();
-		$locations = Property::pluck('city')
+		$locations = Property::where('status', 'approved')
+			->whereNotNull('city')
+			->pluck('city')
 			->filter()
 			->map(function ($item) {
 				return ucwords(strtolower(trim($item)));
@@ -1926,7 +2027,12 @@ You can use this page to discover and compare <strong>{$configurationText}{$prop
 			->unique()
 			->values()
 			->all();
-		$configurations = Property::pluck('configuration')->filter()->unique()->values()->all();
+		$configurations = Property::where('status', 'approved')
+			->pluck('configuration')
+			->filter()
+			->unique()
+			->values()
+			->all();
 		$constructionStatuses = Property::where('status', 'approved')
 			->pluck('construction_status')
 			->filter()
@@ -1941,20 +2047,9 @@ You can use this page to discover and compare <strong>{$configurationText}{$prop
 			->values()
 			->all();
 
-		//filter
-		$initialFilters = [];
-
-		if (isset($configValue)) {
-			$initialFilters['configuration'] = [$configValue];
-		}
-
-		if ($city) {
-			$initialFilters['location'] = [$city];
-		}
-
-		$initialFilters['propertyType'] = ['apartment'];
-
-		$links_description = $link->links_description ?? null;
+		$links_description = $link?->links_description;
+		$dynamicTitle = $name ?: $title ?: ucwords(str_replace('-', ' ', $slug));
+		$totalResults = $properties->total();
 
 		return view('frontend.property-listing', compact(
 			'properties',
@@ -1969,7 +2064,9 @@ You can use this page to discover and compare <strong>{$configurationText}{$prop
 			'description',
 			'keywords',
 			'initialFilters',
-			'links_description'
+			'links_description',
+			'dynamicTitle',
+			'totalResults'
 		));
 	}
 

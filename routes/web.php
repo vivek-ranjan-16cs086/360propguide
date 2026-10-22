@@ -63,9 +63,9 @@ Route::get('project', function () {
     return view('frontend.project');
 })->name('frontend.projects');
 
-Route::get('commercial/epic', function () {
-    return view('frontend.commercial-details');
-})->name('commercial.epic');
+
+Route::get('commercial-projects', [FrontendPageController::class, 'getCommercialListings'])
+    ->name('projects.commercial.index');
 
 Route::get('commercial-projects/{slug}', [FrontendPageController::class, 'getCommercialProjectDetails'])
     ->name('projects.commercial');
@@ -84,7 +84,7 @@ Route::get('about-us', [FrontendPageController::class, 'getAboutUsPageData'])->n
 // Property browsing
 Route::prefix('properties')->group(function () {
     Route::get('/', [FrontendPageController::class, 'getPropertyListings']);
-    Route::post('filters', [FrontendPageController::class, 'filterProperties'])->name('property.filters');
+    Route::get('filters', [FrontendPageController::class, 'filterProperties'])->name('property.filters');
     Route::get('/{slug}', [FrontendPageController::class, 'getPropertyDetails'])->name('property.details');
 });
 
@@ -327,4 +327,4 @@ Route::post('/save-fcm-token', [NotificationController::class, 'saveToken']);
 
 // This broad route must remain after every specific GET route.
 Route::get('/{slug}', [FrontendPageController::class, 'showFilteredProjects'])
-    ->where('slug', '.*');
+    ->where('slug', '[^/]+');

@@ -4,7 +4,7 @@
 @endphp
 
 @if ($footerCustomLinks->isNotEmpty())
-    <div class="custom-link-section container my-4 commonLinks">
+    <div class="custom-link-section container my-4 commonLinks" @if(!empty($deferListingFooter)) hidden @endif>
         <h5 class="sectionHeader">Explore More</h5>
 
         <div class="custom-links-card">
@@ -33,8 +33,8 @@
     </div>
 @endif
 
-@if (!($onProjects ?? false) && !empty($propertyLinks))
-    <div class="custom-link-section container my-4 commonLinks">
+@if (!empty($propertyLinks))
+    <div class="custom-link-section container my-4 commonLinks" @if(!empty($deferListingFooter)) hidden @endif>
         <h5 class="sectionHeader">Explore Properties</h5>
 
         <div class="custom-links-card">

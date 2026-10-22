@@ -38,15 +38,16 @@ return [
 		'url' => env('ERP_API_URL'),
 		'key' => env('ERP_API_KEY'),
 	],
-	'facebook' => [
-		'verify_token' => env('FACEBOOK_VERIFY_TOKEN'),
-	],
-	
-	'meta' => [
-		'app_secret' => env('META_APP_SECRET'),
-		'page_access_token' => env('META_PAGE_ACCESS_TOKEN'),
-		'verify_token' => env('META_WEBHOOK_VERIFY_TOKEN'),
-		'graph_version' => env('META_GRAPH_VERSION', 'v26.0'),
-	],
 
+'facebook' => [
+    'verify_token' => env('FACEBOOK_VERIFY_TOKEN'),
+],
+
+'meta' => [
+    'app_secret' => env('META_APP_SECRET'),
+    'page_access_token' => env('META_PAGE_ACCESS_TOKEN'),
+    'verify_token' => env('META_WEBHOOK_VERIFY_TOKEN'),
+    'page_id' => env('META_PAGE_ID'),
+    'graph_version' => env('META_GRAPH_VERSION', 'v26.0'),
+]
 ];

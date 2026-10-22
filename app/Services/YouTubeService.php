@@ -46,7 +46,7 @@ class YouTubeService
     /**
      * Fetch channel videos using cURL.
      */
-    public function getChannelVideos($channelId, $order = 'date', $maxResults = 20)
+    public function getChannelVideos($channelId, $order = 'date', $maxResults = 100)
     {
         $url = 'https://www.googleapis.com/youtube/v3/search';
         $params = [

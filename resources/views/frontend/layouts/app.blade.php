@@ -144,11 +144,16 @@
   @include('frontend.layouts.header1')
   @yield('content')
 
+  @php
+    $deferListingFooter = isset($properties) && is_object($properties)
+      && method_exists($properties, 'hasMorePages') && $properties->hasMorePages();
+  @endphp
+
   @if (!isset($hideCustomLinks))
   @include('frontend.partials.custom-links')
   @endif
 
-  <footer>@include('frontend.layouts.footer')</footer>
+  <footer @if($deferListingFooter) hidden @endif>@include('frontend.layouts.footer')</footer>
 
 
   <div id="cookieConsentPopup" class="cookie-consent-popup shadow-lg">

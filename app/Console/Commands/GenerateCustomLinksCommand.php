@@ -12,7 +12,7 @@ class GenerateCustomLinksCommand extends Command
         {--fresh : Delete all existing custom links first}
         {--sync : Run immediately instead of queueing}';
 
-    protected $description = 'Generate custom links from locations, sublocations, developers, and possession statuses';
+    protected $description = 'Generate custom links from locations, projects, developers, and approved properties';
 
     public function handle(CustomLinkGenerator $generator): int
     {
