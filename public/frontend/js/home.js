@@ -211,6 +211,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
         window.location.href = "/flats-in-" + slug;
         return;
+    }else{
+          slug = slug.replace(slugifyCity(searchLocation), "");
+
+        window.location.href = slug;
+        return;
     }
 }
                 const params = new URLSearchParams();
@@ -222,7 +227,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     params.set("keyword", keyword);
                 }
                 if (mode === "commercial") {
-                    params.append("type[]", "Shops");
+                    const query = params.toString();
+                    window.location.href = "/commercial-projects/" + (query ? "?" + query : "");
+                    return;
                 }
 
                 const query = params.toString();
