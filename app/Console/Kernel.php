@@ -19,6 +19,7 @@ class Kernel extends ConsoleKernel
 		$schedule->command('fest:cron')->daily(); 
 		$schedule->command('generate:sitemap')->hourly();
 		$schedule->command('queue:work --stop-when-empty')->everyMinute();
+		$schedule->command('facebook:sync-pending-leads')->everyMinute();
 	
   }
 

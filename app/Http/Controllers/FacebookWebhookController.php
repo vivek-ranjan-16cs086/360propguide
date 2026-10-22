@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Lead;
+use App\Services\FacebookLeadErpSync;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -80,11 +81,13 @@ class FacebookWebhookController extends Controller
                     }
 
                     // Preserve duplicate-lead protection.
-                    if (Lead::where('facebook_lead_id', $leadId)->exists()) {
+                    $existingLead = Lead::where('facebook_lead_id', $leadId)->first();
+                    if ($existingLead) {
                         Log::info('Facebook lead skipped: already exists in database', [
                             'lead_id' => $leadId,
-                            'database_id' => Lead::where('facebook_lead_id', $leadId)->value('id'),
+                            'database_id' => $existingLead->id,
                         ]);
+                        app(FacebookLeadErpSync::class)->queueAndSync($existingLead);
                         continue;
                     }
 
@@ -227,14 +230,19 @@ class FacebookWebhookController extends Controller
                 ['facebook_lead_id' => $lead['id'] ?? $leadId],
                 [
                     'facebook_page_id' => $pageId,
+                    'facebook_page_name' => $pageName,
                     'facebook_form_id' => $formId,
+                    'facebook_form_name' => $formName,
                     'facebook_ad_id' => $adId,
+                    'facebook_ad_name' => $adName,
                     'facebook_adset_id' => $adsetId,
+                    'facebook_adset_name' => $adsetName,
+                    'facebook_campaign_id' => $campaignId,
+                    'facebook_campaign_name' => $campaignName,
                     'name' => $name,
                     'phone' => $phone,
                     'email' => $email,
                     'source' => 'facebook',
-                    'source_page_name' => $pageName,
                     'raw_data' => [
                         'lead_details_available' => !empty($lead),
                         'fields' => $fields,
@@ -275,8 +283,10 @@ class FacebookWebhookController extends Controller
                 'has_adset_name' => !empty($adsetName),
                 'has_campaign_name' => !empty($campaignName),
             ]);
+
+            app(FacebookLeadErpSync::class)->queueAndSync($savedLead);
         } catch (Throwable $e) {
-            Log::error('Facebook lead NOT saved: processing/database exception', [
+            Log::error('Facebook lead processing failed', [
                 'lead_id' => $leadId,
                 'message' => $e->getMessage(),
                 'file' => $e->getFile(),
