@@ -11,6 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasTable('fcm_tokens')) {
+            return;
+        }
+
         Schema::create('fcm_tokens', function (Blueprint $table) {
             $table->id();
             $table->string('token')->unique();
@@ -23,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('fcm_tokens');
+        // This table may predate this migration in existing installations.
     }
 };
