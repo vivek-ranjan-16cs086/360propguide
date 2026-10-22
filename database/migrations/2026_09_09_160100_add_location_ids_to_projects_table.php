@@ -8,28 +8,40 @@ return new class extends Migration
 {
     public function up(): void
     {
+        $addLocationId = !Schema::hasColumn('projects', 'location_id');
+        $addSublocationId = !Schema::hasColumn('projects', 'sublocation_id');
+
+        if (!$addLocationId && !$addSublocationId) {
+            return;
+        }
+
         Schema::table('projects', function (Blueprint $table) {
-            $table->unsignedBigInteger('location_id')->nullable()->after('cities');
-            $table->unsignedBigInteger('sublocation_id')->nullable()->after('location_id');
+            if (!Schema::hasColumn('projects', 'location_id')) {
+                $table->unsignedBigInteger('location_id')->nullable();
+            }
+            if (!Schema::hasColumn('projects', 'sublocation_id')) {
+                $table->unsignedBigInteger('sublocation_id')->nullable();
+            }
+        });
 
-            $table->foreign('location_id')
-                ->references('id')
-                ->on('locations')
-                ->nullOnDelete();
-
-            $table->foreign('sublocation_id')
-                ->references('id')
-                ->on('locations')
-                ->nullOnDelete();
+        Schema::table('projects', function (Blueprint $table) use ($addLocationId, $addSublocationId) {
+            if ($addLocationId) {
+                $table->foreign('location_id')
+                    ->references('id')
+                    ->on('locations')
+                    ->nullOnDelete();
+            }
+            if ($addSublocationId) {
+                $table->foreign('sublocation_id')
+                    ->references('id')
+                    ->on('locations')
+                    ->nullOnDelete();
+            }
         });
     }
 
     public function down(): void
     {
-        Schema::table('projects', function (Blueprint $table) {
-            $table->dropForeign(['location_id']);
-            $table->dropForeign(['sublocation_id']);
-            $table->dropColumn(['location_id', 'sublocation_id']);
-        });
+        // These columns may predate this migration in existing installations.
     }
 };

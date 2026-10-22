@@ -8,6 +8,10 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (Schema::hasTable('facebook_lead_erp_outbox')) {
+            return;
+        }
+
         Schema::create('facebook_lead_erp_outbox', function (Blueprint $table) {
             $table->id();
             $table->string('facebook_lead_id')->unique();
