@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class FacebookLeadErpOutbox extends Model
 {
+    protected $table = 'facebook_lead_erp_outbox';
+
     protected $fillable = [
         'facebook_lead_id',
         'payload',
