@@ -123,6 +123,11 @@ document.addEventListener("DOMContentLoaded", function () {
             .replace(/^-+|-+$/g, "");
     }
 
+    function flatsInUrl(value) {
+        const slug = slugifyCity(value);
+        return slug.includes("flats-in") ? "/" + slug : "/flats-in-" + slug;
+    }
+
     function applyHeroTab(mode) {
         if (!heroSearch || !tabCopy[mode]) {
             return;
@@ -161,7 +166,7 @@ document.addEventListener("DOMContentLoaded", function () {
             } else if (mode === "commercial") {
                 link.href = "/shops-projects-in-" + slugifyCity(city);
             } else {
-                link.href = "/flats-in-" + slugifyCity(city);
+                link.href = flatsInUrl(city);
             }
         });
     }
@@ -204,12 +209,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const searchLocation = location || keyword;
 
     if (searchLocation) {
-        let slug = slugifyCity(searchLocation);
-
-        // Prevent duplicate flats-in- prefix
-        slug = slug.replace(/^flats-in-/, "");
-
-        window.location.href = "/flats-in-" + slug;
+        window.location.href = flatsInUrl(searchLocation);
         return;
     }else{
           slug = slug.replace(slugifyCity(searchLocation), "");
