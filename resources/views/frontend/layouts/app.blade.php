@@ -147,6 +147,10 @@
   @php
     $deferListingFooter = isset($properties) && is_object($properties)
       && method_exists($properties, 'hasMorePages') && $properties->hasMorePages();
+    if (isset($pageData['blogs']) && is_object($pageData['blogs'])
+      && method_exists($pageData['blogs'], 'hasMorePages')) {
+      $deferListingFooter = $deferListingFooter || $pageData['blogs']->hasMorePages();
+    }
   @endphp
 
   @if (!isset($hideCustomLinks))

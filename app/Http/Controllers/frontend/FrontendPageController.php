@@ -1316,6 +1316,31 @@ You can use this page to discover and compare <strong>{$configurationText}{$prop
 		$blogs = $query->orderBy('id', 'DESC')->paginate(6);
 		$blogs->appends(['search' => $search]);
 
+		if ($request->expectsJson()) {
+			$items = $blogs->getCollection()->map(function (Blog $blog) {
+				return [
+					'title' => $blog->title,
+					'slug' => $blog->slug,
+					'url' => route('blogs.details', $blog->slug),
+					'image_url' => url('storage/' . ltrim((string) $blog->featured_image, '/')),
+					'short_description' => $blog->short_description,
+				];
+			})->values();
+
+			return response()->json([
+				'status' => true,
+				'data' => [
+					'items' => $items,
+					'pagination' => [
+						'current_page' => $blogs->currentPage(),
+						'last_page' => $blogs->lastPage(),
+						'has_more' => $blogs->hasMorePages(),
+					],
+				],
+				'message' => $blogs->isEmpty() ? 'No blogs found.' : 'Blogs loaded successfully.',
+			]);
+		}
+
 		$pageData['blogs'] = $blogs;
 
 		return view('frontend.blogs', compact('pageData', 'search'));
