@@ -32,9 +32,8 @@ class SendContactEmailJob implements ShouldQueue
      */
     public function handle(): void
     {
-		 \Log::info('SendContactEmailJob started');
-        try {
-			 \Log::info('Before sending mail to: ' . $this->email);
+		
+        try { 
             Mail::to($this->email)->send(new ContactMail($this->mailData));
 			 \Log::info('Mail sent successfully to: ' . $this->email);
         } catch (\Exception $e) {

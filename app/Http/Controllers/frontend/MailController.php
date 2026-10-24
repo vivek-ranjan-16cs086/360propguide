@@ -67,6 +67,24 @@ class MailController extends Controller
 		$mailData['project_name'] = $projectName;
 		$mailData['page_url'] = $submittedVia;
 		$mailData['source_url'] = $submittedVia;
+		
+		// Extract page name from the source URL
+		$sourceUrl = $mailData['source_url'];
+		$pageName = null;
+
+		if (!empty($sourceUrl)) {
+			$path = parse_url($sourceUrl, PHP_URL_PATH);
+			$segments = explode('/', trim($path ?? '', '/'));
+
+			// Match URLs like /projects/{slug}
+			if (
+				count($segments) === 2 &&
+				$segments[0] === 'projects' &&
+				!empty($segments[1])
+			) {
+				$pageName = $segments[1];
+			}
+		}
 
 		$query = Query::create($mailData);
 		        try {
@@ -81,7 +99,7 @@ class MailController extends Controller
 						'phone' => $query->mobile,
 						'email' => $query->email,
 						'project_name' => $projectName,
-						'page_url' => $submittedVia,
+						'source_page_name' => $pageName, 
 						'source_url' => $submittedVia,
 						'message' => $query->message,
 					]);
@@ -99,6 +117,7 @@ class MailController extends Controller
 			$mailData['reciever'] = 'admin';
 
 			 SendContactEmailJob::dispatch($mailData, 'rohit.mis.360@gmail.com');
+			 // SendContactEmailJob::dispatch($mailData, '16cs086vive@gmail.com');
 			 
 
 			// Store form name in session

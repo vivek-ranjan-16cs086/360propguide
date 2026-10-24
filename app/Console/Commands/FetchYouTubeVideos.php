@@ -52,7 +52,7 @@ class FetchYouTubeVideos extends Command
                 // Clean up null values from video IDs
                 $videoIds = array_filter($videoIds);
                 $commaSeparatedIds = implode(',', $videoIds);
-                \Log::info('youtube search API Response:'. $commaSeparatedIds);
+                
                 // Fetch the video details for the given video IDs
                 $videos = $youtubeService->getVideosData($commaSeparatedIds);
 				YouTubeVideo::query()->truncate();

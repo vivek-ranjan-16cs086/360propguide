@@ -11,6 +11,10 @@ return new class extends Migration
      */
     public function up()
 	{
+		if (Schema::hasColumn('projects', 'is_notified')) {
+			return;
+		}
+
 		Schema::table('projects', function (Blueprint $table) {
 			$table->boolean('is_notified')->default(false);
 		});
@@ -18,8 +22,6 @@ return new class extends Migration
 
 	public function down()
 	{
-		Schema::table('projects', function (Blueprint $table) {
-			$table->dropColumn('is_notified');
-		});
+		// This column may predate this migration in existing installations.
 	}
 };
