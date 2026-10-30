@@ -187,7 +187,7 @@ class CustomLinkGenerator
 
         $query = CustomLink::query()
             ->where('type', 'bhk')
-            ->where('slug', 'like', '%-flats-in-' . $placeSlug);
+            ->where('slug', 'like' . $placeSlug);
 
 
         if (empty($currentBhkSlugs)) {
