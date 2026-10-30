@@ -191,9 +191,10 @@ class FacebookLeadErpSync
         $facebook = data_get($lead->raw_data, 'facebook', []);
         $fields = data_get($lead->raw_data, 'fields', []);
         $messageParts = ['Facebook Lead Ads'];
+        $formName = $lead->facebook_form_name ?: ($facebook['form_name'] ?? null);
 
         foreach ([
-            'Form' => $lead->facebook_form_name ?: ($facebook['form_name'] ?? null),
+            'Form' => $formName,
             'Ad' => $lead->facebook_ad_name ?: ($facebook['ad_name'] ?? null),
             'Campaign' => $lead->facebook_campaign_name ?: ($facebook['campaign_name'] ?? null),
         ] as $label => $value) {
@@ -223,8 +224,8 @@ class FacebookLeadErpSync
             'phone' => $phone,
             'email' => $lead->email,
             'project_name' => null,
-            'source_page_name' => $lead->facebook_page_name
-                ?: ($facebook['page_name'] ?? 'Facebook Lead Ads'),
+            'source_page_name' => $formName ?: ($lead->facebook_page_name
+                ?: ($facebook['page_name'] ?? 'Facebook Lead Ads')),
             'source_url' => null,
             'message' => implode(' | ', $messageParts),
         ];
