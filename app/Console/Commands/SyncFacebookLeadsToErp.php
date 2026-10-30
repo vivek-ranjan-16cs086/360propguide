@@ -25,6 +25,8 @@ class SyncFacebookLeadsToErp extends Command
             });
 
         FacebookLeadErpOutbox::whereNull('synced_at')
+            ->where('attempts', '<', FacebookLeadErpSync::MAX_ATTEMPTS)
+            ->where('updated_at', '<=', now()->subMinutes(5))
             ->orderBy('id')
             ->chunkById(100, function ($outboxRecords) use ($sync) {
                 foreach ($outboxRecords as $outbox) {

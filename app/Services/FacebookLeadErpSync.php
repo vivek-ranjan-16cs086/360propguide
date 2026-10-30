@@ -12,6 +12,8 @@ use Throwable;
 
 class FacebookLeadErpSync
 {
+    public const MAX_ATTEMPTS = 3;
+
     public function queueAndSync(Lead $lead): void
     {
         $facebookLeadId = (string) $lead->facebook_lead_id;
@@ -63,6 +65,15 @@ class FacebookLeadErpSync
     {
         if ($outbox->synced_at) {
             return true;
+        }
+
+        if ($outbox->attempts >= self::MAX_ATTEMPTS) {
+            Log::warning('Facebook lead ERP sync stopped: maximum attempts reached', [
+                'lead_id' => $outbox->facebook_lead_id,
+                'outbox_id' => $outbox->id,
+                'attempts' => $outbox->attempts,
+            ]);
+            return false;
         }
 
         $lead = Lead::where('facebook_lead_id', $outbox->facebook_lead_id)->first();
