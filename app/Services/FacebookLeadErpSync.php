@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\FacebookLeadErpOutbox;
 use App\Models\Lead;
 use Illuminate\Http\Client\Response;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Throwable;
@@ -13,21 +14,52 @@ class FacebookLeadErpSync
 {
     public function queueAndSync(Lead $lead): void
     {
-        $outbox = FacebookLeadErpOutbox::firstOrNew([
-            'facebook_lead_id' => $lead->facebook_lead_id,
-        ]);
+        $facebookLeadId = (string) $lead->facebook_lead_id;
+        $lock = Cache::lock($this->lockKey($facebookLeadId), 60);
+        $lockAcquired = $lock->get(function () use ($lead): bool {
+            $outbox = FacebookLeadErpOutbox::firstOrNew([
+                'facebook_lead_id' => $lead->facebook_lead_id,
+            ]);
 
-        if ($outbox->synced_at) {
-            return;
+            if ($outbox->synced_at) {
+                return true;
+            }
+
+            $outbox->payload = $this->payloadFor($lead);
+            $outbox->save();
+
+            $this->syncPendingLocked($outbox);
+            return true;
+        });
+
+        if ($lockAcquired === false) {
+            Log::info('Facebook lead ERP sync skipped: another sync is in progress', [
+                'lead_id' => $lead->facebook_lead_id,
+            ]);
         }
-
-        $outbox->payload = $this->payloadFor($lead);
-        $outbox->save();
-
-        $this->syncPending($outbox);
     }
 
     public function syncPending(FacebookLeadErpOutbox $outbox): bool
+    {
+        $facebookLeadId = (string) $outbox->facebook_lead_id;
+        $lock = Cache::lock($this->lockKey($facebookLeadId), 60);
+        $result = $lock->get(function () use ($outbox): array {
+            $outbox->refresh();
+            return ['synced' => $this->syncPendingLocked($outbox)];
+        });
+
+        if ($result === false) {
+            Log::info('Facebook lead ERP retry skipped: another sync is in progress', [
+                'lead_id' => $outbox->facebook_lead_id,
+                'outbox_id' => $outbox->id,
+            ]);
+            return false;
+        }
+
+        return $result['synced'];
+    }
+
+    private function syncPendingLocked(FacebookLeadErpOutbox $outbox): bool
     {
         if ($outbox->synced_at) {
             return true;
@@ -98,6 +130,11 @@ class FacebookLeadErpSync
             ]);
             return false;
         }
+    }
+
+    private function lockKey(string $facebookLeadId): string
+    {
+        return 'facebook-lead-erp-sync:' . hash('sha256', $facebookLeadId);
     }
 
     private function recordFailure(FacebookLeadErpOutbox $outbox, string $error): void

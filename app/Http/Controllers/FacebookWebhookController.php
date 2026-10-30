@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Lead;
-use App\Services\FacebookLeadErpSync;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -87,7 +86,6 @@ class FacebookWebhookController extends Controller
                             'lead_id' => $leadId,
                             'database_id' => $existingLead->id,
                         ]);
-                        app(FacebookLeadErpSync::class)->queueAndSync($existingLead);
                         continue;
                     }
 
