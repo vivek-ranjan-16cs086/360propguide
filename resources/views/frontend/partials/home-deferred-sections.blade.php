@@ -13,7 +13,7 @@
                         <div class="toll-card">
                             <div class="toll-image">
                                 <div class="toll-bg">
-                                    <img src="{{url('frontend/tools/BUDGET CLC.webp')}}" alt="budget calculator" loading="lazy">
+                                    <img src="{{versioned_asset('frontend/tools/BUDGET CLC.webp')}}" alt="budget calculator" loading="lazy" decoding="async" width="640" height="480">
                                 </div>
                             </div>
                             <div class="highlight">
@@ -30,7 +30,7 @@
                         <div class="toll-card">
                             <div class="toll-image">
                                 <div class="toll-bg">
-                                    <img src="{{url('frontend/tools/EMI CLC-01.webp')}}" alt="emi calculator" loading="lazy">
+                                    <img src="{{versioned_asset('frontend/tools/EMI CLC-01.webp')}}" alt="emi calculator" loading="lazy" decoding="async" width="640" height="480">
                                 </div>
                             </div>
                             <div class="highlight">
@@ -46,7 +46,7 @@
                         <div class="toll-card">
                             <div class="toll-image">
                                 <div class="toll-bg">
-                                    <img src="{{url('frontend/tools/Area Converter.webp')}}" alt="budget calculator" loading="lazy">
+                                    <img src="{{versioned_asset('frontend/tools/Area Converter.webp')}}" alt="budget calculator" loading="lazy" decoding="async" width="640" height="480">
                                 </div>
                             </div>
                             <div class="highlight">
@@ -62,7 +62,7 @@
                         <div class="toll-card">
                             <div class="toll-image">
                                 <div class="toll-bg">
-                                    <img src="{{url('frontend/tools/Loan Eligibility.webp')}}" alt="budget calculator" loading="lazy">
+                                    <img src="{{versioned_asset('frontend/tools/Loan Eligibility.webp')}}" alt="budget calculator" loading="lazy" decoding="async" width="640" height="480">
                                 </div>
                             </div>
                             <div class="highlight">
@@ -78,7 +78,7 @@
                         <div class="toll-card">
                             <div class="toll-image">
                                 <div class="toll-bg">
-                                    <img src="{{url('frontend/tools/Buy Ability.webp')}}" alt="budget calculator" loading="lazy">
+                                    <img src="{{versioned_asset('frontend/tools/Buy Ability.webp')}}" alt="budget calculator" loading="lazy" decoding="async" width="640" height="480">
                                 </div>
                             </div>
                             <div class="highlight">
@@ -153,7 +153,8 @@
                         <div class="youtube-slider card border-0">
                             <div class="position-relative">
                             <img src="{{ $video->thumbnail }}"
-                            class="position-relative youtube-thumbnail" alt="360 PropGuide" width="350" height="150" loading="lazy">
+                            class="position-relative youtube-thumbnail" alt="360 PropGuide" width="350" height="150"
+                            loading="lazy" decoding="async">
                             <div class="duration">
                             {{ formatDuration($video->duration) }}
                             </div>
@@ -259,7 +260,7 @@
         <h2 class="sectionHeader">Developer Based Services</h2>
         <p class="mt-3 mb-5">All in solutions for <b>real estate development</b></p>
         <div class="row">
-            <div class="col-lg-3 col-sm-6 mb-3 aos-init aos-animate">
+            <div class="col-lg-3 col-sm-6 mb-3">
                 <div class="service-card shadow p-3 d-flex flex-column align-items-center">
                     <div class="anim-layer"></div>
                     <i class="fa-solid fa-ruler-combined display-5 mb-3"></i>
@@ -267,7 +268,7 @@
                     <p class="text-center mb-0">Site location is pulling together with the flows of the world and local markets to become a prospective location.</p>
                 </div>
             </div>
-            <div class="col-lg-3 col-sm-6 mb-3 aos-init aos-animate">
+            <div class="col-lg-3 col-sm-6 mb-3">
                 <div class="service-card shadow p-3 d-flex flex-column align-items-center">
                     <div class="anim-layer"></div>
                     <i class="fa-solid fa-chart-simple display-5 mb-3"></i>
@@ -275,7 +276,7 @@
                     <p class="text-center mb-0">Depending on where your project is located, a unified promotion of your project in the digital and offline space will be conducted.</p>
                 </div>
             </div>
-            <div class="col-lg-3 col-sm-6 mb-3 aos-init aos-animate">
+            <div class="col-lg-3 col-sm-6 mb-3">
                 <div class="service-card shadow p-3 d-flex flex-column align-items-center">
                     <div class="anim-layer"></div>
                     <i class="fa-solid fa-user-tie display-5 mb-3"></i>
@@ -283,7 +284,7 @@
                     <p class="text-center mb-0">From lead creation to deal closure, we offer comprehensive sales management for a smooth process.</p>
                 </div>
             </div>
-            <div class="col-lg-3 col-sm-6 mb-3 aos-init aos-animate">
+            <div class="col-lg-3 col-sm-6 mb-3">
                 <div class="service-card shadow p-3 d-flex flex-column align-items-center">
                     <div class="anim-layer"></div>
                     <i class="fa-solid fa-key display-5 mb-3"></i>
@@ -311,7 +312,8 @@
             <a href="{{ route('blogs.details', $blog->slug) }}">
                 <div class="itemSlider card">
                     <img src="{{ url('storage/' . $blog->featured_image) }}"
-                         class="position-relative" alt="360 PropGuide" width="350" height="150" loading="lazy"> 
+                         class="position-relative" alt="360 PropGuide" width="350" height="150"
+                         loading="lazy" decoding="async">
                     <div class="projectDescp">
                         <p class="title ">{{ $blog->title }}</p> 
                         <p class="text-secondary">

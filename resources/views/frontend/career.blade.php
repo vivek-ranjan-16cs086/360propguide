@@ -5,7 +5,7 @@
 @section('canonical', url()->current())
 
 @section('customCSS')
-<link rel="stylesheet" href="{{asset('frontend/css/career.css')}}">
+<link rel="stylesheet" href="{{ versioned_asset('frontend/css/career.css') }}">
 @endSection
 @section('content')
 <!-- Carrer-listing section -->
@@ -25,7 +25,8 @@
                 <a href="#"><button class="btn customBtn">View Open Roles</button></a>
             </div>
             <div class="my-5">
-                <img src="{{asset('frontend/career-banner.jpg')}}" alt="360 PropGuide" class="w-100 object-fit-cover" />
+                <img src="{{versioned_asset('frontend/career-banner.jpg')}}" alt="360 PropGuide"
+                    class="w-100 object-fit-cover" loading="lazy" decoding="async" width="1200" height="600" />
             </div>
             <h2 class="mt-5 text-center">Some opportunites for you to explore</h2>
         </div>

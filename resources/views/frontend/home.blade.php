@@ -1,11 +1,17 @@
 @extends('frontend.layouts.app')
-@section('skipAos', true)
+@section('usesSwiper', 'true')
+@section('lazySwiper', 'true')
 @section('title', "Best Real Estate Consultant in Noida — Buy, Sell, Invest")
 @section('description', "Trusted Real Estate Consultant in Noida & Delhi NCR. Buy, Sell or Invest in top residential &
 commercial projects. Expert guidance, home loans. Call Now!")
 @section('keywords', "360 PropGuide, Real Estate Services, Delhi NCR Properties, Real Estate, real estate company, noida
 property, real estate company in noida, property greater noida, property in greater noida west, property in gr noida")
 @section('priority')
+<link rel="preload" as="image" href="{{ versioned_asset('frontend/360location-mobile-poster.webp') }}"
+    media="(max-width: 767px)" fetchpriority="high">
+<link rel="preload" as="image" href="{{ versioned_asset('frontend/360location-desktop-poster.webp') }}"
+    media="(min-width: 768px)" fetchpriority="high">
+<link rel="preload" as="style" href="{{ versioned_asset('frontend/css/home.css') }}">
 @endSection
 @section('canonical', url()->current())
 @section('customCSS')
@@ -45,7 +51,7 @@ property, real estate company in noida, property greater noida, property in grea
 }
 </script>
 <link rel="stylesheet"
-    href="{{ url('frontend/css/home.css') }}?v={{ filemtime(public_path('frontend/css/home.css')) }}">
+    href="{{ versioned_asset('frontend/css/home.css') }}">
 @endSection
 
 @section('content')
@@ -58,15 +64,17 @@ property, real estate company in noida, property greater noida, property in grea
 
         <div class="hero-video">
             <picture id="heroPoster">
-                <source media="(max-width: 767px)" srcset="{{ url('frontend/360location-mobile-poster.webp') }}"
-                    width="390" height="693">
-                <img src="{{ url('frontend/360location-desktop-poster.webp') }}" loading="eager" fetchpriority="high"
+                <source media="(max-width: 767px)" type="image/webp"
+                    srcset="{{ versioned_asset('frontend/360location-mobile-poster.webp') }}" width="390" height="693">
+                <source type="image/webp" srcset="{{ versioned_asset('frontend/360location-desktop-poster.webp') }}"
+                    width="1280" height="720">
+                <img src="{{ versioned_asset('frontend/360location-desktop-poster.webp') }}" loading="eager" fetchpriority="high"
                     width="1280" height="720" alt="360 PropGuide properties in Delhi NCR"
                     style="width:100%;height:100%;object-fit:cover;display:block;">
             </picture>
             <video id="myVideo" class="location-video" muted autoplay loop playsinline preload="none"
-                data-mobile-src="{{ url('frontend/360location-mobile-web.mp4') }}"
-                data-desktop-src="{{ url('frontend/360location-desktop-web.mp4') }}"
+                data-mobile-src="{{ versioned_asset('frontend/360location-mobile-web.mp4') }}"
+                data-desktop-src="{{ versioned_asset('frontend/360location-desktop-web.mp4') }}"
                 aria-label="360 PropGuide property location video">
             </video>
         </div>
@@ -316,7 +324,8 @@ property, real estate company in noida, property greater noida, property in grea
 
                                     <div class="project-card__image-wrap">
                                         <img src="{{env('APP_URL').'storage/'.$project->logo_image }}"
-                                            alt="{{ $project->project_name }}" loading="lazy" decoding="async">
+                                            alt="{{ $project->project_name }}" loading="lazy" decoding="async"
+                                            width="640" height="480">
                                     </div>
                                     <div class="projectDescp">
                                         <h3 class="title">{{ $project->project_name }}</h3>
@@ -556,7 +565,7 @@ property, real estate company in noida, property greater noida, property in grea
                                     <div class="video-card__thumbnail">
                                         <img src="https://i.ytimg.com/vi/{{ $video->video_id }}/mqdefault.jpg"
                                             class="video-card__img" alt="{{ $video->title }}" loading="lazy"
-                                            decoding="async">
+                                            decoding="async" width="320" height="180">
                                         <div class="video-card__duration">{{ formatDuration($video->duration) }}</div>
                                         <div class="video-card__play"><i class="fa-solid fa-play"></i></div>
                                     </div>
@@ -601,7 +610,8 @@ property, real estate company in noida, property greater noida, property in grea
                                 <div class="video-card">
                                     <div class="video-card__thumbnail">
                                         <img src="{{ $short->thumbnail }}" class="video-card__img"
-                                            alt="{{ $short->title }}" loading="lazy" decoding="async">
+                                            alt="{{ $short->title }}" loading="lazy" decoding="async"
+                                            width="360" height="640">
                                         <span class="shorts-tag"><i class="fa-brands fa-youtube"></i> Shorts</span>
                                         <div class="video-card__duration">{{ formatDuration($short->duration) }}</div>
                                         <div class="video-card__play"><i class="fa-solid fa-play"></i></div>
@@ -831,7 +841,8 @@ property, real estate company in noida, property greater noida, property in grea
                             <div class="blog-card">
                                 <div class="blog-card__img-wrap">
                                     <img src="{{ env('APP_URL').'storage/' . $blog->featured_image }}"
-                                        alt="{{ $blog->title }}" loading="lazy" decoding="async">
+                                        alt="{{ $blog->title }}" loading="lazy" decoding="async"
+                                        width="640" height="480">
                                 </div>
                                 <div class="projectDescp">
                                     <h3 class="title">{{ $blog->title }}</h3>
@@ -886,8 +897,8 @@ property, real estate company in noida, property greater noida, property in grea
                         <div class="social-feed-card">
                             <div class="social-feed-header">
                                 <div class="social-author">
-                                    <img src="{{ url('frontend/360logo.webp') }}" class="social-avatar"
-                                        alt="360 PropGuide">
+                                    <img src="{{ versioned_asset('frontend/360logo.webp') }}" class="social-avatar"
+                                        alt="360 PropGuide" width="48" height="48" loading="lazy" decoding="async">
                                     <div class="social-author-info">
                                         <h4 class="social-author-name">
                                             360 PropGuide <i class="fa-solid fa-circle-check text-primary"></i>
@@ -910,7 +921,7 @@ property, real estate company in noida, property greater noida, property in grea
                                 <div class="social-feed-img-wrap">
                                     <img src="{{ $feed['full_picture'] }}" alt="360 PropGuide Social Update"
                                         loading="lazy" decoding="async" width="640" height="480"
-                                        onerror="this.onerror=null;this.src='{{ url('frontend/360logo.webp') }}';this.classList.add('is-fallback');">
+                                        onerror="this.onerror=null;this.src='{{ versioned_asset('frontend/360logo.webp') }}';this.classList.add('is-fallback');">
                                 </div>
                             </a>
                             @endif
@@ -980,5 +991,7 @@ property, real estate company in noida, property greater noida, property in grea
 @endSection
 
 @section('customJS')
-<script defer src="{{ asset('frontend/js/home.js') }}?v={{ filemtime(public_path('frontend/js/home.js')) }}"></script>
+<script defer src="{{ versioned_asset('frontend/js/home.js') }}"
+    data-swiper-src="{{ versioned_asset('frontend/libraries/swiper.js') }}"
+    data-swiper-css="{{ versioned_asset('frontend/libraries/swiper.css') }}"></script>
 @endSection

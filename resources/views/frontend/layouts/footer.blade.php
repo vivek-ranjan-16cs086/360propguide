@@ -7,7 +7,7 @@
                     <div class="col-lg-6 col-md-12">
                         <div class="footer-brand-wrap d-flex flex-column flex-sm-row align-items-sm-center gap-3">
                             <a href="{{ url('/') }}" class="footer-logo-link">
-                                <img src="{{ url('frontend/360logo.webp') }}" alt="360 PropGuide"
+                                <img src="{{ versioned_asset('frontend/360logo.webp') }}" alt="360 PropGuide"
                                     class="footer-logo-img" width="180" height="70" loading="lazy" decoding="async">
                             </a>
                             <div class="footer-quick-contacts d-flex flex-wrap gap-2">

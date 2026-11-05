@@ -5,7 +5,7 @@
 
 @section('canonical', url()->current())
 @section('customCSS')
-<link rel="stylesheet" href="{{asset('frontend/css/contact.css')}}">
+<link rel="stylesheet" href="{{ versioned_asset('frontend/css/contact.css') }}">
 @endSection
 @section('content')
 <div class="hero-bg text-center d-flex align-items-center justify-content-center">

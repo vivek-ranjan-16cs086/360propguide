@@ -2442,6 +2442,13 @@
 }
 
 @media (max-width: 767px) {
+    .hero-title,
+    .hero-lead,
+    .hero-search-panel,
+    .hero-cities {
+        animation: none;
+    }
+
     .heroSection {
         height: 100vh;
         height: 100dvh;

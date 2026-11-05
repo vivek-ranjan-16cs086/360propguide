@@ -2,7 +2,7 @@
 @section('description',"Read disclaimer for 360 PropGuide to understand the scope and limitations of our real estate content and services.")
 @section('keywords', "") @section('canonical', url()->current())
 @section('customCSS')
-<link rel="stylesheet" href="{{url('./frontend/css/disclaimer.css')}}" />
+<link rel="stylesheet" href="{{ versioned_asset('frontend/css/disclaimer.css') }}" />
 @endSection @section('content') 
 <!--  Section -->
 

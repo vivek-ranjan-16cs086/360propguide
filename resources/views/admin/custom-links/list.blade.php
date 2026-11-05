@@ -1,5 +1,5 @@
 @extends('admin.app')
-
+@section('usesDataTables', 'true')
 @section('title', $title)
 
 @section('content') 
@@ -117,7 +117,6 @@
 </script>
 
 @endsection
-
 
 
 

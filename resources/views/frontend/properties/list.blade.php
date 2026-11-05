@@ -88,7 +88,7 @@
                                     >
                                 @else
                                     <div class="d-flex justify-content-center align-items-center bg-secondary-subtle h-100 rounded-bottom-left-2">
-                                        <img src="{{ url('frontend/real-estate.png') }}" alt="Fallback Image" class="opacity-50 w-50">
+                                        <img src="{{ versioned_asset('frontend/real-estate.png') }}" alt="Fallback Image" class="opacity-50 w-50">
                                     </div>
                                 @endif
 

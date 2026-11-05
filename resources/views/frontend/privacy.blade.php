@@ -2,7 +2,7 @@
 @section('description'," Learn how 360 PropGuide ensures the safety and confidentiality of your data with our privacy policy.")
 @section('keywords', "") @section('canonical', url()->current())
 @section('customCSS')
-<link rel="stylesheet" href="{{url('./frontend/css/disclaimer.css')}}" />
+<link rel="stylesheet" href="{{ versioned_asset('frontend/css/disclaimer.css') }}" />
 @endSection @section('content')
 <!--  Section -->
 

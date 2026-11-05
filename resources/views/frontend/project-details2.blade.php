@@ -1,4 +1,5 @@
 @extends('frontend.layouts.app')
+@section('usesSwiper', 'true')
 @section('usesSweetAlert', true)
 @section('og_image', storageUrl($projects->logo_image))
 @section('title', $projects->seo_data['title'])
@@ -70,7 +71,7 @@
 
 
 @section('customCSS')
-<link rel="stylesheet" href="{{asset('frontend/css/project-detail.css')}}" />
+<link rel="stylesheet" href="{{ versioned_asset('frontend/css/project-detail.css') }}" />
 @endSection 
 @section('content')
 
@@ -186,24 +187,27 @@
   <div class="row hero-section" id="hero">
     <div class="col-md-6 d-none d-md-block">
       <img class="w-100 h-100 object-fit-cover rounded-start-3" src="{{storageUrl($projects->hero_images)}}"
-        alt="{{$projects->project_name}}" />
+        alt="{{$projects->project_name}}" width="1200" height="800" fetchpriority="high" decoding="async" />
     </div>
     <div class="col-md-6">
       <div class="row h-100">
         <div class="col-6 mb-3 aspect2-1 d-none d-md-block">
           <img class="w-100 h-100" src="{{storageUrl($projects->amenities_images)}}"
-            alt="{{$projects->project_name}} amenity image" />
+            alt="{{$projects->project_name}} amenity image" width="600" height="400" decoding="async" />
         </div>
         <div class="col-6 mb-3 aspect2-1 d-none d-md-block">
           <img class="w-100 h-100 rounded-3 rounded-start-0 rounded-bottom-0"
-            src="{{storageUrl($projects->feature_image)}}" alt="{{$projects->project_name}} feature image" />
+            src="{{storageUrl($projects->feature_image)}}" alt="{{$projects->project_name}} feature image"
+            width="600" height="400" decoding="async" />
         </div>
         <div class="col-6 aspect2-1 d-none d-md-block">
-          <img class="w-100 h-100" src="{{storageUrl($projects->logo_image)}}" alt="{{$projects->project_name}} logo image" />
+          <img class="w-100 h-100" src="{{storageUrl($projects->logo_image)}}" alt="{{$projects->project_name}} logo image"
+            width="600" height="400" decoding="async" />
         </div>
         <div class="col-6 aspect2-1 d-none d-md-block">
           <img class="w-100 h-100 rounded-3 rounded-start-0 rounded-top-0"
-            src="{{storageUrl($projects->developer_background_image)}}" alt="{{$projects->project_name}}" />
+            src="{{storageUrl($projects->developer_background_image)}}" alt="{{$projects->project_name}}"
+            width="600" height="400" decoding="async" />
         </div>
       </div>
     </div>
@@ -213,23 +217,23 @@
         <div class="carousel-inner">
           <div class="carousel-item active">
             <img class="d-block w-100" src="{{storageUrl($projects->hero_images)}}"
-              alt="{{$projects->project_name}}">
+              alt="{{$projects->project_name}}" width="1200" height="800" fetchpriority="high" decoding="async">
           </div>
           <div class="carousel-item">
             <img class="d-block w-100" src="{{storageUrl($projects->amenities_images)}}"
-              alt="{{$projects->project_name}} amenity image">
+              alt="{{$projects->project_name}} amenity image" width="1200" height="800" loading="lazy" decoding="async">
           </div>
           <div class="carousel-item">
             <img class="d-block w-100" src="{{storageUrl($projects->feature_image)}}"
-              alt="{{$projects->project_name}} feature image">
+              alt="{{$projects->project_name}} feature image" width="1200" height="800" loading="lazy" decoding="async">
           </div>
           <div class="carousel-item">
             <img class="d-block w-100" src="{{storageUrl($projects->logo_image)}}"
-              alt="{{$projects->project_name}} logo image">
+              alt="{{$projects->project_name}} logo image" width="1200" height="800" loading="lazy" decoding="async">
           </div>
           <div class="carousel-item">
             <img class="d-block w-100" src="{{storageUrl($projects->developer_background_image)}}"
-              alt="{{$projects->project_name}}">
+              alt="{{$projects->project_name}}" width="1200" height="800" loading="lazy" decoding="async">
           </div>
         </div>
 
@@ -322,7 +326,8 @@
 
                      @if(!empty($rera['qr_image']))
 					  <div class="rera-right">
-						<img src="{{ storageUrl($rera['qr_image']) }}" alt="RERA QR Code">
+						<img src="{{ storageUrl($rera['qr_image']) }}" alt="RERA QR Code"
+                            loading="lazy" decoding="async" width="160" height="160">
 					  </div>
 					 @endif
                     </div>
@@ -538,7 +543,8 @@
                 @foreach($floorPlans as $index => $floorPlan)
                 <div class="swiper-slide flex-column">
                   <img class="col-12 col-md-10 mx-auto" alt="{{$projects->project_name}} floor plan"
-                    src="{{ storageUrl($floorPlan['image']) }}" />
+                    src="{{ storageUrl($floorPlan['image']) }}" loading="lazy" decoding="async"
+                    width="1200" height="800" />
                   <div class="row m-0 w-100 align-items-center">
                     @if(@$floorPlan['super_area'] != 0)
                     <div class="col-md-3 col-6">
@@ -646,7 +652,8 @@
             @if(!empty($projects->amenitiesDetails) && count($projects->amenitiesDetails)>0)
             @foreach($projects->amenitiesDetails as $index => $amenity)
             <div class="icon col-md-2 col-4">
-              <img src="{{storageUrl($amenity->image)}}" alt="{{'360_propguide'.$amenity->name}}" />
+              <img src="{{storageUrl($amenity->image)}}" alt="{{'360_propguide'.$amenity->name}}"
+                loading="lazy" decoding="async" width="96" height="96" />
               <span>{{$amenity->name}}</span>
             </div>
             @endforeach
@@ -670,7 +677,7 @@
             @foreach ($projects->developerDetails as $developer)
             <div class="col-12 col-md-3">
               <img src="{{storageUrl($developer->developer_logo)}}" class="col-6 mx-auto col-md-12 d-block"
-                alt="{{$projects->project_name}}" />
+                alt="{{$projects->project_name}}" loading="lazy" decoding="async" width="320" height="180" />
             </div>
             <div class="col-4 col-md-3">
               <div class="text-center py-2 text-primary">
@@ -946,6 +953,7 @@
               <div class="col-5 col-md-5 img-container position-relative">
                 <img alt="{{$recommended->project_name }}" loading="lazy" decoding="async" data-nimg="fill"
                   class="h-100 object-fit-cover rounded-start-1" sizes="100vw"
+                  width="640" height="480"
                   src="{{ storageUrl($recommended->logo_image) }}" style="
                     position: absolute;
                     height: 100%;
@@ -996,7 +1004,8 @@
   <div class="modal-dialog popupFormHome">
     <div class="modal-content p-3">
       <div class="modal-header border-0">
-        <img src="{{asset('frontend/360logo.png')}}" alt="360propguide" class="w-50 mx-auto">
+        <img src="{{versioned_asset('frontend/360logo.webp')}}" alt="360propguide" class="w-50 mx-auto"
+          width="240" height="96" loading="lazy" decoding="async">
 
         <button type="button" class="btn-close align-self-start ms-0 shadow-none" data-bs-dismiss="modal"
           aria-label="Close"></button>

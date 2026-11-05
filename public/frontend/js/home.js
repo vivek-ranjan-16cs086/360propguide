@@ -8,12 +8,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
         function loadHeroVideo() {
             if (videoLoaded) return;
-            videoLoaded = true;
 
             const isMobile = window.matchMedia("(max-width: 767px)").matches;
-            const videoSource = isMobile
-                ? video.dataset.mobileSrc
-                : video.dataset.desktopSrc;
+            if (isMobile || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+                return;
+            }
+
+            videoLoaded = true;
+            const videoSource = video.dataset.desktopSrc;
 
             if (!videoSource) return;
 
@@ -37,7 +39,17 @@ document.addEventListener("DOMContentLoaded", function () {
             );
         }
 
-        loadHeroVideo();
+        window.addEventListener(
+            "load",
+            function () {
+                if ("requestIdleCallback" in window) {
+                    window.requestIdleCallback(loadHeroVideo, { timeout: 3000 });
+                } else {
+                    window.setTimeout(loadHeroVideo, 1500);
+                }
+            },
+            { once: true },
+        );
     }
 
     // Scroll Down Button Smooth Scroll
@@ -329,9 +341,86 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
+    let swiperLoadPromise;
+
+    function loadSwiper() {
+        if (!swiperLoadPromise) {
+            const homeScript = document.querySelector("script[data-swiper-src]");
+            const resources = [];
+
+            if (homeScript && homeScript.dataset.swiperCss
+                && !document.querySelector("link[data-swiper-styles]")) {
+                resources.push(new Promise(function (resolve, reject) {
+                    const stylesheet = document.createElement("link");
+                    stylesheet.rel = "stylesheet";
+                    stylesheet.href = homeScript.dataset.swiperCss;
+                    stylesheet.dataset.swiperStyles = "true";
+                    stylesheet.onload = resolve;
+                    stylesheet.onerror = function () {
+                        reject(new Error("Failed to load homepage carousel styles."));
+                    };
+                    document.head.appendChild(stylesheet);
+                }));
+            }
+
+            if (!window.Swiper) {
+                resources.push(new Promise(function (resolve, reject) {
+                    const script = document.createElement("script");
+                    script.src = homeScript
+                        ? homeScript.dataset.swiperSrc
+                        : "/frontend/libraries/swiper.js";
+                    script.onload = resolve;
+                    script.onerror = function () {
+                        reject(new Error("Failed to load the homepage carousel library."));
+                    };
+                    document.head.appendChild(script);
+                }));
+            }
+
+            swiperLoadPromise = Promise.all(resources);
+        }
+
+        return swiperLoadPromise;
+    }
+
+    function initializeWhenVisible(selector, initialize) {
+        document.querySelectorAll(selector).forEach(function (container) {
+            let observer;
+            const initializeCarousel = function () {
+                if (observer) {
+                    observer.unobserve(container);
+                }
+
+                loadSwiper()
+                    .then(function () {
+                        initialize(container);
+                    })
+                    .catch(function (error) {
+                        console.error(error);
+                    });
+            };
+
+            if (!("IntersectionObserver" in window)) {
+                initializeCarousel();
+                return;
+            }
+
+            observer = new IntersectionObserver(function (entries) {
+                if (entries.some(function (entry) {
+                    return entry.isIntersecting;
+                })) {
+                    initializeCarousel();
+                }
+            }, { rootMargin: "150px" });
+
+            observer.observe(container);
+        });
+    }
+
+    // Load Swiper only when a carousel approaches the viewport.
     // Swiper 2: Popular Projects
-    document.querySelectorAll(".mySwiper2").forEach(function (container) {
-        const projectSwiper = new Swiper(container, {
+    initializeWhenVisible(".mySwiper2", function (container) {
+        const projectSwiper = new window.Swiper(container, {
             slidesPerView: 2,
             spaceBetween: 12,
             watchOverflow: true,
@@ -406,8 +495,8 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // Swiper 3: Video Insights
-    document.querySelectorAll(".mySwiper3").forEach(function (container) {
-        new Swiper(container, {
+    initializeWhenVisible(".mySwiper3", function (container) {
+        new window.Swiper(container, {
             slidesPerView: 1,
             spaceBetween: 20,
             loop: true,
@@ -462,8 +551,8 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // Swiper Blogs: Compact Knowledge Base Cards
-    document.querySelectorAll(".mySwiperBlogs").forEach(function (container) {
-        new Swiper(container, {
+    initializeWhenVisible(".mySwiperBlogs", function (container) {
+        new window.Swiper(container, {
             slidesPerView: 1.2,
             spaceBetween: 16,
             loop: true,
@@ -487,8 +576,8 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // Swiper Feeds: Social Updates
-    document.querySelectorAll(".mySwiperFeeds").forEach(function (container) {
-        new Swiper(container, {
+    initializeWhenVisible(".mySwiperFeeds", function (container) {
+        new window.Swiper(container, {
             slidesPerView: 1.15,
             spaceBetween: 16,
             pagination: {
@@ -509,8 +598,8 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // Swiper 4: YouTube Shorts
-    document.querySelectorAll(".mySwiper4").forEach(function (container) {
-        new Swiper(container, {
+    initializeWhenVisible(".mySwiper4", function (container) {
+        new window.Swiper(container, {
             spaceBetween: 18,
             slidesPerView: "auto",
             loop: true,
@@ -535,8 +624,8 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // Swiper 5: Financial Tools
-    document.querySelectorAll(".mySwiper5").forEach(function (container) {
-        new Swiper(container, {
+    initializeWhenVisible(".mySwiper5", function (container) {
+        new window.Swiper(container, {
             slidesPerView: 1.2,
             spaceBetween: 20,
             loop: false,

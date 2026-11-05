@@ -2,7 +2,7 @@
 
 @section('title', 'Login with OTP')
 @section('customCSS')
-    <link rel="stylesheet" href="{{asset('frontend/css/login.css')}}">
+    <link rel="stylesheet" href="{{ versioned_asset('frontend/css/login.css') }}">
 @endsection
 @section('content')
     

@@ -5,7 +5,7 @@
 @section('keywords', "360 PropGuide, Real Estate Services, Delhi NCR Properties, Real Estate, real estate company, noida property, real estate company in noida, property greater noida, property in greater noida west, property in gr noida")
 @section('canonical', url()->current())
 @section('customCSS')
-<link rel="stylesheet" href="{{url('frontend/css/tools/emi.css')}}">
+<link rel="stylesheet" href="{{ versioned_asset('frontend/css/tools/emi.css') }}">
 @endsection
 @section('content')
 
@@ -119,7 +119,7 @@
 
 
 @section('customJS')
-<script src="{{ asset('frontend/libraries/chart.umd.min.js') }}"></script>
+<script src="{{ versioned_asset('frontend/libraries/chart.umd.min.js') }}"></script>
 
 <script>
     document.addEventListener("DOMContentLoaded", () => {

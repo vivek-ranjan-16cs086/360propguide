@@ -29,8 +29,8 @@
 
 
 @section('customCSS')
-<link rel="stylesheet" href="{{asset('frontend/css/project-detail.css')}}" />
-<link rel="stylesheet" href="{{asset('frontend/css/project-details.css')}}" />
+<link rel="stylesheet" href="{{ versioned_asset('frontend/css/project-detail.css') }}" />
+<link rel="stylesheet" href="{{ versioned_asset('frontend/css/project-details.css') }}" />
 <script type="application/ld+json">
 {!! json_encode([
     "@context" => "https://schema.org",
@@ -490,7 +490,9 @@
                         @if(!empty($property->amenitiesDetails) && count($property->amenitiesDetails)>0)
                         @foreach($property->amenitiesDetails as $index => $amenity)
                         <div class="icon col-md-2 col-4">
-                            <img src="{{'https://www.360propguide.com/storage/'.$amenity->image}}" alt="{{'360_propguide'.$amenity->name}}" />
+                            <img src="{{'https://www.360propguide.com/storage/'.$amenity->image}}"
+                                alt="{{'360_propguide'.$amenity->name}}" loading="lazy" decoding="async"
+                                width="96" height="96" />
                             <span>{{$amenity->name}}</span>
                         </div>
                         @endforeach
@@ -506,7 +508,8 @@
                         @foreach ($property->developerDetails as $developer)
                         <div class="col-12 col-md-3">
                             <img src="{{'https://360propguide.com/storage/'.$developer->developer_logo}}" class="col-6 mx-auto col-md-12 d-block"
-                                alt="{{$property->project_name}}" />
+                                alt="{{$property->project_name}}" loading="lazy" decoding="async"
+                                width="320" height="180" />
                         </div>
                         <div class="col-4 col-md-3">
                             <div class="text-center py-2 text-primary">
@@ -655,6 +658,7 @@
                         <div class="d-flex border Recommended-card imgHover">
                             <div class="col-5 col-md-5 img-container position-relative">
                                 <img alt="{{$recommended->project_name }}" loading="lazy" decoding="async" data-nimg="fill"
+                                    width="640" height="480"
                                     class="h-100 object-fit-cover rounded-start-1" sizes="100vw"
                                     src="{{ url('storage/' . $recommended->logo_image) }}" style="
                     position: absolute;

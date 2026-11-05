@@ -2,7 +2,7 @@
 @section('description',"Read the terms and conditions of 360 PropGuide to know your rights and responsibilities as a user of our services.")
 @section('keywords', "") @section('canonical', url()->current())
 @section('customCSS')
-<link rel="stylesheet" href="{{url('./frontend/css/terms.css')}}" />
+<link rel="stylesheet" href="{{ versioned_asset('frontend/css/terms.css') }}" />
 @endSection @section('content')
 <!--  Section -->
 
