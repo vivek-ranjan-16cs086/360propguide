@@ -7,16 +7,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', '360 PropGuide')</title>
 
-    <link rel="icon" sizes="192x192" href="{{url('frontend/favicon.jpg')}}" type="image/jpeg" />
-    <link rel="stylesheet" href="{{url('assets/libraries/css/bootstrap.min.css')}}">
+    <link rel="icon" sizes="192x192" href="{{ versioned_asset('frontend/favicon.jpg') }}" type="image/jpeg" />
+    <link rel="stylesheet" href="{{ versioned_asset('assets/libraries/css/bootstrap.min.css') }}">
 
+    @if (View::hasSection('usesDataTables'))
     <!-- DataTables -->
-    <link rel="stylesheet" href="{{url('assets/libraries/css/dataTable.min.css')}}">
-    <link rel="stylesheet" href="{{url('assets/libraries/css/dataTableResponsive.min.css')}}">
-    <link rel="stylesheet" href="{{url('assets/libraries/css/buttons.css')}}">
+    <link rel="stylesheet" href="{{ versioned_asset('assets/libraries/css/dataTable.min.css') }}">
+    <link rel="stylesheet" href="{{ versioned_asset('assets/libraries/css/dataTableResponsive.min.css') }}">
+    <link rel="stylesheet" href="{{ versioned_asset('assets/libraries/css/buttons.css') }}">
+    @endif
 
-    <link rel="stylesheet" href="{{url('assets/libraries/css/select2.css')}}">
-    <link rel="stylesheet" href="{{url('assets/libraries/css/summernote.css')}}">
+    @if (View::hasSection('usesSelect2'))
+    <link rel="stylesheet" href="{{ versioned_asset('assets/libraries/css/select2.css') }}">
+    @endif
+    @if (View::hasSection('usesSummernote'))
+    <link rel="stylesheet" href="{{ versioned_asset('assets/libraries/css/summernote.css') }}">
+    @endif
 
 
 
@@ -24,12 +30,13 @@
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=arrow_forward" />
 
 
-    <link rel="stylesheet" href="{{url('assets/customs/css/admin.css')}}">
-    <link rel="stylesheet" href="{{url('assets/customs/css/breadcrumbs.css')}}">
+    <link rel="stylesheet" href="{{ versioned_asset('assets/customs/css/admin.css') }}">
+    <link rel="stylesheet" href="{{ versioned_asset('assets/customs/css/breadcrumbs.css') }}">
 
     @yield('customCss')
 
-    <script src="{{url('assets/libraries/js/jquery.js')}}"></script>
+    <script src="{{ versioned_asset('assets/libraries/js/jquery.js') }}"></script>
+    @if (View::hasSection('usesDateRangePicker'))
 	<!-- Moment.js -->
 	<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
 
@@ -38,11 +45,8 @@
 
 	<!-- Date Range Picker CSS -->
 	<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
-    <script src="{{url('assets/libraries/js/popper.js')}}"></script>
-    <script src="{{url('assets/libraries/js/password-strength.js')}}"></script>
-    <script src="{{url('assets/libraries/js/print.min.js')}}"
-        integrity="sha512-t3XNbzH2GEXeT9juLjifw/5ejswnjWWMMDxsdCg4+MmvrM+MwqGhxlWeFJ53xN/SBHPDnW0gXYvBx/afZZfGMQ=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    @endif
+    <script src="{{ versioned_asset('assets/libraries/js/popper.js') }}"></script>
     <style media="print">
         .hiddens {
             display: none !important
@@ -105,25 +109,31 @@
             </div>
         </div>
         <!-- jQuery -->
-        <script src="{{url('assets/libraries/js/bootstrap.min.js')}}"></script>
-        <script src="{{url('assets/libraries/js/fontsawesome.js')}}"></script>
+        <script src="{{ versioned_asset('assets/libraries/js/bootstrap.min.js') }}"></script>
+        <script src="{{ versioned_asset('assets/libraries/js/fontsawesome.js') }}"></script>
 
+        @if (View::hasSection('usesDataTables'))
         <!-- DataTables  & Plugins -->
-        <script src="{{url('assets/libraries/js/jquery.dataTable.min.js')}}"></script>
-        <script src="{{url('assets/libraries/js/dataTables.bootstrap4.min.js')}}"></script>
-        <script src="{{url('assets/libraries/js/dataTables.responsive.min.js')}}"></script>
-        <script src="{{url('assets/libraries/js/responsive.bootstrap4.min.js')}}"></script>
-        <script src="{{url('assets/libraries/js/dataTables.buttons.min.js')}}"></script>
-        <script src="{{url('assets/libraries/js/buttons.bootstrap4.min.js')}}"></script>
-        <script src="{{url('assets/libraries/js/jszip.min.js')}}"></script>
-        <script src="{{url('assets/libraries/js/pdfmake.min.js')}}"></script>
-        <script src="{{url('assets/libraries/js/vfs_fonts.js')}}"></script>
-        <script src="{{url('assets/libraries/js/buttons.html5.min.js')}}"></script>
-        <script src="{{url('assets/libraries/js/buttons.print.min.js')}}"></script>
-        <script src="{{url('assets/libraries/js/buttons.colVis.min.js')}}"></script>
-        <script src="{{url('assets/libraries/js/sweetalert.min.js')}}"></script>
-        <script src="{{url('assets/libraries/js/select2.js')}}"></script>
-        <script src="{{url('assets/libraries/js/summernote.js')}}"></script>
+        <script src="{{ versioned_asset('assets/libraries/js/jquery.dataTable.min.js') }}"></script>
+        <script src="{{ versioned_asset('assets/libraries/js/dataTables.bootstrap4.min.js') }}"></script>
+        <script src="{{ versioned_asset('assets/libraries/js/dataTables.responsive.min.js') }}"></script>
+        <script src="{{ versioned_asset('assets/libraries/js/responsive.bootstrap4.min.js') }}"></script>
+        <script src="{{ versioned_asset('assets/libraries/js/dataTables.buttons.min.js') }}"></script>
+        <script src="{{ versioned_asset('assets/libraries/js/buttons.bootstrap4.min.js') }}"></script>
+        <script src="{{ versioned_asset('assets/libraries/js/jszip.min.js') }}"></script>
+        <script src="{{ versioned_asset('assets/libraries/js/pdfmake.min.js') }}"></script>
+        <script src="{{ versioned_asset('assets/libraries/js/vfs_fonts.js') }}"></script>
+        <script src="{{ versioned_asset('assets/libraries/js/buttons.html5.min.js') }}"></script>
+        <script src="{{ versioned_asset('assets/libraries/js/buttons.print.min.js') }}"></script>
+        <script src="{{ versioned_asset('assets/libraries/js/buttons.colVis.min.js') }}"></script>
+        @endif
+        <script src="{{ versioned_asset('assets/libraries/js/sweetalert.min.js') }}"></script>
+        @if (View::hasSection('usesSelect2'))
+        <script src="{{ versioned_asset('assets/libraries/js/select2.js') }}"></script>
+        @endif
+        @if (View::hasSection('usesSummernote'))
+        <script src="{{ versioned_asset('assets/libraries/js/summernote.js') }}"></script>
+        @endif
 		
 <script>
 $('#slug').on('blur', function () {
@@ -151,7 +161,10 @@ $('#slug').on('blur', function () {
 });
 </script>
         <script>
+            @if (View::hasSection('usesSelect2'))
             $('.select2').select2();
+            @endif
+            @if (View::hasSection('usesSummernote'))
             $('.summernote').summernote({
                 minHeight: 100, // Adjust the minimum height as needed 
                 toolbar: [
@@ -190,17 +203,6 @@ $('#slug').on('blur', function () {
                     ['view', ['fullscreen', 'codeview', 'help']]
                 ],
                 callbacks: {
-                    // onPaste: function(e) {
-                        // var clipboardData = (e.originalEvent || e).clipboardData.getData('text/html');
-                        // var cleanedHtml = clipboardData
-                            // .replace(/ style="[^"]*"/g, '') // Remove inline styles
-							// .replace(/<\/?(b|strong)[^>]*>/gi, '')
-                            // .replace(/<\/?h[1-6][^>]*>/gi, '<p>');
-                        // setTimeout(function() {
-                            // $('.blogSummernote').summernote('code', cleanedHtml);
-                        // }, 10);
-                        // e.preventDefault();
-                    // },
                     onPaste: function (e) {
                         e.preventDefault();
 
@@ -218,6 +220,7 @@ $('#slug').on('blur', function () {
 					}
                 }
 		    });
+            @endif
 
         function uploadImage(file) {
 			var data = new FormData();
@@ -339,20 +342,6 @@ $('#slug').on('blur', function () {
                 });
             }
 
-            // password strength
-            /*
-                var pass_options = {};
-                pass_options.ui = {
-                  showVerdictsInsideProgressBar: true,
-                  viewports: {
-                    progress: ".pwstrength_viewport_progress"
-                  }
-                };
-                pass_options.common = {
-                  debug: false
-                };
-                $('.pass-strength').pwstrength(pass_options);
-            */
 			let isSubmitting = false;
 
 $("#myForm").on("submit", function (e) {

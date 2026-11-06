@@ -4,20 +4,24 @@
 <head>
   <!-- Google Tag Manager -->
   <script>
-    (function(w, d, s, l, i) {
-      w[l] = w[l] || [];
-      w[l].push({
-        'gtm.start': new Date().getTime(),
-        event: 'gtm.js'
-      });
-      var f = d.getElementsByTagName(s)[0],
-        j = d.createElement(s),
-        dl = l != 'dataLayer' ? '&l=' + l : '';
-      j.async = true;
-      j.src =
-        'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
-      f.parentNode.insertBefore(j, f);
-    })(window, document, 'script', 'dataLayer', 'GTM-PWVX37VL');
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      'gtm.start': new Date().getTime(),
+      event: 'gtm.js'
+    });
+
+    function loadGoogleTagManager() {
+      var script = document.createElement('script');
+      script.async = true;
+      script.src = 'https://www.googletagmanager.com/gtm.js?id=GTM-PWVX37VL';
+      document.head.appendChild(script);
+    }
+
+    if ('requestIdleCallback' in window) {
+      window.requestIdleCallback(loadGoogleTagManager, { timeout: 2000 });
+    } else {
+      window.setTimeout(loadGoogleTagManager, 1000);
+    }
   </script>
   <!-- End Google Tag Manager -->
   @yield('priority')
@@ -36,50 +40,41 @@
   <link rel="canonical" href="@yield('canonical','https://360propguide.com/')">
   <meta name="csrf-token" content="{{ csrf_token() }}">
   <meta name="robots" content="max-image-preview:large">
-  <link rel="stylesheet" href="{{url('frontend/libraries/bootstrap.min.css')}}">
+  <link rel="stylesheet" href="{{ versioned_asset('frontend/libraries/bootstrap.min.css') }}">
 
-  <link rel="stylesheet" href="{{url('frontend/libraries/fontawesome/css/all.min.css')}}" media="print"
-    onload="this.media='all'">
+  <link rel="stylesheet"   href="{{ versioned_asset('frontend/libraries/fontawesome/css/all.min.css') }}" media="print"
+  onload="this.media='all'">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet"
+  href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap"
+  media="print" onload="this.media='all'">
+  @if(View::hasSection('usesSwiper') && !View::hasSection('lazySwiper'))
+  <link rel="stylesheet" href="{{ versioned_asset('frontend/libraries/swiper.css') }}">
+  @endif
 
   <link rel="stylesheet"
-    href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap"
-    media="print" onload="this.media='all'">
-  @unless(View::hasSection('skipAos'))
-  <link rel="stylesheet" href="{{url('frontend/libraries/aos-master/dist/aos.css')}}" media="print"
-    onload="this.media='all'">
-  @endunless
-
-  <link rel="stylesheet" href="{{url('frontend/libraries/swiper.css')}}">
-
-  <link rel="stylesheet"
-    href="{{ url('frontend/css/header1.css') }}?v={{ @filemtime(public_path('frontend/css/header1.css')) ?: time() }}">
+    href="{{ versioned_asset('frontend/css/header1.css') }}">
 
   @unless(View::hasSection('skipPropertiesCss'))
   <link rel="stylesheet"
-    href="{{ url('frontend/css/properties.css') }}?v={{ @filemtime(public_path('frontend/css/properties.css')) ?: time() }}">
+    href="{{ versioned_asset('frontend/css/properties.css') }}">
   @endunless
   <link rel="stylesheet"
-    href="{{ url('frontend/main.css') }}?v={{ @filemtime(public_path('frontend/main.css')) ?: time() }}">
+    href="{{ versioned_asset('frontend/main.css') }}">
 
   <link rel="stylesheet"
-    href="{{ url('frontend/style.css') }}?v={{ @filemtime(public_path('frontend/style.css')) ?: time() }}">
-  <noscript>
-    <link rel="stylesheet" href="{{ url('frontend/css/header1.css') }}">
-    <link rel="stylesheet" href="{{ url('frontend/css/properties.css') }}">
-    <link rel="stylesheet" href="{{ url('frontend/main.css') }}">
-    <link rel="stylesheet" href="{{ url('frontend/style.css') }}">
-  </noscript>
+    href="{{ versioned_asset('frontend/style.css') }}">
   <!-- Favicon for all browsers -->
-  <link rel="icon" href="{{url('favicon.ico')}}" type="image/x-icon">
-  <link rel="shortcut icon" href="{{url('favicon.ico')}}" type="image/x-icon">
+  <link rel="icon" href="{{ versioned_asset('favicon.ico') }}" type="image/x-icon">
+  <link rel="shortcut icon" href="{{ versioned_asset('favicon.ico') }}" type="image/x-icon">
 
   <!-- PNG versions -->
-  <link rel="icon" type="image/png" sizes="16x16" href="{{url('favicon-16x16.png')}}">
-  <link rel="icon" type="image/png" sizes="32x32" href="{{url('favicon-32x32.png')}}">
+  <link rel="icon" type="image/png" sizes="16x16" href="{{ versioned_asset('favicon-16x16.png') }}">
+  <link rel="icon" type="image/png" sizes="32x32" href="{{ versioned_asset('favicon-32x32.png') }}">
 
-  <link rel="icon" type="image/png" sizes="192x192" href="{{url('favicon-192x192.png')}}">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="icon" type="image/png" sizes="192x192" href="{{ versioned_asset('favicon-192x192.png') }}">
 
 
   <!-- custom page css -->
@@ -127,12 +122,7 @@
   <meta property="og:description"
     content="@yield('description', '360 PropGuide is one of the popular real estate companies in Noida. It has earned a name for delivering authentic and comprehensive property solutions. The company takes care to satisfy its customers. It offers numerous services like buying, selling, and leasing properties to facilitate a hassle-free experience for the clients. Their skilled team focuses on helping clients at every stage of the real estate process, making them a reliable partner in the busy Noida property market.')">
   <meta property="og:type" content="website">
-  <meta property="og:image" content="@yield('og_image', url('frontend/favicon.jpg'))">
-
-  <!-- Marketing tags load after the first real interaction, outside initial rendering. -->
-  <script>
-
-  </script>
+  <meta property="og:image" content="@yield('og_image', versioned_asset('frontend/favicon.jpg'))">
 
 </head>
 
@@ -183,7 +173,8 @@
        <div class="modal-content">
 
             <div class="modal-header border-0">
-                            <img src="{{ asset('frontend/360logo.png') }}" alt="360propguide" class="w-50 mx-auto">
+                            <img src="{{ versioned_asset('frontend/360logo.webp') }}" alt="360propguide"
+                                class="w-50 mx-auto" width="240" height="96" loading="lazy" decoding="async">
 
                             <button type="button" class="btn-close align-self-start ms-0 shadow-none"
                                 data-bs-dismiss="modal" aria-label="Close"></button>
@@ -235,14 +226,13 @@
   </div> -->
 
   <i class="fa fa-arrow-up" id="scrollToTopBtn" role="button" tabindex="0" aria-label="Scroll to top"></i>
-  <script src="{{url('frontend/libraries/bootstrap.bundle.min.js')}}"></script>
-  <script src="{{url('frontend/libraries/swiper.js')}}"></script>
-  <script src="{{url('frontend/libraries/jquery.min.js')}}"></script>
-  @unless(View::hasSection('skipAos'))
-  <script defer src="{{url('frontend/libraries/aos-master/dist/aos.js')}}"></script>
-  @endunless
+  <script src="{{ versioned_asset('frontend/libraries/bootstrap.bundle.min.js') }}"></script>
+  @if(View::hasSection('usesSwiper') && !View::hasSection('lazySwiper'))
+  <script src="{{ versioned_asset('frontend/libraries/swiper.js') }}"></script>
+  @endif
+  <script src="{{ versioned_asset('frontend/libraries/jquery.min.js') }}"></script>
   @if(View::hasSection('usesSweetAlert'))
-  <script defer src="{{url('frontend/libraries/sweetalert.js')}}"></script>
+  <script defer src="{{ versioned_asset('frontend/libraries/sweetalert.js') }}"></script>
   @endif
   @include('frontend.layouts.sidebar')
   <script type="module">
@@ -314,15 +304,27 @@
 
     document.addEventListener("DOMContentLoaded", function () {
 
-        /*
-         * ================================
-         * LOAD RECAPTCHA
-         * ================================
-         *
-         * Ab input field par click karne ki
-         * zarurat nahi hai.
-         */
-        loadRecaptcha();
+        const captchaWidgets = document.querySelectorAll('.g-recaptcha');
+        const contactModal = document.getElementById('contactModalPopup');
+
+        if (contactModal) {
+            contactModal.addEventListener('shown.bs.modal', loadRecaptcha, { once: true });
+        }
+
+        if (captchaWidgets.length && 'IntersectionObserver' in window) {
+            const captchaObserver = new IntersectionObserver(function (entries, observer) {
+                if (entries.some(function (entry) { return entry.isIntersecting; })) {
+                    observer.disconnect();
+                    loadRecaptcha();
+                }
+            }, { rootMargin: '100px' });
+
+            captchaWidgets.forEach(function (widget) {
+                captchaObserver.observe(widget);
+            });
+        } else if (captchaWidgets.length) {
+            loadRecaptcha();
+        }
 
 
         /*
@@ -983,12 +985,6 @@
       });
     });
 
-    window.addEventListener('load', function() {
-      setTimeout(() => {
-        if (window.AOS) AOS.init();
-      }, 2000);
-    });
-
     // Get the button
     const scrollToTopBtn = document.getElementById("scrollToTopBtn");
 
@@ -1398,6 +1394,8 @@ if (type === 'city') {
 
     }
 
+    url = item.url || url;
+
     return `
         <li>
             <a href="${url}"
@@ -1423,12 +1421,16 @@ if (type === 'city') {
 
 $(document).on('click', '.project-results .suggestion-item', function (e) {
 
-    e.preventDefault();
-    e.stopPropagation();
-
     const $item = $(this);
 
     const $parent = $item.closest('.searchboxs');
+    if ($parent.closest('#searchDiv').length) {
+        e.stopPropagation();
+        return;
+    }
+
+    e.preventDefault();
+    e.stopPropagation();
 
     const name = ($item.attr('data-name') || '').trim();
     const type = ($item.attr('data-type') || '').trim().toLowerCase();
@@ -1525,122 +1527,37 @@ $(document).on('click', '.project-results .suggestion-item', function (e) {
 });
 
     
-    // Show project results when the input field is focused
-   // Show project results when user starts typing
-$(document).on('input', '.keyword', function () {
-
-    const $keyword = $(this);
-    const $parent = $keyword.closest('.searchboxs');
-    const $results = $parent.find('.project-results');
-
-    const keyword = $.trim($keyword.val());
-
-    // Input empty hai
-    if (keyword.length === 0) {
-        $results.empty().hide();
-        return;
-    }
-
-    // 2 characters se pehle search mat karo
-    if (keyword.length < 2) {
-        $results.empty().hide();
-        return;
-    }
-
-    $results.show().html('<li><a>Searching...</a></li>');
-
-    const location = $parent.find('select[name="location"]').val();
-    const bhkType = $parent.find('select[name="bhkType"]').val();
-
-    $.ajax({
-        url: "{{ route('projects.search', [], false) }}",
-        method: "GET",
-        dataType: "json",
-        data: {
-            keyword: keyword,
-            location: location,
-            bhkType: bhkType
-        },
-
-        success: function(data) {
-
-            const items = (data && data.data) ? data.data : [];
-
-            if (items.length > 0) {
-
-                let results = '';
-
-                $.each(items, function (index, item) {
-                    results += suggestionMarkup(item, bhkType);
-                });
-
-                $results.html(results).show();
-
-            } else {
-
-                $results.html(
-                    '<li><a>No results found</a></li>'
-                ).show();
-            }
-        },
-
-        error: function() {
-
-            $results.html(
-                '<li><a>There was an error with the search request. Please try again.</a></li>'
-            ).show();
-        }
-    });
-});
-    
-    // Hide results on blur (if not clicking result)
-  $(document).on('blur', '.keyword', function () {
-    const $parent = $(this).closest('.searchboxs');
-
-    setTimeout(function () {
-        if (!$parent.find('.project-results:hover').length) {
-            $parent.find('.project-results').hide();
-        }
-    }, 200);
-});
-    // Stop propagation on result click
-  
-
-    // On keyup: search by keyword + filters
-    $(document).on('keyup', '.keyword', function() {
+    let projectSearchDebounceTimer;
+    $(document).on('input', '.keyword', function() {
       const $input = $(this);
       const $parent = $input.closest('.searchboxs');
       const $results = $parent.find('.project-results');
+      const keyword = $.trim($input.val());
 
-      const keyword = $input.val().trim();
-      const location = $parent.find('select[name="location"]').val();
-      const bhkType = $parent.find('select[name="bhkType"]').val();
+      clearTimeout(projectSearchDebounceTimer);
 
-      clearTimeout(searchDebounceTimer);
-
-      if (keyword === '') {
+      if (keyword.length < 2) {
         $results.empty().hide();
         return;
       }
 
+      const location = $parent.find('select[name="location"]').val();
+      const bhkType = $parent.find('select[name="bhkType"]').val();
       $results.show().html('<li><a>Searching Projects...</a></li>');
 
-      searchDebounceTimer = setTimeout(function() {
+      projectSearchDebounceTimer = setTimeout(function() {
         $.ajax({
           url: "{{ route('projects.search', [], false) }}",
           method: "GET",
           dataType: "json",
-          data: {
-            keyword,
-            location,
-            bhkType
-          },
+          data: { keyword, location, bhkType },
           success: function(data) {
             const items = (data && data.data) ? data.data : [];
+
             if (items.length > 0) {
               let results = '';
-              $.each(data.data, function (index, item) {
-               results += suggestionMarkup(item, bhkType);
+              $.each(items, function(index, item) {
+                results += suggestionMarkup(item, bhkType);
               });
               $results.html(results).show();
             } else {
@@ -1656,6 +1573,16 @@ $(document).on('input', '.keyword', function () {
       }, 400);
     });
 
+    // Hide results on blur (if not clicking result)
+  $(document).on('blur', '.keyword', function () {
+    const $parent = $(this).closest('.searchboxs');
+
+    setTimeout(function () {
+        if (!$parent.find('.project-results:hover').length) {
+            $parent.find('.project-results').hide();
+        }
+    }, 200);
+});
   </script>
   @yield('customJS')
   <!-- Floating Contact Buttons -->
@@ -2016,4 +1943,3 @@ font-size: 24px;
 </body>
 
 </html>
-

@@ -37,7 +37,8 @@
                     <div class="d-flex flex-wrap gap-3 mt-4" id="existing-images">
                         @foreach ($data as $img)
                         <div class="position-relative" style="width: 120px; height: 120px;">
-                            <img src="{{ asset('storage/' . $img) }}" class="w-100 h-100 object-fit-contain border rounded" />
+                            <img src="{{ asset('storage/' . $img) }}" class="w-100 h-100 object-fit-contain border rounded"
+                                loading="lazy" decoding="async" width="120" height="120" />
                             <span class="position-absolute top-0 end-0 bg-danger text-white rounded-circle p-1 small imageX remove-existing"
                                 data-path="{{ $img }}" data-property-id="{{ $property->id }}"
                                 style="cursor:pointer; z-index:2; transform: translate(50%, -50%);">&times;</span>
@@ -88,5 +89,4 @@
     });
 </script>
 -->
-
 

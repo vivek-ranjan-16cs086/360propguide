@@ -6,14 +6,11 @@
             <!-- end of menuBars -->
             <div class="logo">
                 <a href="{{url('/')}}">
-                    <img src="{{asset('frontend/360logo.png')}}" alt="360 PropGuide" width="250" height="100">
+                    <img src="{{ versioned_asset('frontend/360logo.png') }}" alt="360 PropGuide" width="250" height="100">
                 </a>
             </div>
             <!-- end of logo -->
             <div class="menu d-flex align-items-center">
-               <!-- <a href="{{url('contact')}}" class="contact-button btn d-none d-md-flex">
-                    <i class="fas fa-phone"></i> CONTACT US
-                </a> -->
                 <div class="dropdown-wrapper mx-3">
                     @if (Auth::check() && Auth::user()->role_id == 2)
                     <a href="#" class="profile-button" id="userDropdown" tabindex="0">

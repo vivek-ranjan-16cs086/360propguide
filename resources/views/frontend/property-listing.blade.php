@@ -9,11 +9,11 @@
 @section('canonical', url()->current())
 
 @section('customCSS')
-<link rel="stylesheet" href="{{url('frontend/libraries/nouislider.min.css')}}">
+<link rel="stylesheet" href="{{ versioned_asset('frontend/libraries/nouislider.min.css') }}">
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.14.1/themes/base/jquery-ui.css">
-<link rel="stylesheet" href="{{ asset('frontend/css/listing.css') }}?v={{ @filemtime(public_path('frontend/css/listing.css')) ?: time() }}">
-<link rel="stylesheet" href="{{ asset('frontend/css/properties-listing.css') }}?v={{ @filemtime(public_path('frontend/css/properties-listing.css')) ?: time() }}">
-<link rel="stylesheet" href="{{ asset('frontend/css/properties-v2.css') }}?v={{ @filemtime(public_path('frontend/css/properties-v2.css')) ?: time() }}">
+<link rel="stylesheet" href="{{ versioned_asset('frontend/css/listing.css') }}">
+<link rel="stylesheet" href="{{ versioned_asset('frontend/css/properties-listing.css') }}">
+<link rel="stylesheet" href="{{ versioned_asset('frontend/css/properties-v2.css') }}">
 <style>
 /* ===== Card layout: image | details | price panel (screenshot wala design) ===== */
 #property-list:not(.pl-grid) .pl-card { grid-template-columns: 290px minmax(0, 1fr) 240px; grid-template-areas: "media body buy"; }
@@ -184,9 +184,9 @@
                                 <div class="pl-media">
                                     <div class="pl-track">
                                         @forelse($imgs as $i => $g)
-                                            <a href="{{ $url }}" aria-label="{{ $property->title }}"><img loading="{{ $i ? 'lazy' : 'eager' }}" src="/storage/{{ $g }}" alt="{{ $property->title }}{{ $i ? ' - photo ' . ($i + 1) : '' }}" onerror="this.onerror=null;this.src='/images/no-image.jpg'"></a>
+                                            <a href="{{ $url }}" aria-label="{{ $property->title }}"><img loading="{{ $i ? 'lazy' : 'eager' }}" decoding="async" width="640" height="480" src="/storage/{{ $g }}" alt="{{ $property->title }}{{ $i ? ' - photo ' . ($i + 1) : '' }}" onerror="this.onerror=null;this.src='/images/no-image.jpg'"></a>
                                         @empty
-                                            <a href="{{ $url }}"><img src="/images/no-image.jpg" alt="{{ $property->title }}"></a>
+                                            <a href="{{ $url }}"><img src="/images/no-image.jpg" alt="{{ $property->title }}" loading="lazy" decoding="async" width="640" height="480"></a>
                                         @endforelse
                                         @if($total > count($imgs))<a class="pl-moreph" href="{{ $url }}"><i class="fa-regular fa-images"></i> View all {{ $total }} photos</a>@endif
                                     </div>
@@ -426,8 +426,8 @@
             .filter(function (x) { return x[1]; })
             .map(function (x) { return '<div><small>' + x[0] + '</small><b>' + escapeHtml(x[1]) + '</b></div>'; }).join('');
         var track = imgs.length ? imgs.map(function (x, i) {
-            return '<a href="' + url + '" aria-label="' + title + '"><img loading="' + (i ? 'lazy' : 'eager') + '" src="/storage/' + x + '" alt="' + title + '" onerror="this.onerror=null;this.src=\'/images/no-image.jpg\'"></a>';
-        }).join('') : '<a href="' + url + '"><img src="/images/no-image.jpg" alt="' + title + '"></a>';
+            return '<a href="' + url + '" aria-label="' + title + '"><img loading="' + (i ? 'lazy' : 'eager') + '" decoding="async" width="640" height="480" src="/storage/' + x + '" alt="' + title + '" onerror="this.onerror=null;this.src=\'/images/no-image.jpg\'"></a>';
+        }).join('') : '<a href="' + url + '"><img src="/images/no-image.jpg" alt="' + title + '" loading="lazy" decoding="async" width="640" height="480"></a>';
         if (galleryCount > imgs.length) track += '<a class="pl-moreph" href="' + url + '"><i class="fa-regular fa-images"></i> View all ' + galleryCount + ' photos</a>';
         return `
 <article class="pl-card" data-key="${escapeHtml(p.slug)}">

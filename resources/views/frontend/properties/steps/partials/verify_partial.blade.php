@@ -69,7 +69,8 @@
                     <div class="row">
                         @foreach($property->galleries ?? [] as $image)
                         <div class="col-md-3 mb-3">
-                            <img src="{{ asset('storage/' . $image) }}" class="img-fluid rounded shadow-sm border">
+                            <img src="{{ asset('storage/' . $image) }}" class="img-fluid rounded shadow-sm border"
+                                loading="lazy" decoding="async" width="640" height="480">
                         </div>
                         @endforeach
                     </div>

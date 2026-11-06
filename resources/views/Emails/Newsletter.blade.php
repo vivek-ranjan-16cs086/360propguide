@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link rel="stylesheet" href="{{asset('frontend/Emails/style.css')}}">
-    <link rel="stylesheet" href="{{asset('frontend/Emails/fontawesome.css')}}">
+    <link rel="stylesheet" href="{{ versioned_asset('frontend/Emails/style.css') }}">
+    <link rel="stylesheet" href="{{ versioned_asset('frontend/Emails/fontawesome.css') }}">
 </head>
 
 <body>
@@ -50,7 +50,7 @@
 
     </section>
     <!-- =========================================================== -->
-    <script src="{{asset('frontend/Emails/fontawesome.js')}}"></script>
+    <script src="{{ versioned_asset('frontend/Emails/fontawesome.js') }}"></script>
     <!-- -------------------------================================== -->
 </body>
 

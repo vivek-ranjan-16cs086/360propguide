@@ -9,7 +9,7 @@
 
 @section('canonical', url()->current())
 @section('customCSS')
-<link rel="stylesheet" href="{{url('frontend/css/not-found.css')}}" />
+<link rel="stylesheet" href="{{ versioned_asset('frontend/css/not-found.css') }}" />
 @endSection
 
 @section('content')
@@ -647,7 +647,4 @@
         </div>
     </div>
 </a>
-@endSection
-@section('customJS')
-<script href="{{url('frontend/js/not-found.js')}}" />
-@endSection
+@endsection

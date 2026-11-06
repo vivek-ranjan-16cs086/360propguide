@@ -18,7 +18,8 @@ $projectUrl = $isCommercialProject
         <div class="project-card__media">
 
             <img src="{{env('APP_URL').'storage/'.$project->logo_image }}"
-                alt="{{ $project->project_name }} - 360 PropGuide" loading="lazy">
+                alt="{{ $project->project_name }} - 360 PropGuide" loading="lazy" decoding="async"
+                width="640" height="480">
             <div class="project-card__badges">
                 <div class="project-card__badge-left">
                     @if(!empty($statusClean))

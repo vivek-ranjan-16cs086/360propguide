@@ -4,7 +4,7 @@
 @section('description',"Use our Area Converter tool to instantly convert property area units like sq ft, sq m, acres, bigha and hectare. Fast, accurate and helpful for real estate buyers.")
 @section('canonical', url()->current())
 @section('customCSS')
-<link rel="stylesheet" href="{{url('frontend/css/tools/area.css')}}">
+<link rel="stylesheet" href="{{ versioned_asset('frontend/css/tools/area.css') }}">
 @endsection
 @section('content')
 <section class="p-4">
@@ -72,7 +72,7 @@
 
 
 @section('customJS')
-<script src="{{ asset('frontend/libraries/chart.umd.min.js') }}"></script>
+<script src="{{ versioned_asset('frontend/libraries/chart.umd.min.js') }}"></script>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
 

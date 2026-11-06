@@ -17,8 +17,8 @@ pricing')
 
 @section('customCSS')
 
-<link rel="stylesheet" href="{{url('frontend/libraries/nouislider.min.css')}}">
-<link rel="stylesheet" href="{{asset('frontend/css/listing.css')}}">
+<link rel="stylesheet" href="{{ versioned_asset('frontend/libraries/nouislider.min.css') }}">
+<link rel="stylesheet" href="{{ versioned_asset('frontend/css/listing.css') }}">
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.14.1/themes/base/jquery-ui.css">
 
 @endSection

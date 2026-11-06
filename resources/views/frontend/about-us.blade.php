@@ -1,10 +1,11 @@
 @extends('frontend.layouts.app')
+@section('usesSwiper', 'true')
 @section('title', "360 PropGuide | Trusted Real Estate Broker in Delhi NCR")
 @section('description',"360 PropGuide – your trusted real estate Broker in Noida, Delhi NCR. From property deals to home loans, we simplify buying in Delhi NCR and noida. Visit here")
 @section('keywords', "Real Estate Services")
 @section('canonical', url()->current())
 @section('customCSS')
-<link rel="stylesheet" href="{{url('./frontend/about-us.css')}}" />
+<link rel="stylesheet" href="{{ versioned_asset('frontend/about-us.css') }}" />
 @endSection
 @section('content')
 <!-- About Us Section -->
@@ -56,7 +57,7 @@
                 </div>
             </div>
             <div class="col-lg-5">
-                <img src="{{asset('frontend/promise.jpg')}}"
+                <img src="{{versioned_asset('frontend/promise.jpg')}}"
                     class="vision-img" alt="vision" />
             </div>
             <!-- Investors -->
@@ -179,9 +180,10 @@
                     <div class="image-wrapper position-relative text-center">
                         <div class="dots-pattern dots-top-right position-absolute z-1"></div>
                         <div class="dots-pattern dots-bottom-left position-absolute z-1"></div>
-                        <img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                        <img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600&q=80"
                             alt="What We Do - Real Estate Meeting"
-                            class="img-fluid rounded-4 shadow-lg position-relative main-img z-2">
+                            class="img-fluid rounded-4 shadow-lg position-relative main-img z-2"
+                            width="800" height="600" loading="lazy" decoding="async">
                     </div>
                 </div>
             </div>
@@ -190,7 +192,8 @@
     <!-- Descendents -->
     <div class="container mt-3">
         <h2 class="section-title">Our Partners</h2>
-        <img src="{{asset('frontend/logos.png')}}" class="w-100" alt="developer logos 360 PropGuide">
+        <img src="{{versioned_asset('frontend/logos.png')}}" class="w-100" alt="developer logos 360 PropGuide"
+            loading="lazy" decoding="async" width="1200" height="400">
     </div>
     
 
@@ -205,7 +208,7 @@
 				</p>
             </div>
             <div class="col-lg-5">
-                <img src="{{asset('frontend/apart.jpg')}}"
+                <img src="{{versioned_asset('frontend/apart.jpg')}}"
                     class="vision-img" alt="vision" />
             </div>
         </div>
@@ -213,7 +216,7 @@
     <div class="container my-5">
         <div class="row">
             <div class="col-lg-5 order-2 order-lg-1">
-                <img src="{{asset('frontend/team.jpg')}}"
+                <img src="{{versioned_asset('frontend/team.jpg')}}"
                     class="vision-img" alt="vision" />
             </div>
             <div class="col-lg-7 order-1 order-lg-2 about-content">
@@ -247,7 +250,7 @@
                 <p>See our passion in action as we strive to make your journey enjoyable and fulfilling at every turn.</p>
             </div>
             <div class="col-lg-5">
-                <img src="{{asset('frontend/passion.jpg')}}"
+                <img src="{{versioned_asset('frontend/passion.jpg')}}"
                     class="vision-img" alt="vision" />
             </div>
         </div>
@@ -273,6 +276,9 @@
         </div>
     </div>
 </section>
+@endSection
+
+@section('customJS')
 <script>
     var swiper = new Swiper(".mySwiper4", {
         spaceBetween: 30,
