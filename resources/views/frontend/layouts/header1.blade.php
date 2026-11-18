@@ -44,7 +44,8 @@
                         <input id="searchInput" type="text" class="form-control keyword text-black" placeholder="Search for projects"
                             style="box-shadow: none;">
                         <ul class="project-results"></ul>
-                        <button id="cancelSearch" class="btn btn-light close-btn ms-2">
+                        <button type="button" id="cancelSearch" class="btn btn-light close-btn ms-2" aria-label="Close search"
+                            style="color: #b42318;">
                             <i class="fa-solid fa-xmark"></i>
                         </button>
                     </div>

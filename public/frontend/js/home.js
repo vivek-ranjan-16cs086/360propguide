@@ -2,54 +2,75 @@ document.addEventListener("DOMContentLoaded", function () {
     // Hero Video Loader with Poster fallback
     const video = document.getElementById("myVideo");
     const poster = document.getElementById("heroPoster");
+    const videoPlayButton = document.getElementById("heroVideoPlay");
 
-    if (video && poster) {
-        let videoLoaded = false;
+    if (video && poster && videoPlayButton) {
+        videoPlayButton.hidden = false;
 
-        function loadHeroVideo() {
-            if (videoLoaded) return;
+        videoPlayButton.addEventListener("click", function () {
+            if (!video.src) {
+                const isMobile = window.matchMedia("(max-width: 767px)").matches;
+                const videoSource = isMobile
+                    ? video.dataset.mobileSrc
+                    : video.dataset.desktopSrc;
 
-            const isMobile = window.matchMedia("(max-width: 767px)").matches;
-            if (isMobile || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-                return;
+                if (!videoSource) {
+                    console.error("No hero video source is configured.");
+                    return;
+                }
+
+                video.controls = true;
+                video.src = videoSource;
+                video.load();
             }
 
-            videoLoaded = true;
-            const videoSource = video.dataset.desktopSrc;
+            video.play().catch(function (error) {
+                console.warn("Hero video playback failed:", error);
+            });
+        });
 
-            if (!videoSource) return;
+        video.addEventListener("playing", function () {
+            video.classList.add("is-loaded");
+            poster.classList.add("is-hidden");
+            videoPlayButton.hidden = true;
+        });
 
-            video.src = videoSource;
-            video.load();
+        video.addEventListener("pause", function () {
+            if (video.src) {
+                videoPlayButton.hidden = false;
+            }
+        });
 
-            video.addEventListener(
-                "canplay",
-                function () {
-                    video.classList.add("is-loaded");
-                    video
-                        .play()
-                        .then(function () {
-                            poster.classList.add("is-hidden");
-                        })
-                        .catch(function (error) {
-                            console.warn("Hero video autoplay notice:", error);
-                        });
-                },
-                { once: true },
-            );
-        }
+        video.addEventListener("error", function () {
+            videoPlayButton.hidden = false;
+            console.error("The hero video could not be loaded.");
+        });
+    }
 
-        window.addEventListener(
-            "load",
-            function () {
-                if ("requestIdleCallback" in window) {
-                    window.requestIdleCallback(loadHeroVideo, { timeout: 3000 });
-                } else {
-                    window.setTimeout(loadHeroVideo, 1500);
-                }
-            },
-            { once: true },
-        );
+    const deferredImages = document.querySelectorAll("img[data-src]");
+    const loadDeferredImage = function (image) {
+        const source = image.dataset.src;
+        if (!source) return;
+
+        image.src = source;
+        image.removeAttribute("data-src");
+    };
+
+    if ("IntersectionObserver" in window) {
+        const imageObserver = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+                if (!entry.isIntersecting) return;
+
+                loadDeferredImage(entry.target);
+                imageObserver.unobserve(entry.target);
+            });
+        }, { rootMargin: "150px 0px" });
+
+        deferredImages.forEach(function (image) {
+            imageObserver.observe(image);
+        });
+    } else {
+        deferredImages.forEach(loadDeferredImage);
     }
 
     // Scroll Down Button Smooth Scroll

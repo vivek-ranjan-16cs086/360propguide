@@ -131,7 +131,7 @@ html, body {
     font-size: 18px;
     font-weight: bold;
     padding: 8px 12px;
-    color: red;
+    color: #b42318;
     display: flex;
     align-items: center;
 }
@@ -218,7 +218,7 @@ html, body {
     }
 
     .close-btn {
-        color: red;
+        color: #b42318;
         background: transparent;
         border: none;
     }

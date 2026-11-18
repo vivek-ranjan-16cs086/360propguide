@@ -17,11 +17,15 @@
       document.head.appendChild(script);
     }
 
-    if ('requestIdleCallback' in window) {
-      window.requestIdleCallback(loadGoogleTagManager, { timeout: 2000 });
-    } else {
-      window.setTimeout(loadGoogleTagManager, 1000);
-    }
+    window.addEventListener('load', function() {
+      window.setTimeout(function() {
+        if ('requestIdleCallback' in window) {
+          window.requestIdleCallback(loadGoogleTagManager, { timeout: 2000 });
+        } else {
+          loadGoogleTagManager();
+        }
+      }, 5000);
+    }, { once: true });
   </script>
   <!-- End Google Tag Manager -->
   @yield('priority')
@@ -42,8 +46,14 @@
   <meta name="robots" content="max-image-preview:large">
   <link rel="stylesheet" href="{{ versioned_asset('frontend/libraries/bootstrap.min.css') }}">
 
-  <link rel="stylesheet"   href="{{ versioned_asset('frontend/libraries/fontawesome/css/all.min.css') }}" media="print"
+  @if(is_file(public_path('frontend/libraries/fontawesome/css/frontend-subset.min.css')))
+  <link rel="stylesheet"
+    href="{{ versioned_asset('frontend/libraries/fontawesome/css/frontend-subset.min.css') }}" media="print"
+    onload="this.media='all'">
+  @else
+  <link rel="stylesheet" href="{{ versioned_asset('frontend/libraries/fontawesome/css/all.min.css') }}" media="print"
   onload="this.media='all'">
+  @endif
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
