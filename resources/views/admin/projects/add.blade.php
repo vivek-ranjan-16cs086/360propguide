@@ -39,8 +39,19 @@
                                     <div class="col-sm-12 col-lg-6 mb-4">
                                         <label for="title">Project Name</label>
                                         <input class="form-control input @error('project_name') is-invalid @enderror "
-                                            type="text" placeholder="Enter Project Name"
-                                            value="{{ @old('project_name') }}" name="project_name" required>
+                                            type="text" placeholder="Enter Project Name" value="{{ @old('project_name') }}"
+                                            name="project_name" required>
+                                    </div>
+                                    <div class="col-sm-12 col-lg-6 mb-4">
+                                        <label for="slug">Project Slug</label>
+
+                                        <input class="form-control input @error('slug') is-invalid @enderror" type="text"
+                                            id="slug" name="slug" placeholder="Enter project slug"
+                                            value="{{ old('slug') }}">
+
+                                        @error('slug')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
                                     </div>
                                     <div class="col-sm-12 col-lg-6 mb-4">
                                         <label for="title">Rera Number</label>
@@ -108,8 +119,7 @@
                                             <option value="">Select City</option>
                                             @foreach ($parentLocations ?? [] as $parentLocation)
                                                 <option value="{{ $parentLocation->id }}"
-                                                    data-name="{{ $parentLocation->city }}"
-                                                    {{ old('location_id') == $parentLocation->id ? 'selected' : '' }}>
+                                                    data-name="{{ $parentLocation->city }}" {{ old('location_id') == $parentLocation->id ? 'selected' : '' }}>
                                                     {{ $parentLocation->city }}
                                                 </option>
                                             @endforeach
@@ -122,8 +132,7 @@
                                             class="form-control input select2">
                                             <option value="">Select Sublocation</option>
                                         </select>
-                                        <input type="hidden" name="location" id="location"
-                                            value="{{ old('location') }}">
+                                        <input type="hidden" name="location" id="location" value="{{ old('location') }}">
                                         <small class="text-muted">Add cities and sublocations from the Locations menu.
                                             Sublocation parent_id is the city id.</small>
                                     </div>
@@ -136,22 +145,22 @@
                                     <div class="col-sm-12 col-lg-6 mb-4">
                                         <label for="max_price">Maximum Price</label>
                                         <input class="form-control input @error('max_price') is-invalid @enderror "
-                                            type="number" placeholder="Enter Maximum Price"
-                                            value="{{ @old('max_price') }}" name="max_price" required pattern="[0-9]*">
+                                            type="number" placeholder="Enter Maximum Price" value="{{ @old('max_price') }}"
+                                            name="max_price" required pattern="[0-9]*">
                                     </div>
                                     <div class="col-sm-12 col-lg-6 mb-4">
                                         <label for="price">YouTube Link</label>
                                         <input class="form-control input @error('youtube_links') is-invalid @enderror "
-                                            type="text" placeholder="Enter YouTube Link"
-                                            value="{{ @old('youtube_links') }}" name="youtube_links">
+                                            type="text" placeholder="Enter YouTube Link" value="{{ @old('youtube_links') }}"
+                                            name="youtube_links">
                                     </div>
 
                                     <div class="col-sm-12 col-lg-6 mt-3">
                                         <div class="form-group">
                                             <label for="description">About Description:</label>
                                             <textarea name="about_description" class="summernote" id="summernote">
-                                        {{ @old('about_description') }}
-                                        </textarea>
+                                            {{ @old('about_description') }}
+                                            </textarea>
                                         </div>
                                     </div>
 
@@ -159,56 +168,56 @@
                                         <div class="form-group">
                                             <label for="description">Key Insights Description:</label>
                                             <textarea name="key_insights" class="summernote" id="summernote">
-                                        {{ @old('key_insights') }}
-                                        </textarea>
+                                            {{ @old('key_insights') }}
+                                            </textarea>
                                         </div>
                                     </div>
                                     <div class="col-sm-12 col-lg-6 mt-3">
                                         <div class="form-group">
                                             <label for="description">Location Description:</label>
                                             <textarea name="location_description" class="summernote" id="summernote">
-                                        {{ @old('location_description') }}
-                                        </textarea>
+                                            {{ @old('location_description') }}
+                                            </textarea>
                                         </div>
                                     </div>
                                     <!-- <div class="col-sm-12 col-lg-6 mt-3">
-                                                                            <div class="form-group">
-                                                                                <label for="description">Floor Plan Description:</label>
-                                                                                <textarea name="floor_plans_description" class="summernote" id="summernote">
-                                        {{ @old('floor_plans_description') }}
-                                        </textarea>
-                                                                            </div>
-                                                                        </div> -->
+                                                                                <div class="form-group">
+                                                                                    <label for="description">Floor Plan Description:</label>
+                                                                                    <textarea name="floor_plans_description" class="summernote" id="summernote">
+                                            {{ @old('floor_plans_description') }}
+                                            </textarea>
+                                                                                </div>
+                                                                            </div> -->
                                     <div class="col-sm-12 col-lg-6 mt-3">
                                         <div class="form-group">
                                             <label for="description">Developer Background Description:</label>
                                             <textarea name="developer_background_dscp" class="summernote" id="summernote">
-                                        {{ @old('developer_background_dscp') }}
-                                        </textarea>
+                                            {{ @old('developer_background_dscp') }}
+                                            </textarea>
                                         </div>
                                     </div>
                                     <div class="col-sm-12 col-lg-6 mt-3">
                                         <div class="form-group">
                                             <label for="description">Pricing Description:</label>
                                             <textarea name="site_plans_description" class="summernote" id="summernote">
-                                        {{ @old('site_plans_description') }}
-                                        </textarea>
+                                            {{ @old('site_plans_description') }}
+                                            </textarea>
                                         </div>
                                     </div>
                                     <div class="col-sm-12 col-lg-6 mt-3">
                                         <div class="form-group">
                                             <label for="description">Possession Description:</label>
                                             <textarea name="possession_description" class="summernote" id="summernote">
-                                        {{ @old('possession_description') }}
-                                        </textarea>
+                                            {{ @old('possession_description') }}
+                                            </textarea>
                                         </div>
                                     </div>
                                     <div class="col-sm-12 col-lg-6 mt-3">
                                         <div class="form-group">
                                             <!-- <label for="description">Amenities Description:</label>
-                                                                                <textarea name="amenities_description" class="summernote" id="summernote">
-                                        {{ @old('amenities_description') }}
-                                        </textarea> -->
+                                                                                    <textarea name="amenities_description" class="summernote" id="summernote">
+                                            {{ @old('amenities_description') }}
+                                            </textarea> -->
                                             <div class="d-flex justify-content-between">
                                                 <div>
                                                     Choose Aminities
@@ -220,25 +229,23 @@
                                                 </div>
                                             </div>
                                             <!--@if (!empty($aminityLists) && count($aminityLists) > 0)
-                                                                                @foreach ($aminityLists as $aminity)
-    <div class="p-2 d-flex justify-content-between">
-                                                                                    <span>
-                                                                                        <input type="checkbox" name="aminities[{{ $aminity->id }}]" id="">
-                                                                                        {{ $aminity->name }}
-                                                                                    </span>
-                                                                                    <span>
-                                                                                        <img src="{{ url('storage/' . $aminity->image) }}" style="width:40px" />
-                                                                                    </span>
-                                                                                </div>
-    @endforeach
-                                                                                @endif-->
-                                            <select id="amenities" name="amenities[]" class="form-control select2"
-                                                multiple>
+                                                                                    @foreach ($aminityLists as $aminity)
+        <div class="p-2 d-flex justify-content-between">
+                                                                                        <span>
+                                                                                            <input type="checkbox" name="aminities[{{ $aminity->id }}]" id="">
+                                                                                            {{ $aminity->name }}
+                                                                                        </span>
+                                                                                        <span>
+                                                                                            <img src="{{ url('storage/' . $aminity->image) }}" style="width:40px" />
+                                                                                        </span>
+                                                                                    </div>
+        @endforeach
+                                                                                    @endif-->
+                                            <select id="amenities" name="amenities[]" class="form-control select2" multiple>
                                                 @if (!empty($aminityLists) && count($aminityLists) > 0)
                                                     @foreach ($aminityLists as $amenity)
                                                         <option value="{{ $amenity->id }}"
-                                                            data-image="{{ url('storage/' . $amenity->image) }}"
-                                                            {{ in_array($amenity->id, old('amenities', [])) ? 'selected' : '' }}>
+                                                            data-image="{{ url('storage/' . $amenity->image) }}" {{ in_array($amenity->id, old('amenities', [])) ? 'selected' : '' }}>
                                                             {{ $amenity->name }}
                                                         </option>
                                                     @endforeach
@@ -259,37 +266,38 @@
                                                 </div>
                                             </div>
                                             <!--<div class="p-2 d-flex justify-content-between">
-                                                                                    <span class="col-2 p-0 font-weight-bold">
-                                                                                        Developer
-                                                                                    </span>
-                                                                                    <span class="col-2 p-0 font-weight-bold">Experience</span>
-                                                                                    <span class="col-2 p-0 font-weight-bold">Ongoing </span>
-                                                                                    <span class="col-2 p-0 font-weight-bold">Completed </span>
-                                                                                    <span class="col-2 p-0 font-weight-bold">logo</span>
-                                                                                </div>
-                                                                                @if (!empty($developerDetails) && count($developerDetails) > 0)
-                                                                                @foreach ($developerDetails as $developerDetail)
-    <div class="p-2 d-flex justify-content-between">
-                                                                                    <span class="col-2 p-0">
-                                                                                        <input type="radio" name="details[{{ $developerDetail->id }}]" id="">
-                                                                                        {{ $developerDetail->developer_name }}
-                                                                                    </span>
-                                                                                    <span class="col-2 p-0">{{ $developerDetail->developer_experience }}</span>
-                                                                                    <span class="col-2 p-0">{{ $developerDetail->ongoing_project }}</span>
-                                                                                    <span class="col-2 p-0">{{ $developerDetail->completed_projects }}</span>
-                                                                                    <span class="col-2 p-0">
-                                                                                        <img src="{{ url('storage/' . $developerDetail->developer_logo) }}"
-                                                                                            style="width:40px" />
-                                                                                    </span>
-                                                                                </div>
-    @endforeach
-                                                                                @endif-->
+                                                                                        <span class="col-2 p-0 font-weight-bold">
+                                                                                            Developer
+                                                                                        </span>
+                                                                                        <span class="col-2 p-0 font-weight-bold">Experience</span>
+                                                                                        <span class="col-2 p-0 font-weight-bold">Ongoing </span>
+                                                                                        <span class="col-2 p-0 font-weight-bold">Completed </span>
+                                                                                        <span class="col-2 p-0 font-weight-bold">logo</span>
+                                                                                    </div>
+                                                                                    @if (!empty($developerDetails) && count($developerDetails) > 0)
+                                                                                    @foreach ($developerDetails as $developerDetail)
+        <div class="p-2 d-flex justify-content-between">
+                                                                                        <span class="col-2 p-0">
+                                                                                            <input type="radio" name="details[{{ $developerDetail->id }}]" id="">
+                                                                                            {{ $developerDetail->developer_name }}
+                                                                                        </span>
+                                                                                        <span class="col-2 p-0">{{ $developerDetail->developer_experience }}</span>
+                                                                                        <span class="col-2 p-0">{{ $developerDetail->ongoing_project }}</span>
+                                                                                        <span class="col-2 p-0">{{ $developerDetail->completed_projects }}</span>
+                                                                                        <span class="col-2 p-0">
+                                                                                            <img src="{{ url('storage/' . $developerDetail->developer_logo) }}"
+                                                                                                style="width:40px" />
+                                                                                        </span>
+                                                                                    </div>
+        @endforeach
+                                                                                    @endif-->
                                             <select placeholder="Choose Developer" name="details[]"
                                                 class="form-control input select2 required">
                                                 @if (!empty($developerDetails) && count($developerDetails) > 0)
                                                     @foreach ($developerDetails as $key => $developer)
                                                         <option value="{{ $developer->id }}">
-                                                            {{ $developer->developer_name }} </option>
+                                                            {{ $developer->developer_name }}
+                                                        </option>
                                                     @endforeach
                                                 @endif
                                             </select>
@@ -305,8 +313,7 @@
                                                 placeholder="Project Hero Images" id="hero_images" required>
                                         </div>
                                         <div class="fileInput">
-                                            <img src="/../../assets/images/NA.webp" alt="photo"
-                                                id="previewHeroImages">
+                                            <img src="/../../assets/images/NA.webp" alt="photo" id="previewHeroImages">
                                         </div>
                                     </div>
                                     <div class="col-sm-12 col-lg-6 d-flex mb-4">
@@ -319,8 +326,7 @@
                                                 placeholder="Project Amenities Images" id="amenities_images" required>
                                         </div>
                                         <div class="fileInput">
-                                            <img src="/../../assets/images/NA.webp" alt="photo"
-                                                id="previewAmenitiesImages">
+                                            <img src="/../../assets/images/NA.webp" alt="photo" id="previewAmenitiesImages">
                                         </div>
                                     </div>
                                     <div class="col-sm-12 col-lg-6 d-flex mb-4">
@@ -358,8 +364,7 @@
                                                 placeholder="Project feature Image" id="feature_image" required>
                                         </div>
                                         <div class="fileInput">
-                                            <img src="/../../assets/images/NA.webp" alt="photo"
-                                                id="previewFeatureImage">
+                                            <img src="/../../assets/images/NA.webp" alt="photo" id="previewFeatureImage">
                                         </div>
                                     </div>
                                     <div class="col-sm-12 col-lg-6 d-flex mb-4">
@@ -372,8 +377,7 @@
                                                 placeholder="Project Site Plan Images" id="site_plans_images">
                                         </div>
                                         <div class="fileInput">
-                                            <img src="/../../assets/images/NA.webp" alt="photo"
-                                                id="previewSitePlanImages">
+                                            <img src="/../../assets/images/NA.webp" alt="photo" id="previewSitePlanImages">
                                         </div>
                                     </div>
                                     <div class="col-sm-12 col-lg-6 d-flex mb-4">
@@ -386,8 +390,7 @@
                                                 placeholder="Project Brochure" id="floor_plans_images">
                                         </div>
                                         <div class="fileInput">
-                                            <img src="/../../assets/images/NA.webp" alt="photo"
-                                                id="previewFloorPlanImages">
+                                            <img src="/../../assets/images/NA.webp" alt="photo" id="previewFloorPlanImages">
                                         </div>
                                     </div>
                                     <div class="col-sm-12 col-lg-6 d-flex mb-4">
@@ -395,13 +398,11 @@
                                             <label for="thumbnail">Location Video:</label>
                                             <input type="file"
                                                 class="form-control @error('location_video') is-invalid @enderror"
-                                                name="location_video"
-                                                onchange="previewImage(this, '#previewLocationVideo')"
+                                                name="location_video" onchange="previewImage(this, '#previewLocationVideo')"
                                                 placeholder="Project Location Video" id="location_video">
                                         </div>
                                         <div class="fileInput">
-                                            <img src="/../../assets/images/NA.webp" alt="photo"
-                                                id="previewLocationVideo">
+                                            <img src="/../../assets/images/NA.webp" alt="photo" id="previewLocationVideo">
                                         </div>
                                     </div>
                                     <div class="col-sm-12 col-lg-6 d-flex mb-4">
@@ -422,13 +423,11 @@
                                             <label for="thumbnail">Sanctioned Map:</label>
                                             <input type="file"
                                                 class="form-control @error('sanctioned_map') is-invalid @enderror"
-                                                name="sanctioned_map"
-                                                onchange="previewImage(this, '#previewSanctionedMap')"
+                                                name="sanctioned_map" onchange="previewImage(this, '#previewSanctionedMap')"
                                                 placeholder="Project sanctioned map" id="sanctioned_map">
                                         </div>
                                         <div class="fileInput">
-                                            <img src="/../../assets/images/NA.webp" alt="photo"
-                                                id="previewSanctionedMap">
+                                            <img src="/../../assets/images/NA.webp" alt="photo" id="previewSanctionedMap">
                                         </div>
                                     </div>
 
@@ -458,18 +457,15 @@
 
                                                 <select name="project_type" id="project_type" class="form-control mt-3">
 
-                                                    <option value="residential"
-                                                        {{ old('project_type', 'residential') === 'residential' ? 'selected' : '' }}>
+                                                    <option value="residential" {{ old('project_type', 'residential') === 'residential' ? 'selected' : '' }}>
                                                         Residential
                                                     </option>
 
-                                                    <option value="commercial"
-                                                        {{ old('project_type') === 'commercial' ? 'selected' : '' }}>
+                                                    <option value="commercial" {{ old('project_type') === 'commercial' ? 'selected' : '' }}>
                                                         Commercial
                                                     </option>
 
-                                                    <option value="mixed"
-                                                        {{ old('project_type') === 'mixed' ? 'selected' : '' }}>
+                                                    <option value="mixed" {{ old('project_type') === 'mixed' ? 'selected' : '' }}>
                                                         Mixed
                                                     </option>
 
@@ -479,10 +475,9 @@
                                         </div>
                                         <div class="row">
                                             {{-- Residential / BHK Type --}}
-                                            <div id="residentialFloorSectionWrapper"
-                                                class="col-md-12
-            
-            ">
+                                            <div id="residentialFloorSectionWrapper" class="col-md-12
+
+                ">
 
                                                 <div id="residentialFloorSection" class="mt-3">
 
@@ -490,13 +485,11 @@
 
                                                     <select name="area_type" id="area_type" class="form-control mt-3">
 
-                                                        <option value="apartment"
-                                                            {{ old('area_type', 'apartment') === 'apartment' ? 'selected' : '' }}>
+                                                        <option value="apartment" {{ old('area_type', 'apartment') === 'apartment' ? 'selected' : '' }}>
                                                             Apartments
                                                         </option>
 
-                                                        <option value="plots"
-                                                            {{ old('area_type') === 'plots' ? 'selected' : '' }}>
+                                                        <option value="plots" {{ old('area_type') === 'plots' ? 'selected' : '' }}>
                                                             Plots
                                                         </option>
 
@@ -558,8 +551,8 @@
                                     <div class="col-sm-12 col-lg-6 mb-4">
                                         <label for="title">Title</label>
                                         <input class="form-control input @error('seo_data[title]') is-invalid @enderror "
-                                            type="text" placeholder="Enter Title"
-                                            value="{{ @old('seo_data')['title'] }}" name="seo_data[title]" required>
+                                            type="text" placeholder="Enter Title" value="{{ @old('seo_data')['title'] }}"
+                                            name="seo_data[title]" required>
                                     </div>
                                     <div class="col-sm-12 col-lg-6 mb-4">
                                         <label for="primary_keyword">Primary Keyword</label>
@@ -591,8 +584,14 @@
                                         <input
                                             class="form-control input @error('seo_data[canonical_link]') is-invalid @enderror "
                                             type="text" placeholder="Enter Canonical Link"
-                                            value="{{ @old('seo_data')['canonical_link'] }}"
-                                            name="seo_data[canonical_link]" required>
+                                            value="{{ @old('seo_data')['canonical_link'] }}" name="seo_data[canonical_link]"
+                                            required>
+                                    </div>
+                                    <div class="col-12">
+                                        <label for="schema_markup">Page Schema (JSON-LD)</label>
+                                        <textarea id="schema_markup" name="schema_markup" rows="10" class="form-control @error('schema_markup') is-invalid @enderror" placeholder='Paste valid JSON-LD, for example: {"@context":"https://schema.org","@type":"RealEstateListing"}'>{{ old('schema_markup') }}</textarea>
+                                        <small class="text-muted">Valid JSON-LD is output on this project page. Leave blank to use the default schema.</small>
+                                        @error('schema_markup')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                     </div>
                                     <div class="col-12">
                                         <h5>
@@ -607,14 +606,14 @@
                                                         <div class="col-6">
                                                             <label for="question">Question:</label>
                                                             <input value="{{ $faqsData['question'] }}"
-                                                                name="faqs_data[{{ $key }}][question]"
-                                                                type="text" class="form-control" required>
+                                                                name="faqs_data[{{ $key }}][question]" type="text"
+                                                                class="form-control" required>
                                                         </div>
                                                         <div class="col-6">
                                                             <label for="answer">Answer:</label>
                                                             <input value="{{ $faqsData['answer'] }}"
-                                                                name="faqs_data[{{ $key }}][answer]"
-                                                                type="text" class="form-control" required>
+                                                                name="faqs_data[{{ $key }}][answer]" type="text"
+                                                                class="form-control" required>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -624,13 +623,13 @@
                                                 <div class="row pt-5 pb-5" style="background:#1b577733">
                                                     <div class="col-6">
                                                         <label for="question">Question:</label>
-                                                        <input name="faqs_data[0][question]" type="text"
-                                                            class="form-control" required>
+                                                        <input name="faqs_data[0][question]" type="text" class="form-control"
+                                                            required>
                                                     </div>
                                                     <div class="col-6">
                                                         <label for="answer">Answer:</label>
-                                                        <input name="faqs_data[0][answer]" type="text"
-                                                            class="form-control" required>
+                                                        <input name="faqs_data[0][answer]" type="text" class="form-control"
+                                                            required>
                                                     </div>
 
                                                 </div>
@@ -659,15 +658,14 @@
                                                         <div class="col-6">
                                                             <label for="applied_from">Applied From:</label>
                                                             <input value="{{ $price['applied_from'] ?? '' }}"
-                                                                name="sqft_price[{{ $key }}][applied_from]"
-                                                                type="date" class="form-control" required>
+                                                                name="sqft_price[{{ $key }}][applied_from]" type="date"
+                                                                class="form-control" required>
                                                         </div>
                                                         <div class="col-6">
                                                             <label for="value">Price per Sqft:</label>
                                                             <input value="{{ $price['value'] ?? '' }}"
-                                                                name="sqft_price[{{ $key }}][value]"
-                                                                type="text" class="form-control"
-                                                                placeholder="Enter price per sqft" required>
+                                                                name="sqft_price[{{ $key }}][value]" type="text"
+                                                                class="form-control" placeholder="Enter price per sqft" required>
                                                         </div>
                                                     </div>
 
@@ -698,21 +696,21 @@
                                                         <div class="col-4">
                                                             <label for="phase">Phase:</label>
                                                             <input value="{{ $reraData['phase'] }}"
-                                                                name="rera_data[{{ $key }}][phase]"
-                                                                type="text" class="form-control">
+                                                                name="rera_data[{{ $key }}][phase]" type="text"
+                                                                class="form-control">
                                                         </div>
                                                         <div class="col-4">
                                                             <label for="rera_no">Rera Number:</label>
                                                             <input value="{{ $reraData['rera_no'] }}"
-                                                                name="rera_data[{{ $key }}][rera_no]"
-                                                                type="text" class="form-control">
+                                                                name="rera_data[{{ $key }}][rera_no]" type="text"
+                                                                class="form-control">
                                                         </div>
 
                                                         <div class="col-4">
                                                             <label>QR Image:</label>
 
-                                                            <input name="rera_data[{{ $key }}][qr_image]"
-                                                                type="file" class="form-control">
+                                                            <input name="rera_data[{{ $key }}][qr_image]" type="file"
+                                                                class="form-control">
                                                         </div>
 
                                                     </div>
@@ -723,18 +721,15 @@
                                                 <div class="row pt-5 pb-5" style="background:#1b577733">
                                                     <div class="col-4">
                                                         <label for="phase">Phase:</label>
-                                                        <input name="rera_data[0][phase]" type="text"
-                                                            class="form-control">
+                                                        <input name="rera_data[0][phase]" type="text" class="form-control">
                                                     </div>
                                                     <div class="col-4">
                                                         <label for="rera_no">Rera Number:</label>
-                                                        <input name="rera_data[0][rera_no]" type="text"
-                                                            class="form-control">
+                                                        <input name="rera_data[0][rera_no]" type="text" class="form-control">
                                                     </div>
                                                     <div class="col-4">
                                                         <label for="qr_image">QR Image:</label>
-                                                        <input name="rera_data[0][qr_image]" type="file"
-                                                            class="form-control">
+                                                        <input name="rera_data[0][qr_image]" type="file" class="form-control">
                                                     </div>
 
                                                 </div>
@@ -787,8 +782,7 @@
         </div>
     </div>
     <!-- Developer Modal -->
-    <div class="modal fade" id="developerModal" tabindex="-1" aria-labelledby="developerModalLabel"
-        aria-hidden="true">
+    <div class="modal fade" id="developerModal" tabindex="-1" aria-labelledby="developerModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -844,7 +838,7 @@
         function previewImage(input, previewId) {
             if (input.files && input.files[0]) {
                 var reader = new FileReader();
-                reader.onload = function(e) {
+                reader.onload = function (e) {
                     $(previewId).attr('src', e.target.result);
                 }
                 reader.readAsDataURL(input.files[0]);
@@ -865,8 +859,8 @@
                 syncLocationHiddenFields();
                 return;
             }
-            $.get("{{ url('7439/locations/children') }}/" + parentId, function(items) {
-                items.forEach(function(item) {
+            $.get("{{ url('7439/locations/children') }}/" + parentId, function (items) {
+                items.forEach(function (item) {
                     const selected = String(selectedId) === String(item.id) ? 'selected' : '';
                     $sub.append('<option value="' + item.id + '" data-name="' + item.city + '" ' +
                         selected + '>' + item.city + '</option>');
@@ -875,7 +869,7 @@
             });
         }
 
-        $(document).on('change select2:select', '#location_id', function() {
+        $(document).on('change select2:select', '#location_id', function () {
             loadSublocations($(this).val(), null);
             syncLocationHiddenFields();
         });
@@ -889,74 +883,74 @@
 
             if (type === 'apartment') {
                 html = `<div class="col-sm-12 col-lg-12 mt-2 pdfloorPlans" style="padding:0 30px">
-            <div class="row pt-5 pb-5" style="background:#1b577733">
-                <div class="col">
-                    <label for="title">Title:</label>
-                    <input name="floor_plans[${index}][title]" type="text" class="form-control" required>
+                <div class="row pt-5 pb-5" style="background:#1b577733">
+                    <div class="col">
+                        <label for="title">Title:</label>
+                        <input name="floor_plans[${index}][title]" type="text" class="form-control" required>
+                    </div>
+                    <div class="col-2">
+                        <label for="super_area">Super Area:</label>
+                        <input name="floor_plans[${index}][super_area]" type="text" class="form-control" required>
+                    </div>
+                    <div class="col-2">
+                        <label for="carpet_area">Carpet Area:</label>
+                        <input name="floor_plans[${index}][carpet_area]" type="text" class="form-control" required>
+                    </div>
+                    <div class="col-2">
+                        <label for="built_area">Builtup Area:</label>
+                        <input name="floor_plans[${index}][built_area]" type="text" class="form-control" required>
+                    </div>
+                    <div class="col-2">
+                        <label for="balcony_area">Balcony Area:</label>
+                        <input name="floor_plans[${index}][balcony_area]" type="text" class="form-control" required>
+                    </div>
+                    <div class="col-2">
+                        <label for="feature_image">Image:</label>
+                        <input name="floor_plans[${index}][feature_image]" type="file" class="form-control">
+                        <input type="hidden" name="floor_plans[${index}][is_coming_soon]" value="0">
+                        <label class="d-block mt-2 text-end">
+                            <input name="floor_plans[${index}][is_coming_soon]" type="checkbox" value="1">
+                            Coming Soon
+                        </label>
+                    </div>
                 </div>
-                <div class="col-2">
-                    <label for="super_area">Super Area:</label>
-                    <input name="floor_plans[${index}][super_area]" type="text" class="form-control" required>
-                </div>
-                <div class="col-2">
-                    <label for="carpet_area">Carpet Area:</label>
-                    <input name="floor_plans[${index}][carpet_area]" type="text" class="form-control" required>
-                </div>
-                <div class="col-2">
-                    <label for="built_area">Builtup Area:</label>
-                    <input name="floor_plans[${index}][built_area]" type="text" class="form-control" required>
-                </div>
-                <div class="col-2">
-                    <label for="balcony_area">Balcony Area:</label>
-                    <input name="floor_plans[${index}][balcony_area]" type="text" class="form-control" required>
-                </div>
-                <div class="col-2">
-                    <label for="feature_image">Image:</label>
-                    <input name="floor_plans[${index}][feature_image]" type="file" class="form-control">
-                    <input type="hidden" name="floor_plans[${index}][is_coming_soon]" value="0">
-                    <label class="d-block mt-2 text-end">
-                        <input name="floor_plans[${index}][is_coming_soon]" type="checkbox" value="1">
-                        Coming Soon
-                    </label>
-                </div>
-            </div>
-            <span class="bg-danger minusBtn">
-                <i class="fa fa-minus"></i>
-            </span>
-        </div>`;
+                <span class="bg-danger minusBtn">
+                    <i class="fa fa-minus"></i>
+                </span>
+            </div>`;
             } else if (type === 'plots') {
                 html = `<div class="col-sm-12 col-lg-12 mt-2 pdfloorPlans" style="padding:0 30px">
-            <div class="row pt-5 pb-5" style="background:#1b577733">
-                <div class="col">
-                    <label for="title">Title:</label>
-                    <input name="floor_plans[${index}][title]" type="text" class="form-control" required>
+                <div class="row pt-5 pb-5" style="background:#1b577733">
+                    <div class="col">
+                        <label for="title">Title:</label>
+                        <input name="floor_plans[${index}][title]" type="text" class="form-control" required>
+                    </div>
+                    <div class="col-2">
+                        <label for="length">Length:</label>
+                        <input name="floor_plans[${index}][length]" type="text" class="form-control" required>
+                    </div>
+                    <div class="col-2">
+                        <label for="width">Width:</label>
+                        <input name="floor_plans[${index}][width]" type="text" class="form-control" required>
+                    </div>
+                    <div class="col-2">
+                        <label for="total_area">Total Area:</label>
+                        <input name="floor_plans[${index}][total_area]" type="text" class="form-control" required>
+                    </div>
+                    <div class="col-2">
+                        <label for="feature_image">Image:</label>
+                        <input name="floor_plans[${index}][feature_image]" type="file" class="form-control">
+                        <input type="hidden" name="floor_plans[${index}][is_coming_soon]" value="0">
+                        <label class="d-block mt-2 text-end">
+                            <input name="floor_plans[${index}][is_coming_soon]" type="checkbox" value="1">
+                            Coming Soon
+                        </label>
+                    </div>
                 </div>
-                <div class="col-2">
-                    <label for="length">Length:</label>
-                    <input name="floor_plans[${index}][length]" type="text" class="form-control" required>
-                </div>
-                <div class="col-2">
-                    <label for="width">Width:</label>
-                    <input name="floor_plans[${index}][width]" type="text" class="form-control" required>
-                </div>
-                <div class="col-2">
-                    <label for="total_area">Total Area:</label>
-                    <input name="floor_plans[${index}][total_area]" type="text" class="form-control" required>
-                </div>
-                <div class="col-2">
-                    <label for="feature_image">Image:</label>
-                    <input name="floor_plans[${index}][feature_image]" type="file" class="form-control">
-                    <input type="hidden" name="floor_plans[${index}][is_coming_soon]" value="0">
-                    <label class="d-block mt-2 text-end">
-                        <input name="floor_plans[${index}][is_coming_soon]" type="checkbox" value="1">
-                        Coming Soon
-                    </label>
-                </div>
-            </div>
-            <span class="bg-danger minusBtn">
-                <i class="fa fa-minus"></i>
-            </span>
-        </div>`;
+                <span class="bg-danger minusBtn">
+                    <i class="fa fa-minus"></i>
+                </span>
+            </div>`;
             }
 
             return html;
@@ -966,81 +960,81 @@
         function generateCommercialFloorFields(index) {
 
             return `
-        <div class="col-sm-12 col-lg-12 mt-2 commercialFloorPlan"
-             style="padding:0 30px">
+            <div class="col-sm-12 col-lg-12 mt-2 commercialFloorPlan"
+                 style="padding:0 30px">
 
-            <div class="row pt-4 pb-4"
-                 style="background:#1b577733">
+                <div class="row pt-4 pb-4"
+                     style="background:#1b577733">
 
-                <div class="col-md-3">
-                    <label>Floor:</label>
-                    <input
-                        name="floor_plans[${index}][floor]"
-                        type="text"
-                        class="form-control"
-                        placeholder="e.g. Lower Ground"
-                        required>
+                    <div class="col-md-3">
+                        <label>Floor:</label>
+                        <input
+                            name="floor_plans[${index}][floor]"
+                            type="text"
+                            class="form-control"
+                            placeholder="e.g. Lower Ground"
+                            required>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label>Floor Sub Label:</label>
+                        <input
+                            name="floor_plans[${index}][floor_sub_label]"
+                            type="text"
+                            class="form-control"
+                            placeholder="e.g. Basement 1">
+                    </div>
+
+                    <div class="col-md-3">
+                        <label>Format & Position Title:</label>
+                        <input
+                            name="floor_plans[${index}][format_position_title]"
+                            type="text"
+                            class="form-control"
+                            placeholder="e.g. Retail & anchor spaces"
+                            required>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label>Rate / Sq Ft:</label>
+                        <input
+                            name="floor_plans[${index}][rate_sq_ft]"
+                            type="text"
+                            class="form-control"
+                            placeholder="e.g. 18000"
+                            required>
+                    </div>
+
+                    <div class="col-md-8 mt-3">
+                        <label>Format & Position Description:</label>
+                        <textarea
+                            name="floor_plans[${index}][format_position_description]"
+                            class="form-control"
+                            placeholder="Position / layout notes"></textarea>
+                    </div>
+
+                    <div class="col-md-4 mt-3">
+                        <label>Image (optional):</label>
+                        <input
+                            name="floor_plans[${index}][feature_image]"
+                            type="file"
+                            class="form-control">
+                        <input type="hidden" name="floor_plans[${index}][is_coming_soon]" value="0">
+                        <label class="d-block mt-2 text-end">
+                            <input name="floor_plans[${index}][is_coming_soon]" type="checkbox" value="1">
+                            Coming Soon
+                        </label>
+                    </div>
+
                 </div>
 
-                <div class="col-md-3">
-                    <label>Floor Sub Label:</label>
-                    <input
-                        name="floor_plans[${index}][floor_sub_label]"
-                        type="text"
-                        class="form-control"
-                        placeholder="e.g. Basement 1">
-                </div>
-
-                <div class="col-md-3">
-                    <label>Format & Position Title:</label>
-                    <input
-                        name="floor_plans[${index}][format_position_title]"
-                        type="text"
-                        class="form-control"
-                        placeholder="e.g. Retail & anchor spaces"
-                        required>
-                </div>
-
-                <div class="col-md-3">
-                    <label>Rate / Sq Ft:</label>
-                    <input
-                        name="floor_plans[${index}][rate_sq_ft]"
-                        type="text"
-                        class="form-control"
-                        placeholder="e.g. 18000"
-                        required>
-                </div>
-
-                <div class="col-md-8 mt-3">
-                    <label>Format & Position Description:</label>
-                    <textarea
-                        name="floor_plans[${index}][format_position_description]"
-                        class="form-control"
-                        placeholder="Position / layout notes"></textarea>
-                </div>
-
-                <div class="col-md-4 mt-3">
-                    <label>Image (optional):</label>
-                    <input
-                        name="floor_plans[${index}][feature_image]"
-                        type="file"
-                        class="form-control">
-                    <input type="hidden" name="floor_plans[${index}][is_coming_soon]" value="0">
-                    <label class="d-block mt-2 text-end">
-                        <input name="floor_plans[${index}][is_coming_soon]" type="checkbox" value="1">
-                        Coming Soon
-                    </label>
-                </div>
+                <span class="bg-danger commercialMinusBtn"
+                      style="cursor:pointer; padding:5px 10px;">
+                    <i class="fa fa-minus"></i>
+                </span>
 
             </div>
-
-            <span class="bg-danger commercialMinusBtn"
-                  style="cursor:pointer; padding:5px 10px;">
-                <i class="fa fa-minus"></i>
-            </span>
-
-        </div>
-    `;
+        `;
         }
 
         function togglePropertyCategory() {
@@ -1066,33 +1060,33 @@
                 // =========================
                 // ADD COMMERCIAL
                 // =========================
-           $('#commercialFloorSectionWrapper').append(`
-    <div id="commercialFloorSection"
-    style="display:flex; justify-content:space-between; align-items:center; width:100%; margin-top:15px;">
+                $('#commercialFloorSectionWrapper').append(`
+        <div id="commercialFloorSection"
+        style="display:flex; justify-content:space-between; align-items:center; width:100%; margin-top:15px;">
 
-    <h5 style="margin:0;">
-        Commercial Floor Plans
-    </h5>
+        <h5 style="margin:0;">
+            Commercial Floor Plans
+        </h5>
 
-    <button type="button"
-        class="btn btn-success commercialPlusBtn">
+        <button type="button"
+            class="btn btn-success commercialPlusBtn">
 
-        <i class="fa fa-plus"></i>
-        Add
+            <i class="fa fa-plus"></i>
+            Add
 
-    </button>
+        </button>
 
-</div>
-
-    <div id="commercialFloors"
-        class="row mt-4 mb-4">
     </div>
-`);
 
-// First commercial floor plan automatically
-$('#commercialFloors').append(
-    generateCommercialFloorFields(0)
-);
+        <div id="commercialFloors"
+            class="row mt-4 mb-4">
+        </div>
+    `);
+
+                // First commercial floor plan automatically
+                $('#commercialFloors').append(
+                    generateCommercialFloorFields(0)
+                );
 
 
             } else {
@@ -1115,51 +1109,51 @@ $('#commercialFloors').append(
                 // ADD RESIDENTIAL
                 // =========================
                 $('#residentialFloorSectionWrapper').append(`
-            <div id="residentialFloorSection" class="mt-3">
+                <div id="residentialFloorSection" class="mt-3">
 
-                <h5>BHK Plans</h5>
+                    <h5>BHK Plans</h5>
 
-                <div class="row">
+                    <div class="row">
 
-                    <div class="col-md-8 mt-3">
+                        <div class="col-md-8 mt-3">
 
-                        <select
-                            name="area_type"
-                            id="area_type"
-                            class="form-control">
+                            <select
+                                name="area_type"
+                                id="area_type"
+                                class="form-control">
 
-                            <option value="apartment">
-                                Apartments
-                            </option>
+                                <option value="apartment">
+                                    Apartments
+                                </option>
 
-                            <option value="plots">
-                                Plots
-                            </option>
+                                <option value="plots">
+                                    Plots
+                                </option>
 
-                        </select>
+                            </select>
 
-                    </div>
+                        </div>
 
-                    <div class="col-md-4">
+                        <div class="col-md-4">
 
-                        <button type="button"
-                            class="btn btn-success plusBtn">
+                            <button type="button"
+                                class="btn btn-success plusBtn">
 
-                            <i class="fa fa-plus"></i>
-                            Add
+                                <i class="fa fa-plus"></i>
+                                Add
 
-                        </button>
+                            </button>
+
+                        </div>
 
                     </div>
 
                 </div>
 
-            </div>
-
-            <div id="residentialFloors"
-                class="floors row mt-4 mb-4">
-            </div>
-        `);
+                <div id="residentialFloors"
+                    class="floors row mt-4 mb-4">
+                </div>
+            `);
 
 
                 selectedAreaType =
@@ -1180,8 +1174,8 @@ $('#commercialFloors').append(
 
         // Function to reindex names properly
         function reIndexFloorPlans() {
-            $('.pdfloorPlans').each(function(i) {
-                $(this).find('input').each(function() {
+            $('.pdfloorPlans').each(function (i) {
+                $(this).find('input').each(function () {
                     const name = $(this).attr('name');
                     if (name) {
                         const updatedName = name.replace(/\[\d+\]/, `[${i}]`);
@@ -1193,9 +1187,9 @@ $('#commercialFloors').append(
 
         function reIndexCommercialFloorPlans() {
 
-            $('#commercialFloors .commercialFloorPlan').each(function(i) {
+            $('#commercialFloors .commercialFloorPlan').each(function (i) {
 
-                $(this).find('input, select, textarea').each(function() {
+                $(this).find('input, select, textarea').each(function () {
 
                     const name = $(this).attr('name');
 
@@ -1220,17 +1214,17 @@ $('#commercialFloors').append(
                 generateFloorPlanFields(selectedAreaType, 0)
             );
         }
-        $(document).ready(function() {
+        $(document).ready(function () {
 
             // Initial property category
             togglePropertyCategory();
 
             // Property Category change
-            $('#project_type').on('change', function() {
+            $('#project_type').on('change', function () {
                 togglePropertyCategory();
             });
 
-            $('#area_type').on('change', function() {
+            $('#area_type').on('change', function () {
                 selectedAreaType = $(this).val();
 
                 if ($('#residentialFloors').is(':visible')) {
@@ -1239,56 +1233,56 @@ $('#commercialFloors').append(
             });
 
             // Add Residential Floor Plan
-$(document).on('click', '.plusBtn', function () {
+            $(document).on('click', '.plusBtn', function () {
 
-    const category = $('#project_type').val();
+                const category = $('#project_type').val();
 
-    console.log('Add button clicked');
-    console.log('Project Type:', category);
+                console.log('Add button clicked');
+                console.log('Project Type:', category);
 
-    if (category === 'commercial') {
+                if (category === 'commercial') {
 
-        const currentIndex =
-            $('#commercialFloors .commercialFloorPlan').length;
+                    const currentIndex =
+                        $('#commercialFloors .commercialFloorPlan').length;
 
-        $('#commercialFloors').append(
-            generateCommercialFloorFields(currentIndex)
-        );
+                    $('#commercialFloors').append(
+                        generateCommercialFloorFields(currentIndex)
+                    );
 
-        reIndexCommercialFloorPlans();
+                    reIndexCommercialFloorPlans();
 
-    } else {
+                } else {
 
-        const currentIndex =
-            $('#residentialFloors .pdfloorPlans').length;
+                    const currentIndex =
+                        $('#residentialFloors .pdfloorPlans').length;
 
-        $('#residentialFloors').append(
-            generateFloorPlanFields(
-                selectedAreaType,
-                currentIndex
-            )
-        );
+                    $('#residentialFloors').append(
+                        generateFloorPlanFields(
+                            selectedAreaType,
+                            currentIndex
+                        )
+                    );
 
-        reIndexFloorPlans();
-    }
+                    reIndexFloorPlans();
+                }
 
-});
+            });
 
-$(document).on('click', '.commercialPlusBtn', function () {
+            $(document).on('click', '.commercialPlusBtn', function () {
 
-    const currentIndex =
-        $('#commercialFloors .commercialFloorPlan').length;
+                const currentIndex =
+                    $('#commercialFloors .commercialFloorPlan').length;
 
-    $('#commercialFloors').append(
-        generateCommercialFloorFields(currentIndex)
-    );
+                $('#commercialFloors').append(
+                    generateCommercialFloorFields(currentIndex)
+                );
 
-    reIndexCommercialFloorPlans();
+                reIndexCommercialFloorPlans();
 
-});
+            });
 
             // Remove Residential Floor Plan
-            $(document).on('click', '.minusBtn', function() {
+            $(document).on('click', '.minusBtn', function () {
 
                 $(this).closest('.pdfloorPlans').remove();
 
@@ -1299,7 +1293,7 @@ $(document).on('click', '.commercialPlusBtn', function () {
 
 
             // Remove Commercial Floor Plan
-            $(document).on('click', '.commercialMinusBtn', function() {
+            $(document).on('click', '.commercialMinusBtn', function () {
 
                 $(this).closest('.commercialFloorPlan').remove();
 
@@ -1307,8 +1301,8 @@ $(document).on('click', '.commercialPlusBtn', function () {
             });
 
             function reindexAllFloorPlans() {
-                $('#residentialFloors .pdfloorPlans, #commercialFloors .commercialFloorPlan').each(function(index) {
-                    $(this).find('input, select, textarea').each(function() {
+                $('#residentialFloors .pdfloorPlans, #commercialFloors .commercialFloorPlan').each(function (index) {
+                    $(this).find('input, select, textarea').each(function () {
                         const name = $(this).attr('name');
                         if (name) {
                             $(this).attr('name', name.replace(/floor_plans\[\d+\]/, `floor_plans[${index}]`));
@@ -1319,9 +1313,9 @@ $(document).on('click', '.commercialPlusBtn', function () {
 
             function addFloorPlanMetadata($row, index, type, areaType) {
                 $row.prepend(`
-                    <input type="hidden" name="floor_plans[${index}][plan_type]" value="${type}">
-                    ${type === 'residential' ? `<input type="hidden" name="floor_plans[${index}][area_type]" value="${areaType}">` : ''}
-                `);
+                        <input type="hidden" name="floor_plans[${index}][plan_type]" value="${type}">
+                        ${type === 'residential' ? `<input type="hidden" name="floor_plans[${index}][area_type]" value="${areaType}">` : ''}
+                    `);
             }
 
             function renderProjectFloorPlanGroups() {
@@ -1329,30 +1323,30 @@ $(document).on('click', '.commercialPlusBtn', function () {
                 const selectedType = @json($selectedProjectType);
                 $('#residentialFloors, #commercialFloors').remove();
                 $('#residentialFloorSectionWrapper').html(`
-                    <div class="mixed-plan-group" data-plan-group="residential" style="margin-top: 15px !important;">
-                        <h5>BHK Plans</h5>
-                        <select name="area_type" id="area_type" class="form-control mt-3">
-                            <option value="apartment" ${areaType === 'apartment' ? 'selected' : ''}>Apartments</option>
-                            <option value="plots" ${areaType === 'plots' ? 'selected' : ''}>Plots</option>
-                        </select>
-                     
+                        <div class="mixed-plan-group" data-plan-group="residential" style="margin-top: 15px !important;">
+                            <h5>BHK Plans</h5>
+                            <select name="area_type" id="area_type" class="form-control mt-3">
+                                <option value="apartment" ${areaType === 'apartment' ? 'selected' : ''}>Apartments</option>
+                                <option value="plots" ${areaType === 'plots' ? 'selected' : ''}>Plots</option>
+                            </select>
 
-                         <div class="d-flex justify-content-between align-items-center mt-3">
-                            <h5 class="mb-0">Residential Floor Plans</h5>
-                            <button type="button" class="btn btn-success plusBtn mt-3"><i class="fa fa-plus"></i> Add Residential Plan</button>
+
+                             <div class="d-flex justify-content-between align-items-center mt-3">
+                                <h5 class="mb-0">Residential Floor Plans</h5>
+                                <button type="button" class="btn btn-success plusBtn mt-3"><i class="fa fa-plus"></i> Add Residential Plan</button>
+                            </div>
+                            <div id="residentialFloors" class="row mt-3"></div>
                         </div>
-                        <div id="residentialFloors" class="row mt-3"></div>
-                    </div>
-                `);
+                    `);
                 $('#commercialFloorSectionWrapper').html(`
-                    <div class="mixed-plan-group" data-plan-group="commercial">
-                        <div class="d-flex justify-content-between align-items-center mt-3">
-                            <h5 class="mb-0">Commercial Floor Plans</h5>
-                            <button type="button" class="btn btn-success commercialPlusBtn"><i class="fa fa-plus"></i> Add Commercial Plan</button>
+                        <div class="mixed-plan-group" data-plan-group="commercial">
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <h5 class="mb-0">Commercial Floor Plans</h5>
+                                <button type="button" class="btn btn-success commercialPlusBtn"><i class="fa fa-plus"></i> Add Commercial Plan</button>
+                            </div>
+                            <div id="commercialFloors" class="row mt-3"></div>
                         </div>
-                        <div id="commercialFloors" class="row mt-3"></div>
-                    </div>
-                `);
+                    `);
 
                 const $residential = $(generateFloorPlanFields(areaType, 0));
                 addFloorPlanMetadata($residential, 0, 'residential', areaType);
@@ -1371,7 +1365,7 @@ $(document).on('click', '.commercialPlusBtn', function () {
                 }
 
                 $('#project_type').off('change').on('change.floorPlans', updateVisibleGroups);
-                $('#area_type').off('change').on('change.floorPlans', function() {
+                $('#area_type').off('change').on('change.floorPlans', function () {
                     const newAreaType = $(this).val();
                     const $rows = $('#residentialFloors .pdfloorPlans');
                     const previousRows = $rows.length;
@@ -1390,7 +1384,7 @@ $(document).on('click', '.commercialPlusBtn', function () {
             $(document).off('click', '.commercialPlusBtn');
             $(document).off('click', '.minusBtn');
             $(document).off('click', '.commercialMinusBtn');
-            $(document).on('click.floorPlans', '.plusBtn', function() {
+            $(document).on('click.floorPlans', '.plusBtn', function () {
                 const index = $('#residentialFloors .pdfloorPlans, #commercialFloors .commercialFloorPlan').length;
                 const areaType = $('#area_type').val() || 'apartment';
                 const $row = $(generateFloorPlanFields(areaType, index));
@@ -1398,18 +1392,18 @@ $(document).on('click', '.commercialPlusBtn', function () {
                 $('#residentialFloors').append($row);
                 reindexAllFloorPlans();
             });
-            $(document).on('click.floorPlans', '.commercialPlusBtn', function() {
+            $(document).on('click.floorPlans', '.commercialPlusBtn', function () {
                 const index = $('#residentialFloors .pdfloorPlans, #commercialFloors .commercialFloorPlan').length;
                 const $row = $(generateCommercialFloorFields(index));
                 addFloorPlanMetadata($row, index, 'commercial', '');
                 $('#commercialFloors').append($row);
                 reindexAllFloorPlans();
             });
-            $(document).on('click.floorPlans', '.minusBtn', function() {
+            $(document).on('click.floorPlans', '.minusBtn', function () {
                 $(this).closest('.pdfloorPlans').remove();
                 reindexAllFloorPlans();
             });
-            $(document).on('click.floorPlans', '.commercialMinusBtn', function() {
+            $(document).on('click.floorPlans', '.commercialMinusBtn', function () {
                 $(this).closest('.commercialFloorPlan').remove();
                 reindexAllFloorPlans();
             });
@@ -1420,47 +1414,47 @@ $(document).on('click', '.commercialPlusBtn', function () {
     <script>
         //function to re-index the FAQs index
         function reIndexFaqsData() {
-            $('.faqs .faqData').each(function(index) {
+            $('.faqs .faqData').each(function (index) {
                 // Update index in input names
-                $(this).find('[name^="faqs_data"]').each(function() {
+                $(this).find('[name^="faqs_data"]').each(function () {
                     let newName = $(this).attr('name').replace(/\[\d+\]/, `[${index}]`);
                     $(this).attr('name', newName);
                 });
             });
         }
         // plus button click event for the Faq data
-        $('.plusBtnFAQ').click(function() {
+        $('.plusBtnFAQ').click(function () {
             let currentIndex = $('.faqs .faqData').length; // Get the current number of floor plans
 
             let html = `<div class="col-sm-12 col-lg-12 mt-2 faqData" style="padding:0 30px">
-                        <div class="row pt-5 pb-5" style="background:#1b577733">
+                            <div class="row pt-5 pb-5" style="background:#1b577733">
 
-                            <div class="col-6">
-                                <label for="question">Question:</label>
-                                <input name="faqs_data[${currentIndex}][question]" type="text" class="form-control" required>
+                                <div class="col-6">
+                                    <label for="question">Question:</label>
+                                    <input name="faqs_data[${currentIndex}][question]" type="text" class="form-control" required>
+                                </div>
+                                <div class="col-6">
+                                    <label for="answer">Answer:</label>
+                                    <input name="faqs_data[${currentIndex}][answer]" type="text" class="form-control" required>
+                                </div>
                             </div>
-                            <div class="col-6">
-                                <label for="answer">Answer:</label>
-                                <input name="faqs_data[${currentIndex}][answer]" type="text" class="form-control" required>
-                            </div>
-                        </div>
-                        <span class="bg-danger minusBtnFAQ">
-                            <i class="fa fa-minus"></i>
-                        </span>
-                    </div>`;
+                            <span class="bg-danger minusBtnFAQ">
+                                <i class="fa fa-minus"></i>
+                            </span>
+                        </div>`;
             $('.faqs').append(html);
             reIndexFaqsData();
         });
-        $(document).on('click', '.minusBtnFAQ', function() {
+        $(document).on('click', '.minusBtnFAQ', function () {
             $(this).closest('.faqData').remove();
             reIndexFaqsData();
         });
 
-        $('#openModalBtn').click(function() {
+        $('#openModalBtn').click(function () {
             $('#myModal').modal('show');
         });
 
-        $('#aminityBtn').on('click', function(e) {
+        $('#aminityBtn').on('click', function (e) {
             e.preventDefault(); // Prevent the default button behavior
 
             // Get the form element
@@ -1474,11 +1468,11 @@ $(document).on('click', '.commercialPlusBtn', function () {
                 data: formData,
                 contentType: false,
                 processData: false,
-                success: function(response) {
+                success: function (response) {
                     form.reset();
                     $('#response').html('<p>' + response.message + '</p>'); // Handle success response
                 },
-                error: function(xhr) {
+                error: function (xhr) {
                     var errors = xhr.responseJSON.errors;
                     var errorMessage = '';
                     for (var key in errors) {
@@ -1489,7 +1483,7 @@ $(document).on('click', '.commercialPlusBtn', function () {
                 }
             });
         });
-        $('#developerBtn').on('click', function(e) {
+        $('#developerBtn').on('click', function (e) {
             e.preventDefault(); // Prevent the default button behavior
 
             // Get the form element
@@ -1503,11 +1497,11 @@ $(document).on('click', '.commercialPlusBtn', function () {
                 data: formData,
                 contentType: false,
                 processData: false,
-                success: function(response) {
+                success: function (response) {
                     form.reset();
                     $('#response').html('<p>' + response.message + '</p>'); // Handle success response
                 },
-                error: function(xhr) {
+                error: function (xhr) {
                     var errors = xhr.responseJSON.errors;
                     var errorMessage = '';
                     for (var key in errors) {
@@ -1521,12 +1515,12 @@ $(document).on('click', '.commercialPlusBtn', function () {
     </script>
     <script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
 
             // Function to reindex all sqft price rows
             function reIndexSqftPriceData() {
-                $('.sqftPrice .sqftPriceData').each(function(index) {
-                    $(this).find('[name^="sqft_price"]').each(function() {
+                $('.sqftPrice .sqftPriceData').each(function (index) {
+                    $(this).find('[name^="sqft_price"]').each(function () {
                         let name = $(this).attr('name');
                         // Replace the index number inside sqft_price[0]
                         let updatedName = name.replace(/sqft_price\[\d+\]/, `sqft_price[${index}]`);
@@ -1536,33 +1530,33 @@ $(document).on('click', '.commercialPlusBtn', function () {
             }
 
             // Plus button click event for adding a new sqft price row
-            $(document).on('click', '.sqftPricePlusBtn', function() {
+            $(document).on('click', '.sqftPricePlusBtn', function () {
                 let currentIndex = $('.sqftPrice .sqftPriceData').length;
 
                 let html = `
-            <div class="col-sm-6 col-lg-6 mt-2 sqftPriceData" style="padding:0 30px">
-                <div class="row p-2" style="background:#1b577733">
-                    <div class="col-6">
-                        <label>Applied From:</label>
-                        <input name="sqft_price[${currentIndex}][applied_from]" type="date" class="form-control" required>
+                <div class="col-sm-6 col-lg-6 mt-2 sqftPriceData" style="padding:0 30px">
+                    <div class="row p-2" style="background:#1b577733">
+                        <div class="col-6">
+                            <label>Applied From:</label>
+                            <input name="sqft_price[${currentIndex}][applied_from]" type="date" class="form-control" required>
+                        </div>
+                        <div class="col-6">
+                            <label>Price per Sqft:</label>
+                            <input name="sqft_price[${currentIndex}][value]" type="text" class="form-control" placeholder="Enter price per sqft" required>
+                        </div>
                     </div>
-                    <div class="col-6">
-                        <label>Price per Sqft:</label>
-                        <input name="sqft_price[${currentIndex}][value]" type="text" class="form-control" placeholder="Enter price per sqft" required>
-                    </div>
+                    <span class="bg-danger sqftPriceMinusBtn" style="cursor:pointer">
+                        <i class="fa fa-minus"></i>
+                    </span>
                 </div>
-                <span class="bg-danger sqftPriceMinusBtn" style="cursor:pointer">
-                    <i class="fa fa-minus"></i>
-                </span>
-            </div>
-        `;
+            `;
 
                 $('.sqftPrice').append(html);
                 reIndexSqftPriceData(); // ensure all names are sequential
             });
 
             // Minus button click event for removing a row
-            $(document).on('click', '.sqftPriceMinusBtn', function() {
+            $(document).on('click', '.sqftPriceMinusBtn', function () {
                 $(this).closest('.sqftPriceData').remove();
                 reIndexSqftPriceData(); // reindex after deletion
             });
@@ -1572,48 +1566,48 @@ $(document).on('click', '.commercialPlusBtn', function () {
     <script>
         //function to re-index the rera index
         function reIndexReraData() {
-            $('.rera .reraData').each(function(index) {
+            $('.rera .reraData').each(function (index) {
                 // Update index in input names
-                $(this).find('[name^="rera_data"]').each(function() {
+                $(this).find('[name^="rera_data"]').each(function () {
                     let newName = $(this).attr('name').replace(/\[\d+\]/, `[${index}]`);
                     $(this).attr('name', newName);
                 });
             });
         }
         // plus button click event for the Faq data
-        $('.plusBtnRera').click(function() {
+        $('.plusBtnRera').click(function () {
             let currentIndex = $('.rera .reraData').length; // Get the current number of floor plans
 
             let html = `<div class="col-sm-12 col-lg-12 mt-2 reraData" style="padding:0 30px">
-                        <div class="row pt-5 pb-5" style="background:#1b577733">
+                            <div class="row pt-5 pb-5" style="background:#1b577733">
 
-                            <div class="col-4">
-                                <label for="phase">Phase:</label>
-                                <input name="rera_data[${currentIndex}][phase]" type="text" class="form-control" >
+                                <div class="col-4">
+                                    <label for="phase">Phase:</label>
+                                    <input name="rera_data[${currentIndex}][phase]" type="text" class="form-control" >
+                                </div>
+                                <div class="col-4">
+                                    <label for="rera_no">Rera Number:</label>
+                                    <input name="rera_data[${currentIndex}][rera_no]" type="text" class="form-control" >
+                                </div>
+                                <div class="col-4">
+                                    <label for="qr_image">Image:</label>
+                                    <input name="rera_data[${currentIndex}][qr_image]" type="file" class="form-control" >
+                                </div>
                             </div>
-                            <div class="col-4">
-                                <label for="rera_no">Rera Number:</label>
-                                <input name="rera_data[${currentIndex}][rera_no]" type="text" class="form-control" >
-                            </div>
-							<div class="col-4">
-								<label for="qr_image">Image:</label>
-								<input name="rera_data[${currentIndex}][qr_image]" type="file" class="form-control" >
-							</div>
-                        </div>
-                        <span class="bg-danger minusBtnRera">
-                            <i class="fa fa-minus"></i>
-                        </span>
-                    </div>`;
+                            <span class="bg-danger minusBtnRera">
+                                <i class="fa fa-minus"></i>
+                            </span>
+                        </div>`;
             $('.rera').append(html);
             reIndexReraData();
         });
-        $(document).on('click', '.minusBtnRera', function() {
+        $(document).on('click', '.minusBtnRera', function () {
             $(this).closest('.reraData').remove();
             reIndexReraData();
         });
     </script>
     <script>
-        (function() {
+        (function () {
             const importInput = document.querySelector('#docImportInput');
             const statusBox = document.querySelector('#docImportStatus');
 
@@ -1644,13 +1638,13 @@ $(document).on('click', '.commercialPlusBtn', function () {
             };
 
             const normalizedHeadingLookup = {};
-            Object.keys(headingMap).forEach(function(key) {
-                headingMap[key].forEach(function(variant) {
+            Object.keys(headingMap).forEach(function (key) {
+                headingMap[key].forEach(function (variant) {
                     normalizedHeadingLookup[normalizeHeading(variant)] = key;
                 });
             });
 
-            importInput.addEventListener('change', async function(event) {
+            importInput.addEventListener('change', async function (event) {
                 const file = event.target.files && event.target.files[0];
                 if (!file) {
                     return;
@@ -1771,7 +1765,7 @@ $(document).on('click', '.commercialPlusBtn', function () {
                         cleaned;
                 }
 
-                Object.keys(sections).forEach(function(key) {
+                Object.keys(sections).forEach(function (key) {
                     sections[key] = cleanText(sections[key]);
                 });
 
@@ -1796,7 +1790,7 @@ $(document).on('click', '.commercialPlusBtn', function () {
                 }
 
                 if (currentAttempt < maxAttempts) {
-                    setTimeout(function() {
+                    setTimeout(function () {
                         applySummernoteValue(textarea, value, currentAttempt + 1);
                     }, 120);
                 }
@@ -1847,11 +1841,11 @@ $(document).on('click', '.commercialPlusBtn', function () {
                     return;
                 }
 
-                const normalizedTokens = tokens.map(function(token) {
+                const normalizedTokens = tokens.map(function (token) {
                     return normalizeHeading(token);
                 });
 
-                Array.from(select.options).forEach(function(option) {
+                Array.from(select.options).forEach(function (option) {
                     const optionToken = normalizeHeading(option.textContent || option.value);
                     option.selected = normalizedTokens.includes(optionToken);
                 });
@@ -1895,12 +1889,12 @@ $(document).on('click', '.commercialPlusBtn', function () {
                 }
 
                 const matches = source.match(/(?:inr|rs\.?|\u20b9)?\s*\d+(?:[.,]\d+)?\s*(?:cr|crore|lakh|lac|k)?/g) ||
-                [];
+                    [];
                 const numbers = matches
-                    .map(function(item) {
+                    .map(function (item) {
                         return toAbsoluteNumber(item);
                     })
-                    .filter(function(num) {
+                    .filter(function (num) {
                         return Number.isFinite(num) && num > 0;
                     });
 
@@ -1918,7 +1912,7 @@ $(document).on('click', '.commercialPlusBtn', function () {
                     };
                 }
 
-                numbers.sort(function(a, b) {
+                numbers.sort(function (a, b) {
                     return a - b;
                 });
                 return {
@@ -1948,7 +1942,7 @@ $(document).on('click', '.commercialPlusBtn', function () {
             function parseCommaList(value) {
                 return String(value || '')
                     .split(/[,|\n]+/)
-                    .map(function(item) {
+                    .map(function (item) {
                         return cleanLine(item);
                     })
                     .filter(Boolean);
@@ -1957,7 +1951,7 @@ $(document).on('click', '.commercialPlusBtn', function () {
             function parseBhkTypes(value) {
                 const list = parseCommaList(value);
                 const results = [];
-                list.forEach(function(item) {
+                list.forEach(function (item) {
                     const lowered = item.toLowerCase();
                     const bhkMatch = lowered.match(/(\d+)\s*bhk/);
                     if (bhkMatch) {
@@ -1982,14 +1976,14 @@ $(document).on('click', '.commercialPlusBtn', function () {
 
                 const chunks = text
                     .split(/\n\s*\n+/)
-                    .map(function(chunk) {
+                    .map(function (chunk) {
                         return cleanText(chunk);
                     })
                     .filter(Boolean);
 
                 const plans = [];
 
-                chunks.forEach(function(chunk) {
+                chunks.forEach(function (chunk) {
                     const normalized = normalizeHeading(chunk);
                     const isPlot = normalized.includes('plot') || /length|width|total\s*area/i.test(chunk);
                     const plan = {
@@ -2061,7 +2055,7 @@ $(document).on('click', '.commercialPlusBtn', function () {
                     return;
                 }
 
-                const plotsCount = plans.filter(function(plan) {
+                const plotsCount = plans.filter(function (plan) {
                     return plan.type === 'plots';
                 }).length;
                 const targetType = plotsCount > plans.length / 2 ? 'plots' : 'apartment';
@@ -2093,7 +2087,7 @@ $(document).on('click', '.commercialPlusBtn', function () {
                 }
 
                 const rows = document.querySelectorAll('.floors .pdfloorPlans');
-                plans.forEach(function(plan, index) {
+                plans.forEach(function (plan, index) {
                     const row = rows[index];
                     if (!row) {
                         return;
@@ -2158,7 +2152,7 @@ $(document).on('click', '.commercialPlusBtn', function () {
 
                 const lines = text.split('\n').map(cleanLine).filter(Boolean);
                 let pendingQuestion = '';
-                lines.forEach(function(line) {
+                lines.forEach(function (line) {
                     if (!pendingQuestion && line.endsWith('?')) {
                         pendingQuestion = line;
                         return;
@@ -2195,7 +2189,7 @@ $(document).on('click', '.commercialPlusBtn', function () {
                 ensureFaqRows(pairs.length);
                 const rows = document.querySelectorAll('.faqs .faqData');
 
-                pairs.forEach(function(pair, index) {
+                pairs.forEach(function (pair, index) {
                     const questionInput = rows[index] ? rows[index].querySelector(
                         '[name^="faqs_data"][name$="[question]"]') : null;
                     const answerInput = rows[index] ? rows[index].querySelector(
