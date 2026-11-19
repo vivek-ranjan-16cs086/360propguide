@@ -30,7 +30,9 @@
                         <input data-label="Amenities" class="btn-check" type="checkbox" name="amenities[]" value="{{ $amenity->id }}"
                             id="amenity_{{ $amenity->id }}" {{ $isChecked ? 'checked' : '' }} required>
                         <label class="radio-btn me-3 mb-3" for="amenity_{{ $amenity->id }}">
-                            <img src="{{ 'https://www.360propguide.com/storage/' . $amenity->image }}" class="me-2 amenityImg" alt="{{ $amenity->name }}" />
+                            <img src="{{ 'https://www.360propguide.com/storage/' . $amenity->image }}"
+                                class="me-2 amenityImg" alt="{{ $amenity->name }}" loading="lazy"
+                                decoding="async" width="40" height="40" />
                             {{ $amenity->name }}
                         </label>
                         @endforeach

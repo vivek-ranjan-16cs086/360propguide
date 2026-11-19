@@ -16,7 +16,7 @@ pricing')
 
 @section('customCSS')
 <link rel="stylesheet"
-    href="{{ asset('frontend/css/listing.css') }}?v={{ @filemtime(public_path('frontend/css/listing.css')) ?: time() }}">
+    href="{{ versioned_asset('frontend/css/listing.css') }}">
 @endsection
 
 @section('content')
@@ -247,7 +247,7 @@ $resultCount = isset($projects) ? $projects->total() : 0;
 
             return '<article class="projects-grid__item">' +
                 '<a href="' + url + '" class="project-card" aria-label="View ' + name + '">' +
-                    '<div class="project-card__media"><img src="' + image + '" alt="' + name + ' - 360 PropGuide" loading="lazy">' +
+                    '<div class="project-card__media"><img src="' + image + '" alt="' + name + ' - 360 PropGuide" loading="lazy" decoding="async" width="640" height="480">' +
                         '<div class="project-card__badges"><div class="project-card__badge-left">' + status + '</div>' +
                             '<div class="project-card__badge-right">' + rera + '</div></div></div>' +
                     '<div class="project-card__body"><h3 class="project-card__title" title="' + name + '">' + name + '</h3>' +

@@ -5,7 +5,11 @@
             <!-- Left: Logo -->
             <div class="logo">
                 <a class="head-tag" href="{{ url('/') }}">
-                    <img src="{{ url('frontend/360logo.webp') }}" alt="360 PropGuide" width="250" height="100">
+                    <picture>
+                        <source srcset="{{ versioned_asset('frontend/360logo.webp') }}" type="image/webp">
+                        <img src="{{ versioned_asset('frontend/360logo.png') }}" alt="360 PropGuide"
+                            width="250" height="100" decoding="async">
+                    </picture>
                 </a>
             </div>
 
@@ -40,7 +44,8 @@
                         <input id="searchInput" type="text" class="form-control keyword text-black" placeholder="Search for projects"
                             style="box-shadow: none;">
                         <ul class="project-results"></ul>
-                        <button id="cancelSearch" class="btn btn-light close-btn ms-2">
+                        <button type="button" id="cancelSearch" class="btn btn-light close-btn ms-2" aria-label="Close search"
+                            style="color: #b42318;">
                             <i class="fa-solid fa-xmark"></i>
                         </button>
                     </div>
@@ -184,56 +189,6 @@
 </script>
 @endif
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const searchBtn = document.getElementById("searchBtn");
-        const searchBtnMobile = document.getElementById("searchBtnMobile");
-        const cancelSearch = document.getElementById("cancelSearch");
-        const searchDiv = document.getElementById("searchDiv");
-        const searchInput = document.getElementById("searchInput");
-        const navLinks = document.querySelector(".nav-links");
-
-        // ---------------- Open Search ----------------
-        const openSearch = (e) => {
-            e.preventDefault();
-            searchDiv.classList.add("active");
-            navLinks.classList.add("hide-links"); 
-
-
-            document.body.classList.add("search-open"); 
-
-            searchInput.focus({ preventScroll: true });
-        };
-
-        // ---------------- Close Search ----------------
-        const closeSearch = () => {
-            searchDiv.classList.remove("active");
-            navLinks.classList.remove("hide-links");
-
-
-            document.body.classList.remove("search-open");
-
-            searchInput.value = "";
-        };
-
-        if (searchBtn) searchBtn.addEventListener("click", openSearch);
-        if (searchBtnMobile) searchBtnMobile.addEventListener("click", openSearch);
-        if (cancelSearch) cancelSearch.addEventListener("click", closeSearch);
-
-        // prevent browser from scrolling while typing
-        searchInput.addEventListener('keydown', (e) => {
-            e.stopPropagation();      // stop scroll events bubbling
-        });
-        searchInput.addEventListener('input', (e) => { 
-            e.stopPropagation();
-        });
-
-    });
-
-    
-
-</script>
-
-<script>
 document.addEventListener("DOMContentLoaded", function () {
     const searchBtn = document.getElementById("searchBtn");
     const searchBtnMobile = document.getElementById("searchBtnMobile");
@@ -299,9 +254,7 @@ document.addEventListener("DOMContentLoaded", function () {
             closeSearch();
         }
     });
-
     searchInput.addEventListener("keydown", (e) => e.stopPropagation());
-    searchInput.addEventListener("input", (e) => e.stopPropagation());
 });
 </script>
 

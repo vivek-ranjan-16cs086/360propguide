@@ -1,11 +1,17 @@
 @extends('frontend.layouts.app')
-@section('skipAos', true)
+@section('usesSwiper', 'true')
+@section('lazySwiper', 'true')
 @section('title', "Best Real Estate Consultant in Noida — Buy, Sell, Invest")
 @section('description', "Trusted Real Estate Consultant in Noida & Delhi NCR. Buy, Sell or Invest in top residential &
 commercial projects. Expert guidance, home loans. Call Now!")
 @section('keywords', "360 PropGuide, Real Estate Services, Delhi NCR Properties, Real Estate, real estate company, noida
 property, real estate company in noida, property greater noida, property in greater noida west, property in gr noida")
 @section('priority')
+<link rel="preload" as="image" href="{{ versioned_asset('frontend/360location-mobile-poster.webp') }}"
+    media="(max-width: 767px)" fetchpriority="high">
+<link rel="preload" as="image" href="{{ versioned_asset('frontend/360location-desktop-poster.webp') }}"
+    media="(min-width: 768px)" fetchpriority="high">
+<link rel="preload" as="style" href="{{ versioned_asset('frontend/css/home.css') }}">
 @endSection
 @section('canonical', url()->current())
 @section('customCSS')
@@ -45,10 +51,11 @@ property, real estate company in noida, property greater noida, property in grea
 }
 </script>
 <link rel="stylesheet"
-    href="{{ url('frontend/css/home.css') }}?v={{ filemtime(public_path('frontend/css/home.css')) }}">
+    href="{{ versioned_asset('frontend/css/home.css') }}">
 @endSection
 
 @section('content')
+<noscript><style>.home-wrapper img[data-src] { display: none; }</style></noscript>
 <div class="home-wrapper">
 
     <!-- =========================================================================
@@ -58,18 +65,24 @@ property, real estate company in noida, property greater noida, property in grea
 
         <div class="hero-video">
             <picture id="heroPoster">
-                <source media="(max-width: 767px)" srcset="{{ url('frontend/360location-mobile-poster.webp') }}"
-                    width="390" height="693">
-                <img src="{{ url('frontend/360location-desktop-poster.webp') }}" loading="eager" fetchpriority="high"
+                <source media="(max-width: 767px)" type="image/webp"
+                    srcset="{{ versioned_asset('frontend/360location-mobile-poster.webp') }}" width="390" height="693">
+                <source type="image/webp" srcset="{{ versioned_asset('frontend/360location-desktop-poster.webp') }}"
+                    width="1280" height="720">
+                <img src="{{ versioned_asset('frontend/360location-desktop-poster.webp') }}" loading="eager" fetchpriority="high"
                     width="1280" height="720" alt="360 PropGuide properties in Delhi NCR"
                     style="width:100%;height:100%;object-fit:cover;display:block;">
             </picture>
-            <video id="myVideo" class="location-video" muted autoplay loop playsinline preload="none"
-                data-mobile-src="{{ url('frontend/360location-mobile-web.mp4') }}"
-                data-desktop-src="{{ url('frontend/360location-desktop-web.mp4') }}"
-                aria-label="360 PropGuide property location video">
+            <video id="myVideo" class="location-video" muted loop playsinline preload="none"
+                data-mobile-src="{{ versioned_asset('frontend/360location-mobile-web.mp4') }}"
+                data-desktop-src="{{ versioned_asset('frontend/360location-desktop-web.mp4') }}"
+                aria-hidden="true" tabindex="-1">
             </video>
         </div>
+        <button type="button" class="hero-video-play" id="heroVideoPlay" aria-controls="myVideo" hidden>
+            <i class="fa-solid fa-play" aria-hidden="true"></i>
+            <span>Play video</span>
+        </button>
 
         <div class="hero-atmosphere" aria-hidden="true">
             <span class="hero-orb hero-orb--one"></span>
@@ -315,8 +328,12 @@ property, real estate company in noida, property greater noida, property in grea
                                     </div>
 
                                     <div class="project-card__image-wrap">
-                                        <img src="{{env('APP_URL').'storage/'.$project->logo_image }}"
-                                            alt="{{ $project->project_name }}" loading="lazy" decoding="async">
+                                        <img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="
+                                            data-src="{{ env('APP_URL').'storage/'.$project->logo_image }}"
+                                            alt="{{ $project->project_name }}" loading="lazy" decoding="async"
+                                            width="640" height="480">
+                                        <noscript><img src="{{ env('APP_URL').'storage/'.$project->logo_image }}"
+                                            alt="{{ $project->project_name }}" width="640" height="480"></noscript>
                                     </div>
                                     <div class="projectDescp">
                                         <h3 class="title">{{ $project->project_name }}</h3>
@@ -492,7 +509,7 @@ property, real estate company in noida, property greater noida, property in grea
                             style="background: rgba(255,255,255,0.15); color: #ffffff; border-color: rgba(255,255,255,0.25);">
                             <i class="fa-solid fa-bolt text-warning"></i> For Property Owners & Landlords
                         </span>
-                        <h3>Want to Sell or Rent Your Property Faster?</h3>
+                        <h2>Want to Sell or Rent Your Property Faster?</h2>
                         <p>List your property on 360 PropGuide for free and connect directly with thousands of verified
                             home seekers and investors across Delhi NCR.</p>
                     </div>
@@ -510,19 +527,19 @@ property, real estate company in noida, property greater noida, property in grea
                     <div class="post-property-steps-grid">
                         <div class="post-property-step-card">
                             <div class="step-badge">1</div>
-                            <h4 class="step-card-title">Create Listing</h4>
+                            <h3 class="step-card-title">Create Listing</h3>
                             <p class="step-card-desc">Add property type, locality, floor plan, and expected pricing in 2
                                 minutes.</p>
                         </div>
                         <div class="post-property-step-card">
                             <div class="step-badge">2</div>
-                            <h4 class="step-card-title">Add Photos</h4>
+                            <h3 class="step-card-title">Add Photos</h3>
                             <p class="step-card-desc">High quality photos attract 5x more genuine buyer views and
                                 responses.</p>
                         </div>
                         <div class="post-property-step-card">
                             <div class="step-badge">3</div>
-                            <h4 class="step-card-title">Get Inquiries</h4>
+                            <h3 class="step-card-title">Get Inquiries</h3>
                             <p class="step-card-desc">Receive verified phone & WhatsApp inquiries directly without
                                 intermediaries.</p>
                         </div>
@@ -554,9 +571,12 @@ property, real estate company in noida, property greater noida, property in grea
                                 rel="noopener noreferrer" class="video-card-link">
                                 <div class="video-card">
                                     <div class="video-card__thumbnail">
-                                        <img src="https://i.ytimg.com/vi/{{ $video->video_id }}/mqdefault.jpg"
+                                        <img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="
+                                            data-src="https://i.ytimg.com/vi/{{ $video->video_id }}/mqdefault.jpg"
                                             class="video-card__img" alt="{{ $video->title }}" loading="lazy"
-                                            decoding="async">
+                                            decoding="async" width="320" height="180">
+                                        <noscript><img src="https://i.ytimg.com/vi/{{ $video->video_id }}/mqdefault.jpg"
+                                            class="video-card__img" alt="{{ $video->title }}" width="320" height="180"></noscript>
                                         <div class="video-card__duration">{{ formatDuration($video->duration) }}</div>
                                         <div class="video-card__play"><i class="fa-solid fa-play"></i></div>
                                     </div>
@@ -600,8 +620,12 @@ property, real estate company in noida, property greater noida, property in grea
                                 rel="noopener noreferrer" class="video-card-link">
                                 <div class="video-card">
                                     <div class="video-card__thumbnail">
-                                        <img src="{{ $short->thumbnail }}" class="video-card__img"
-                                            alt="{{ $short->title }}" loading="lazy" decoding="async">
+                                        <img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="
+                                            data-src="{{ $short->thumbnail }}" class="video-card__img"
+                                            alt="{{ $short->title }}" loading="lazy" decoding="async"
+                                            width="360" height="640">
+                                        <noscript><img src="{{ $short->thumbnail }}" class="video-card__img"
+                                            alt="{{ $short->title }}" width="360" height="640"></noscript>
                                         <span class="shorts-tag"><i class="fa-brands fa-youtube"></i> Shorts</span>
                                         <div class="video-card__duration">{{ formatDuration($short->duration) }}</div>
                                         <div class="video-card__play"><i class="fa-solid fa-play"></i></div>
@@ -644,7 +668,7 @@ property, real estate company in noida, property greater noida, property in grea
                         <div class="pillar-icon">
                             <i class="fa-solid fa-file-shield"></i>
                         </div>
-                        <h4 class="pillar-title">100% RERA Verified</h4>
+                        <h3 class="pillar-title">100% RERA Verified</h3>
                         <p class="pillar-desc">Every listing is thoroughly verified for RERA compliance, title clarity,
                             and builder track records before being featured.</p>
                     </div>
@@ -653,7 +677,7 @@ property, real estate company in noida, property greater noida, property in grea
                         <div class="pillar-icon">
                             <i class="fa-solid fa-percent"></i>
                         </div>
-                        <h4 class="pillar-title">Zero Brokerage on Launches</h4>
+                        <h3 class="pillar-title">Zero Brokerage on Launches</h3>
                         <p class="pillar-desc">Enjoy transparent, direct-from-developer pricing with absolutely zero
                             brokerage fees on new residential & commercial bookings.</p>
                     </div>
@@ -662,7 +686,7 @@ property, real estate company in noida, property greater noida, property in grea
                         <div class="pillar-icon">
                             <i class="fa-solid fa-user-tie"></i>
                         </div>
-                        <h4 class="pillar-title">Dedicated Property Advisor</h4>
+                        <h3 class="pillar-title">Dedicated Property Advisor</h3>
                         <p class="pillar-desc">Receive unbiased, data-backed guidance tailored specifically to your
                             family's budget, lifestyle needs, and ROI targets.</p>
                     </div>
@@ -671,7 +695,7 @@ property, real estate company in noida, property greater noida, property in grea
                         <div class="pillar-icon">
                             <i class="fa-solid fa-key"></i>
                         </div>
-                        <h4 class="pillar-title">End-to-End Support</h4>
+                        <h3 class="pillar-title">End-to-End Support</h3>
                         <p class="pillar-desc">From customized site visits and competitive home loan approvals to
                             legal registry and key handover, we guide you at every step.</p>
                     </div>
@@ -702,7 +726,7 @@ property, real estate company in noida, property greater noida, property in grea
                         <div class="service-icon-box">
                             <i class="fa-solid fa-handshake"></i>
                         </div>
-                        <h4 class="service-card-title">Real Estate Consultancy</h4>
+                        <h3 class="service-card-title">Real Estate Consultancy</h3>
                         <p class="service-card-desc">Data-backed advisory across Noida, Greater Noida, and Delhi NCR for
                             buying, selling, or leasing properties within your budget.</p>
                     </div>
@@ -713,7 +737,7 @@ property, real estate company in noida, property greater noida, property in grea
                         <div class="service-icon-box">
                             <i class="fa-solid fa-hand-holding-dollar"></i>
                         </div>
-                        <h4 class="service-card-title">Home Loan Assistance</h4>
+                        <h3 class="service-card-title">Home Loan Assistance</h3>
                         <p class="service-card-desc">Secure competitive interest rates and seamless doorstep approvals
                             through our partnerships with leading banks across India.</p>
                     </div>
@@ -724,7 +748,7 @@ property, real estate company in noida, property greater noida, property in grea
                         <div class="service-icon-box">
                             <i class="fa-solid fa-pen-ruler"></i>
                         </div>
-                        <h4 class="service-card-title">Interior Collaborations</h4>
+                        <h3 class="service-card-title">Interior Collaborations</h3>
                         <p class="service-card-desc">Access vetted architects and interior designers to transform your
                             new apartment or villa into a functional, luxury home.</p>
                     </div>
@@ -735,7 +759,7 @@ property, real estate company in noida, property greater noida, property in grea
                         <div class="service-icon-box">
                             <i class="fa-solid fa-scale-balanced"></i>
                         </div>
-                        <h4 class="service-card-title">Legal & Documentation</h4>
+                        <h3 class="service-card-title">Legal & Documentation</h3>
                         <p class="service-card-desc">Complete builder agreement verification, title searches, and
                             registry assistance to keep your property investment safe.</p>
                     </div>
@@ -746,7 +770,7 @@ property, real estate company in noida, property greater noida, property in grea
                         <div class="service-icon-box">
                             <i class="fa-solid fa-person-digging"></i>
                         </div>
-                        <h4 class="service-card-title">Turnkey Construction</h4>
+                        <h3 class="service-card-title">Turnkey Construction</h3>
                         <p class="service-card-desc">High-standard residential & commercial construction execution from
                             structural design to timely handover.</p>
                     </div>
@@ -756,7 +780,7 @@ property, real estate company in noida, property greater noida, property in grea
                 <div class="dev-services-heading">
                     <div class="section-header-wrap">
                         <span class="section-badge"><i class="fa-solid fa-city"></i> Developer Solutions</span>
-                        <h2 class="section-title">Developer-Focused Services</h2>
+                        <h3 class="section-title">Developer-Focused Services</h3>
                         <p class="section-subtitle">Strategic all-in-one sales, marketing, and planning management for
                             prime real estate projects.</p>
                     </div>
@@ -830,8 +854,12 @@ property, real estate company in noida, property greater noida, property in grea
                         <a href="{{ route('blogs.details', $blog->slug) }}" class="project-card-link">
                             <div class="blog-card">
                                 <div class="blog-card__img-wrap">
-                                    <img src="{{ env('APP_URL').'storage/' . $blog->featured_image }}"
-                                        alt="{{ $blog->title }}" loading="lazy" decoding="async">
+                                    <img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="
+                                        data-src="{{ env('APP_URL').'storage/' . $blog->featured_image }}"
+                                        alt="{{ $blog->title }}" loading="lazy" decoding="async"
+                                        width="640" height="480">
+                                    <noscript><img src="{{ env('APP_URL').'storage/' . $blog->featured_image }}"
+                                        alt="{{ $blog->title }}" width="640" height="480"></noscript>
                                 </div>
                                 <div class="projectDescp">
                                     <h3 class="title">{{ $blog->title }}</h3>
@@ -886,12 +914,15 @@ property, real estate company in noida, property greater noida, property in grea
                         <div class="social-feed-card">
                             <div class="social-feed-header">
                                 <div class="social-author">
-                                    <img src="{{ url('frontend/360logo.webp') }}" class="social-avatar"
-                                        alt="360 PropGuide">
+                                    <img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="
+                                        data-src="{{ versioned_asset('frontend/360logo.webp') }}" class="social-avatar"
+                                        alt="360 PropGuide" width="48" height="48" loading="lazy" decoding="async">
+                                    <noscript><img src="{{ versioned_asset('frontend/360logo.webp') }}"
+                                        class="social-avatar" alt="360 PropGuide" width="48" height="48"></noscript>
                                     <div class="social-author-info">
-                                        <h4 class="social-author-name">
+                                        <h3 class="social-author-name">
                                             360 PropGuide <i class="fa-solid fa-circle-check text-primary"></i>
-                                        </h4>
+                                        </h3>
                                         <span class="social-post-time">
                                             <i class="fa-brands fa-facebook text-primary me-1"></i>
                                             {{ !empty($feed['created_time']) ? date('d M Y', strtotime($feed['created_time'])) : 'Recent Post' }}
@@ -908,9 +939,12 @@ property, real estate company in noida, property greater noida, property in grea
                             <a href="{{ $feed['permalink_url'] ?? '#' }}" target="_blank" rel="noopener noreferrer"
                                 class="social-img-link">
                                 <div class="social-feed-img-wrap">
-                                    <img src="{{ $feed['full_picture'] }}" alt="360 PropGuide Social Update"
+                                    <img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="
+                                        data-src="{{ $feed['full_picture'] }}" alt="360 PropGuide Social Update"
                                         loading="lazy" decoding="async" width="640" height="480"
-                                        onerror="this.onerror=null;this.src='{{ url('frontend/360logo.webp') }}';this.classList.add('is-fallback');">
+                                        onerror="this.onerror=null;this.src='{{ versioned_asset('frontend/360logo.webp') }}';this.classList.add('is-fallback');">
+                                    <noscript><img src="{{ $feed['full_picture'] }}"
+                                        alt="360 PropGuide Social Update" width="640" height="480"></noscript>
                                 </div>
                             </a>
                             @endif
@@ -952,8 +986,8 @@ property, real estate company in noida, property greater noida, property in grea
                         style="background: rgba(255,255,255,0.15); color: #ffffff; border-color: rgba(255,255,255,0.25);">
                         <i class="fa-solid fa-headset text-warning"></i> Need Expert Advice?
                     </span>
-                    <h3 class="consult-headline">Looking for the Best Property in Noida, Delhi NCR? Talk to Our Experts
-                    </h3>
+                    <h2 class="consult-headline">Looking for the Best Property in Noida, Delhi NCR? Talk to Our Experts
+                    </h2>
                     <p class="consult-subtext">Confused which property suits your budget? Get free, unbiased advice and
                         personalized project
                         shortlists from our experts.</p>
@@ -980,5 +1014,7 @@ property, real estate company in noida, property greater noida, property in grea
 @endSection
 
 @section('customJS')
-<script defer src="{{ asset('frontend/js/home.js') }}?v={{ filemtime(public_path('frontend/js/home.js')) }}"></script>
+<script defer src="{{ versioned_asset('frontend/js/home.js') }}"
+    data-swiper-src="{{ versioned_asset('frontend/libraries/swiper.js') }}"
+    data-swiper-css="{{ versioned_asset('frontend/libraries/swiper.css') }}"></script>
 @endSection

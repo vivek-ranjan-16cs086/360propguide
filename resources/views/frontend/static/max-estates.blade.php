@@ -5,7 +5,7 @@
 
 @section('canonical', url()->current())
 @section('customCSS')
-<link rel="stylesheet" href="{{asset('frontend/css/static/max.css')}}">
+<link rel="stylesheet" href="{{ versioned_asset('frontend/css/static/max.css') }}">
 @endsection
 @section('content')
 <!-- HERO SECTION -->
@@ -179,17 +179,20 @@
                 <div class="estate-gallery">
                     <div class="estate-gallery__left">
                         <div class="estate-shot">
-                            <img src="{{asset('frontend/Static-images/Gallery/122.jpg') }}" alt="">
+                            <img src="{{versioned_asset('frontend/Static-images/Gallery/122.jpg') }}" alt=""
+                                loading="lazy" decoding="async" width="800" height="600">
                         </div>
 
                         <div class="estate-shot">
-                            <img src="{{ asset('frontend/Static-images/Gallery/123.jpg') }}" alt="">
+                            <img src="{{ versioned_asset('frontend/Static-images/Gallery/123.jpg') }}" alt=""
+                                loading="lazy" decoding="async" width="800" height="600">
                         </div>
                     </div>
 
                     <div class="estate-gallery__right">
                         <div class="estate-shot estate-shot--tall">
-                            <img src="{{ asset('frontend/Static-images/Gallery/124.jpg') }}" alt="">
+                            <img src="{{ versioned_asset('frontend/Static-images/Gallery/124.jpg') }}" alt=""
+                                loading="lazy" decoding="async" width="800" height="600">
                         </div>
                     </div>
                 </div>
@@ -275,31 +278,38 @@
             <div class="col-lg-7">
                 <div class="amenities-grid">
                     <div class="amenity-item">
-                        <img src="{{ asset('frontend/Static-images/icon/badminton-court.png') }}" alt="">
+                        <img src="{{ versioned_asset('frontend/Static-images/icon/badminton-court.png') }}" alt=""
+                            loading="lazy" decoding="async" width="64" height="64">
                         <span>BADMINTON COURT</span>
                     </div>
                     <div class="amenity-item">
-                        <img src="{{ asset('frontend/Static-images/icon/imgi_8_Clubhouse.png') }}" alt="">
+                        <img src="{{ versioned_asset('frontend/Static-images/icon/imgi_8_Clubhouse.png') }}" alt=""
+                            loading="lazy" decoding="async" width="64" height="64">
                         <span>PARKING</span>
                     </div>
                     <div class="amenity-item">
-                        <img src="{{ asset('frontend/Static-images/icon/imgi_9_parking.png') }}" alt="">
+                        <img src="{{ versioned_asset('frontend/Static-images/icon/imgi_9_parking.png') }}" alt=""
+                            loading="lazy" decoding="async" width="64" height="64">
                         <span>JOGGING TRACK</span>
                     </div>
                     <div class="amenity-item">
-                        <img src="{{ asset('frontend/Static-images/icon/imgi_10_Kids-play-area.png') }}" alt="">
+                        <img src="{{ versioned_asset('frontend/Static-images/icon/imgi_10_Kids-play-area.png') }}" alt=""
+                            loading="lazy" decoding="async" width="64" height="64">
                         <span>CLUBHOUSE</span>
                     </div>
                     <div class="amenity-item">
-                        <img src="{{ asset('frontend/Static-images/icon/imgi_11_Pool.png') }}" alt="">
+                        <img src="{{ versioned_asset('frontend/Static-images/icon/imgi_11_Pool.png') }}" alt=""
+                            loading="lazy" decoding="async" width="64" height="64">
                         <span>KID’S PLAY AREA</span>
                     </div>
                     <div class="amenity-item">
-                        <img src="{{ asset('frontend/Static-images/icon/imgi_12_jogging.png') }}" alt="">
+                        <img src="{{ versioned_asset('frontend/Static-images/icon/imgi_12_jogging.png') }}" alt=""
+                            loading="lazy" decoding="async" width="64" height="64">
                         <span>YOGA LAWN</span>
                     </div>
                     <div class="amenity-item">
-                        <img src="{{ asset('frontend/Static-images/icon/imgi_13_yoga-lawn.png') }}" alt="">
+                        <img src="{{ versioned_asset('frontend/Static-images/icon/imgi_13_yoga-lawn.png') }}" alt=""
+                            loading="lazy" decoding="async" width="64" height="64">
                         <span>SWIMMING POOL</span>
                     </div>
                 </div>
@@ -332,7 +342,8 @@
 
             <div class="col-12 col-lg-6">
                 <div class="highlight-image">
-                    <img src="{{ asset('frontend/Static-images/max-floorplan/siteplan.jpeg') }}" class="img-fluid" alt="siteplan">
+                    <img src="{{ versioned_asset('frontend/Static-images/max-floorplan/siteplan.jpeg') }}" class="img-fluid"
+                        alt="siteplan" loading="lazy" decoding="async" width="1200" height="800">
                 </div>
             </div>
 
@@ -354,7 +365,8 @@
 
             <div class="col-lg-4 col-md-6 mb-2">
                 <div class="floor-card">
-                    <img src="{{asset('frontend/Static-images/max-floorplan/4 BHK 3754.jpg.jpeg')}}" class="img-fluid" alt="Master Plan">
+                    <img src="{{versioned_asset('frontend/Static-images/max-floorplan/4 BHK 3754.jpg.jpeg')}}" class="img-fluid"
+                        alt="Master Plan" loading="lazy" decoding="async" width="1200" height="800">
                     <div class="floor-overlay">
                         <!--<h4>4 BHK 3754</h4>-->
                         <!--<button type="button" class="btn btn-light estate-intro__btn" data-bs-toggle="modal" data-bs-target="#contactModal">-->
@@ -367,7 +379,8 @@
 
             <div class="col-lg-4 col-md-6 mb-2">
                 <div class="floor-card">
-                    <img src="{{asset('frontend/Static-images/max-floorplan/4 BHK FL.jpg.jpeg')}}" class="img-fluid" alt="4 BHK">
+                    <img src="{{versioned_asset('frontend/Static-images/max-floorplan/4 BHK FL.jpg.jpeg')}}" class="img-fluid"
+                        alt="4 BHK" loading="lazy" decoding="async" width="1200" height="800">
                     <div class="floor-overlay">
                         <!--<h4>4 BHK</h4>-->
                         <!--<button type="button" class="btn btn-light estate-intro__btn" data-bs-toggle="modal" data-bs-target="#contactModal">-->
@@ -380,7 +393,8 @@
 
             <div class="col-lg-4 col-md-6 mx-md-auto">
                 <div class="floor-card">
-                    <img src="{{asset('frontend/Static-images/max-floorplan/Duplex 6339.jpg.jpeg')}}" class="img-fluid" alt="Penthouse">
+                    <img src="{{versioned_asset('frontend/Static-images/max-floorplan/Duplex 6339.jpg.jpeg')}}" class="img-fluid"
+                        alt="Penthouse" loading="lazy" decoding="async" width="1200" height="800">
                     <div class="floor-overlay">
                         <!--<h4>Duplex 6339</h4>-->
                         <!--<button type="button" class="btn btn-light estate-intro__btn" data-bs-toggle="modal" data-bs-target="#contactModal">-->
@@ -396,7 +410,8 @@
 
             <div class="col-lg-4 col-md-6 mb-2">
                 <div class="floor-card">
-                    <img src="{{asset('frontend/Static-images/max-floorplan/Skyvilla 9821.jpg.jpeg')}}" class="img-fluid" alt="Master Plan">
+                    <img src="{{versioned_asset('frontend/Static-images/max-floorplan/Skyvilla 9821.jpg.jpeg')}}" class="img-fluid"
+                        alt="Master Plan" loading="lazy" decoding="async" width="1200" height="800">
                     <div class="floor-overlay">
                         <!--<h4>Skyvilla 9821</h4>-->
                         <!--<button type="button" class="btn btn-light estate-intro__btn" data-bs-toggle="modal" data-bs-target="#contactModal">-->
@@ -409,7 +424,8 @@
 
             <div class="col-lg-4 col-md-6 mb-2">
                 <div class="floor-card">
-                    <img src="{{asset('frontend/Static-images/max-floorplan/Townhouse 7008.jpg.jpeg')}}" class="img-fluid" alt="4 BHK">
+                    <img src="{{versioned_asset('frontend/Static-images/max-floorplan/Townhouse 7008.jpg.jpeg')}}" class="img-fluid"
+                        alt="4 BHK" loading="lazy" decoding="async" width="1200" height="800">
                     <div class="floor-overlay">
                         <!--<h4>Townhouse 7008</h4>-->
                         <!--<button type="button" class="btn btn-light estate-intro__btn" data-bs-toggle="modal" data-bs-target="#contactModal">-->
@@ -422,7 +438,8 @@
 
             <div class="col-lg-4 col-md-6 mx-md-auto">
                 <div class="floor-card">
-                    <img src="{{asset('frontend/Static-images/max-floorplan/Townhouse 7800.jpg.jpeg')}}" class="img-fluid" alt="Penthouse">
+                    <img src="{{versioned_asset('frontend/Static-images/max-floorplan/Townhouse 7800.jpg.jpeg')}}" class="img-fluid"
+                        alt="Penthouse" loading="lazy" decoding="async" width="1200" height="800">
                     <div class="floor-overlay">
                         <!--<h4>Townhouse 7800</h4>-->
                         <!--<button type="button" class="btn btn-light estate-intro__btn" data-bs-toggle="modal" data-bs-target="#contactModal">-->
@@ -442,7 +459,8 @@
         <div class="row g-0">
             <div class="col-12 px-0">
                 <div class="image-box">
-                    <img src="{{asset('frontend/Static-images/imgi_30_visit.jpg')}}" alt="Schedule Visit">
+                    <img src="{{versioned_asset('frontend/Static-images/imgi_30_visit.jpg')}}" alt="Schedule Visit"
+                        loading="lazy" decoding="async" width="1200" height="500">
 
                     <div class="text-overlay">
                         <h1 class="text-uppercase">Schedule A Visit</h1>
@@ -483,7 +501,8 @@
 
             <div class="col-12 col-lg-6">
                 <div class="highlight-image">
-                    <img src="{{asset('frontend/Static-images/imgi_6_highlight-img.jpg')}}" class="img-fluid" alt="Highlights">
+                    <img src="{{versioned_asset('frontend/Static-images/imgi_6_highlight-img.jpg')}}" class="img-fluid"
+                        alt="Highlights" loading="lazy" decoding="async" width="800" height="600">
                 </div>
             </div>
 
@@ -545,7 +564,7 @@
 
                 <!-- LEFT IMAGE -->
                 <div class="col-lg-6 d-none d-lg-block fp-bs-left">
-                    <img src="{{asset('frontend/Static-images/imgi_6_highlight-img.jpg')}}"
+                    <img src="{{versioned_asset('frontend/Static-images/imgi_6_highlight-img.jpg')}}"
                         alt="Max Estates 105">
                 </div>
 

@@ -31,7 +31,7 @@
         "name" => "360propguide",
         "logo" => [
             "@type" => "ImageObject",
-            "url" => url('frontend/360logo.png')
+            "url" => versioned_asset('frontend/360logo.png')
         ]
     ],
     "datePublished" => $blogs->created_at->toDateString(),
@@ -41,7 +41,7 @@
 @endpush
 
 @section('customCSS')
-<link rel="stylesheet" href="{{asset('frontend/css/blogs.css')}}">
+<link rel="stylesheet" href="{{ versioned_asset('frontend/css/blogs.css') }}">
 @endsection
 @section('content')
 <!-- herosec -->
@@ -92,7 +92,8 @@
 <div class="container rounded-3 blog-content">
     <div class="row"> 
         <div class="col-lg-8 col-12 customPosition">
-            <img src="{{url('storage/' . $blogs->featured_image)}}" width="100%" alt="360propguide" class="rounded-3" loading="lazy">
+            <img src="{{url('storage/' . $blogs->featured_image)}}" width="1200" height="800"
+                alt="{{ $blogs->title }}" class="rounded-3" fetchpriority="high" decoding="async">
 
             <div class="d-flex flex-column gap-2 mt-3">				
                 <div id="toc">
@@ -136,7 +137,8 @@
 				<div class="author-wrapper">
 					
 					<div class="author-img">
-						<img src="{{ url('frontend/user.jpeg') }}" alt="Author" loading="lazy">
+						<img src="{{ versioned_asset('frontend/user.jpeg') }}" alt="Author" loading="lazy" decoding="async"
+                            width="96" height="96">
 					</div>
 
 					<div class="author-content">
@@ -167,7 +169,7 @@
             <a class="row my-3" href="{{route('blogs.details', $recommended->slug) }}">
               <div class="col-5 mb-2">
                         <img src="{{url('storage/' . $recommended->featured_image)}}" alt="{{$recommended->title}}"
-                                        class="w-100 object-fit-cover">
+                            class="w-100 object-fit-cover" loading="lazy" decoding="async" width="320" height="180">
                     </div>
                     <div class="col-7">
                       <p>{{ $recommended->title }}.</p>
