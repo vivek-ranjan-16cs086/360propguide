@@ -4,7 +4,7 @@
 @section('description', "Explore Buy Ability Calculator to check your property buying ability instantly. Estimate budget, loan eligibility, EMI capacity, and plan smarter real estate decisions.")
 @section('canonical', url()->current())
 @section('customCSS')
-<link rel="stylesheet" href="{{url('frontend/css/tools/ability.css')}}">
+<link rel="stylesheet" href="{{ versioned_asset('frontend/css/tools/ability.css') }}">
 @endsection
 @section('content')
 <section class="ability py-5">

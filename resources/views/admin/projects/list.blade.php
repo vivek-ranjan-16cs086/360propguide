@@ -1,7 +1,9 @@
 @extends('admin.app')
+@section('usesDataTables', 'true')
+@section('usesDateRangePicker', 'true')
 @section('title', $title)
 @section('customCss')
-<link rel="stylesheet" href="{{url('assets/customs/css/career.css')}}">
+<link rel="stylesheet" href="{{ versioned_asset('assets/customs/css/career.css') }}">
 @endsection
 
 @section('content')
@@ -150,8 +152,6 @@
     }
 </script>
 @endsection
-
-
 
 
 

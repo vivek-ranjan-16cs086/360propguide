@@ -1,9 +1,10 @@
 @extends('admin.app')
+@section('usesSummernote', 'true')
 
 @section('title', $title)
 
 @section('customCss')
-	<link rel="stylesheet" href="{{url('assets/customs/css/career.css')}}">
+	<link rel="stylesheet" href="{{ versioned_asset('assets/customs/css/career.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.20/summernote-bs5.min.css">
 @endsection
 

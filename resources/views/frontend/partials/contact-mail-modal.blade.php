@@ -8,7 +8,8 @@
         <div class="modal-content">
 
             <div class="modal-header border-0">
-                            <img src="{{ asset('frontend/360logo.png') }}" alt="360propguide" class="w-50 mx-auto">
+                            <img src="{{ versioned_asset('frontend/360logo.webp') }}" alt="360propguide"
+                                class="w-50 mx-auto" width="240" height="96" loading="lazy" decoding="async">
 
                             <button type="button" class="btn-close align-self-start ms-0 shadow-none"
                                 data-bs-dismiss="modal" aria-label="Close"></button>

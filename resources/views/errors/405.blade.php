@@ -8,7 +8,7 @@ estate industry experience.")
 
 @section('canonical', url()->current())
 @section('customCSS')
-<link rel="stylesheet" href="{{url('frontend/css/405.css')}}" />
+<link rel="stylesheet" href="{{ versioned_asset('frontend/css/405.css') }}" />
 @endSection
 
 @section('content')
