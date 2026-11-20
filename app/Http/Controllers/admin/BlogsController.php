@@ -293,6 +293,7 @@ class BlogsController extends Controller
             'slug' => 'required',
 			'short_description' => 'required|string',
 			'seo_data' => 'required',
+			'schema_markup' => 'nullable|json|max:100000',
 			'featured_image' => 'required',
 			'faqs_data' => 'required'
         ]);
@@ -312,6 +313,7 @@ class BlogsController extends Controller
 		$blog->user_id = Auth::user()->id;
 		$blog->short_description = $request->short_description;
 		$blog->seo_data = json_encode($request->seo_data);
+		$blog->schema_markup = $request->input('schema_markup');
 		$blog->slug = $request->slug;
 		$blog->faqs_data = $totalFaqData;
 		$blog->description = $request->description;
@@ -345,6 +347,7 @@ class BlogsController extends Controller
             'slug' => 'required',
             'short_description' => 'required|string',
             'seo_data' => 'required',
+            'schema_markup' => 'nullable|json|max:100000',
             'featured_image' => 'required',
             'faqs_data' => 'required'
         ]);
@@ -364,6 +367,7 @@ class BlogsController extends Controller
         $blog->user_id = Auth::id();
         $blog->short_description = $request->short_description;
         $blog->seo_data = json_encode($request->seo_data);
+        $blog->schema_markup = $request->input('schema_markup');
         $blog->slug = $request->slug;
         $blog->description = $request->description;
         $blog->faqs_data = json_encode($faqData);
@@ -421,6 +425,7 @@ class BlogsController extends Controller
             'description' => 'required',
 			'short_description' => 'required|string',
 			'seo_data' => 'required',
+			'schema_markup' => 'nullable|json|max:100000',
 			'featured_image' => 'nullable|image|mimes:webp',
         ]);
 
@@ -431,6 +436,7 @@ class BlogsController extends Controller
 		$blog->slug = $request->slug;
 		$blog->short_description = $request->short_description;
 		$blog->seo_data = json_encode($request->seo_data); 
+		$blog->schema_markup = $request->input('schema_markup');
 		$blog->description = $request->description;
 		$blog->status = isset($request->status) ? true : false;
 		if($request->hasFile('featured_image')){

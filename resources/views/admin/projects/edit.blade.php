@@ -37,6 +37,20 @@
                                         name="project_name" required>
                                 </div>
                                 <div class="col-sm-12 col-lg-6 mb-4">
+                                    <label for="slug">Project Slug</label>
+                                    <input
+                                        class="form-control input @error('slug') is-invalid @enderror"
+                                        type="text"
+                                        id="slug"
+                                        name="slug"
+                                        placeholder="Enter project slug"
+                                        value="{{ old('slug', $projects->slug) }}"
+                                    >
+                                    @error('slug')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="col-sm-12 col-lg-6 mb-4">
                                     <label for="title">Rera Number</label>
                                     <input class="form-control input @error('rera_no') is-invalid @enderror "
                                         type="text" placeholder="Enter Rera Number"
@@ -558,6 +572,12 @@
                                         type="text" placeholder="Enter Canonical Link"
                                         value="{{@old('seo_data[canonical_link]') ? @old('seo_data[canonical_link]') : @$projects->seo_data['canonical_link']}}"
                                         name="seo_data[canonical_link]">
+                                </div>
+                                <div class="col-12 mb-3">
+                                    <label for="schema_markup">Page Schema (JSON-LD)</label>
+                                    <textarea id="schema_markup" name="schema_markup" rows="10" class="form-control @error('schema_markup') is-invalid @enderror" placeholder='Paste valid JSON-LD'>{{ old('schema_markup', $projects->schema_markup) }}</textarea>
+                                    <small class="text-muted">Valid JSON-LD is output on this project page. Leave blank to use the default schema.</small>
+                                    @error('schema_markup')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
                                 <div class="col-12 mt-5">
                                     <h5>

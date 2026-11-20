@@ -11,6 +11,9 @@
   @if(!empty($faqSchema))
     <script type="application/ld+json">{!! $faqSchema !!}</script>
   @endif
+@if(!empty($blogs->schema_markup))
+<script type="application/ld+json">{!! json_encode(json_decode($blogs->schema_markup), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) !!}</script>
+@else
 <script type="application/ld+json">
 {!! json_encode([
     "@context" => "https://schema.org",
@@ -38,6 +41,7 @@
     "dateModified" => $blogs->updated_at->toDateString(),
 ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) !!}
 </script>
+@endif
 @endpush
 
 @section('customCSS')
