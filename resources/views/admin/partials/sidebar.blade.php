@@ -27,6 +27,7 @@
             <li><a href="{{ route('properties.index') }}"><i class="fa fa-home red_color2"></i> <span>Properties</span></a></li>
             <li><a href="{{route('queries.index')}}"><i class="fa fa-bar-chart-o green_color"></i> <span>Queries</span></a></li> 
             <li><a href="{{route('custom-links.index')}}"><i class="fa fa-cog yellow_color"></i> <span>Custom Links</span></a></li>
+            <li><a href="{{ route('redirects.index') }}"><i class="fa fa-share yellow_color"></i> <span>Redirects</span></a></li>
 			<li><a href="{{ route('developers.index') }}"><i class="fa fa-code yellow_color"></i><span>Developers</span></a></li>
 			<li><a href="{{ route('locations.index') }}"><i class="fa-solid fa-location-dot yellow_color"></i><span>Locations</span></a></li>
         </ul>
