@@ -335,15 +335,6 @@ class FrontendPageController extends Controller
 			abort(404);
 		}
 
-		if (preg_match('/^(\d+-bhk-)?projects-in-(.+)$/', $slug, $matches)) {
-			return redirect('/' . ($matches[1] ?? '') . 'flats-in-' . $matches[2], 301);
-		}
-
-		if (str_contains($slug, 'central-noida')) {
-			$newSlug = str_replace('central-noida', 'noida', $slug);
-			return redirect('/' . $newSlug, 301);
-		}
-
 		$url = $slug;
 
 		$link = CustomLink::where('slug', $url)->first();
