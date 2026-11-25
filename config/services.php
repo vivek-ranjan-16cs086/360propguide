@@ -41,6 +41,19 @@ return [
 
 'facebook' => [
     'verify_token' => env('FACEBOOK_VERIFY_TOKEN'),
+    'version' => env('FACEBOOK_GRAPH_VERSION', env('META_GRAPH_VERSION', 'v26.0')),
+    'pages' => array_filter([
+        env('FACEBOOK_360_PAGE_ID', env('META_PAGE_ID')) => [
+            'access_token' => env('FACEBOOK_360_PAGE_TOKEN', env('META_PAGE_ACCESS_TOKEN')),
+            'brand' => '360 PropGuide',
+        ],
+        env('FACEBOOK_TWS_PAGE_ID') => [
+            'access_token' => env('FACEBOOK_TWS_PAGE_TOKEN'),
+            'brand' => 'The Wooden Strings',
+        ],
+    ], static function ($page, $pageId) {
+        return is_scalar($pageId) && (string) $pageId !== '';
+    }, ARRAY_FILTER_USE_BOTH),
 ],
 
 'meta' => [

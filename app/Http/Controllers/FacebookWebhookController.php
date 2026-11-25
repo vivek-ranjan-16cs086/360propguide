@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Lead;
+use App\Services\FacebookLeadErpSync;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -69,12 +70,11 @@ class FacebookWebhookController extends Controller
                         continue;
                     }
 
-                    // Preserve the existing Page restriction.
-                    $configuredPageId = config('services.meta.page_id');
-                    if ($configuredPageId && isset($value['page_id'])
-                        && (string) $value['page_id'] !== (string) $configuredPageId) {
-                        Log::warning('Lead received from unexpected Page', [
-                            'page_id' => $value['page_id'],
+                    $pageId = $value['page_id'] ?? $entry['id'] ?? null;
+                    $pageConfig = $this->pageConfig($pageId);
+                    if ($pageConfig === null) {
+                        Log::warning('Lead received from an unconfigured Facebook Page', [
+                            'page_id' => $pageId,
                         ]);
                         continue;
                     }
@@ -89,7 +89,7 @@ class FacebookWebhookController extends Controller
                         continue;
                     }
 
-                    $this->fetchAndSaveLead((string) $leadId, $value);
+                    $this->fetchAndSaveLead((string) $leadId, $value, $pageConfig);
                 }
             }
 
@@ -105,16 +105,33 @@ class FacebookWebhookController extends Controller
     }
 
     /** Fetch actual lead details from Meta and save to database. */
-    private function fetchAndSaveLead(string $leadId, array $meta): void
-    {
+    public function importHistoricalLead(
+        string $leadId,
+        string $pageId,
+        string $formId,
+        array $pageConfig,
+        array $leadData
+    ): void {
+        $this->fetchAndSaveLead($leadId, [
+            'page_id' => $pageId,
+            'form_id' => $formId,
+        ], $pageConfig, $leadData);
+    }
+
+    private function fetchAndSaveLead(
+        string $leadId,
+        array $meta,
+        array $pageConfig,
+        ?array $knownLead = null
+    ): void {
         try {
-            $version = config('services.meta.graph_version', 'v26.0');
-            $pageAccessToken = config('services.meta.page_access_token');
+            $version = config('services.facebook.version', config('services.meta.graph_version', 'v26.0'));
+            $pageAccessToken = $pageConfig['access_token'] ?? null;
 
             // The leadgen webhook ID is enough to create a minimal ERP record.
             // A failed/unavailable lead-detail API must not prevent insertion.
-            $lead = [];
-            if ($pageAccessToken) {
+            $lead = $knownLead ?? [];
+            if ($knownLead === null && $pageAccessToken) {
                 try {
                     $response = Http::withToken($pageAccessToken)
                         ->timeout(15)
@@ -142,7 +159,7 @@ class FacebookWebhookController extends Controller
                         'message' => $apiError->getMessage(),
                     ]);
                 }
-            } else {
+            } elseif ($knownLead === null) {
                 Log::warning('Page access token missing: storing minimal ERP lead', [
                     'lead_id' => $leadId,
                 ]);
@@ -150,9 +167,11 @@ class FacebookWebhookController extends Controller
 
             // Additional metadata lookup is best-effort and cannot prevent saving.
             $pageId = $meta['page_id'] ?? null;
+            $brand = $pageConfig['brand'] ?? null;
             $formId = $lead['form_id'] ?? $meta['form_id'] ?? null;
-            $pageName = $this->getMetaObjectName($pageId, $pageAccessToken);
-            $formName = $this->getMetaObjectName($formId, $pageAccessToken);
+            $pageName = $this->getMetaObjectName($pageId, $pageAccessToken) ?: $brand;
+            $formName = $this->getMetaObjectName($formId, $pageAccessToken)
+                ?: ($meta['form_name'] ?? null);
 
             // A separate Ads token is optional. It may be required for Ads API access.
             $adsAccessToken = config('services.meta.ads_access_token') ?: $pageAccessToken;
@@ -248,6 +267,7 @@ class FacebookWebhookController extends Controller
                             'lead_id' => $lead['id'] ?? $leadId,
                             'page_id' => $pageId,
                             'page_name' => $pageName,
+                            'brand' => $brand,
                             'form_id' => $formId,
                             'form_name' => $formName,
                             'ad_id' => $adId,
@@ -293,6 +313,34 @@ class FacebookWebhookController extends Controller
             ]);
             throw $e;
         }
+
+    }
+
+    private function pageConfig($pageId): ?array
+    {
+        $pages = (array) config('services.facebook.pages', []);
+        if ($pageId !== null && isset($pages[(string) $pageId])) {
+            return $pages[(string) $pageId];
+        }
+
+        $legacyPageId = config('services.meta.page_id');
+        if ($pageId !== null && $legacyPageId !== null
+            && (string) $pageId === (string) $legacyPageId) {
+            return [
+                'access_token' => config('services.meta.page_access_token'),
+                'brand' => null,
+            ];
+        }
+
+        // Keep the old single-page setup working when no page IDs were configured.
+        if ($pages === []) {
+            return [
+                'access_token' => config('services.meta.page_access_token'),
+                'brand' => null,
+            ];
+        }
+
+        return null;
     }
 
     /** Normalize optional scalar fields to database NULL. */
@@ -315,7 +363,7 @@ class FacebookWebhookController extends Controller
         }
 
         try {
-            $version = config('services.meta.graph_version', 'v26.0');
+            $version = config('services.facebook.version', config('services.meta.graph_version', 'v26.0'));
             $response = Http::withToken($accessToken)
                 ->timeout(10)
                 ->retry(2, 500, null, false)
