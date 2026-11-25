@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Lead;
 use App\Services\FacebookLeadErpSync;
 use Illuminate\Http\Client\Request as ClientRequest;
 use Illuminate\Support\Facades\DB;
@@ -218,5 +219,53 @@ class FacebookWebhookPageConfigTest extends TestCase
             'facebook_page_id' => '126691377202158',
         ]);
         $this->assertDatabaseCount('leads', 3);
+    }
+
+    public function test_erp_payload_sends_brand_separately_without_changing_form_page_name(): void
+    {
+        Schema::create('facebook_lead_erp_outbox', function ($table) {
+            $table->id();
+            $table->string('facebook_lead_id')->unique();
+            $table->json('payload');
+            $table->unsignedInteger('attempts')->default(0);
+            $table->text('last_error')->nullable();
+            $table->timestamp('synced_at')->nullable();
+            $table->timestamps();
+        });
+
+        config([
+            'services.erp.url' => 'https://erp.example',
+            'services.erp.key' => 'test-erp-key',
+        ]);
+        Http::fake(['*' => Http::response(['status' => true], 200)]);
+
+        $lead = Lead::create([
+            'facebook_lead_id' => '1234567890123456',
+            'facebook_page_id' => '126691377202158',
+            'facebook_form_id' => 'form-200',
+            'facebook_form_name' => 'TWS Instant Form',
+            'name' => 'Wooden Strings Customer',
+            'phone' => '9876543210',
+            'source' => 'facebook',
+            'raw_data' => [
+                'facebook' => [
+                    'brand' => 'The Wooden Strings',
+                    'form_name' => 'TWS Instant Form',
+                ],
+                'fields' => [
+                    'where_is_your_property_located?' => 'Pune',
+                ],
+            ],
+        ]);
+
+        app(FacebookLeadErpSync::class)->queueAndSync($lead);
+
+        Http::assertSent(function (ClientRequest $request) {
+            return $request->url() === 'https://erp.example/api/v1/leads/store'
+                && $request['meta_app_name'] === 'The Wooden Strings'
+                && $request['source_page_name'] === 'TWS Instant Form'
+                && strpos($request['message'], 'Brand:') === false
+                && strpos($request['message'], 'Form: TWS Instant Form') !== false;
+        });
     }
 }

@@ -194,7 +194,6 @@ class FacebookLeadErpSync
         $formName = $lead->facebook_form_name ?: ($facebook['form_name'] ?? null);
 
         foreach ([
-            'Brand' => $facebook['brand'] ?? null,
             'Form' => $formName,
             'Ad' => $lead->facebook_ad_name ?: ($facebook['ad_name'] ?? null),
             'Campaign' => $lead->facebook_campaign_name ?: ($facebook['campaign_name'] ?? null),
@@ -227,6 +226,7 @@ class FacebookLeadErpSync
             'project_name' => null,
             'source_page_name' => $formName ?: ($lead->facebook_page_name
                 ?: ($facebook['page_name'] ?? 'Facebook Lead Ads')),
+            'meta_app_name' => $facebook['brand'] ?? null,
             'source_url' => null,
             'message' => implode(' | ', $messageParts),
         ];
