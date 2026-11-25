@@ -4,7 +4,7 @@
         <div class="full">
             <button type="button" id="sidebarCollapse" class="sidebar_toggle"><i class="fa fa-bars"></i></button>
             <div class="logo_section">
-                <a href="{{route('dashboard')}}"><img class="img-responsive" src="{{url('frontend/logo360.webp')}}"
+                <a href="{{route('dashboard')}}"><img class="img-responsive" src="{{versioned_asset('frontend/logo360.webp')}}"
                         alt="#" /></a>
             </div>
             <div class="right_topbar">

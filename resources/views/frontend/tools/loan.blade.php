@@ -5,7 +5,7 @@
 @section('keywords', "Real Estate Services")
 @section('canonical', url()->current())
 @section('customCSS')
-<link rel="stylesheet" href="{{url('frontend/css/tools/loan.css')}}">
+<link rel="stylesheet" href="{{ versioned_asset('frontend/css/tools/loan.css') }}">
 @endsection
 @section('content')
 <section class="p-4">
@@ -125,7 +125,7 @@
 @endsection
 
 @section('customJS')
-<script src="{{ asset('frontend/libraries/chart.umd.min.js') }}"></script>
+<script src="{{ versioned_asset('frontend/libraries/chart.umd.min.js') }}"></script>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
 

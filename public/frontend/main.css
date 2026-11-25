@@ -1,26 +1,8 @@
 :root {
     --orangeColor: #f05736;
     --blueColor: #1b3f63;
-    --bs-primary-rgb: 27, 63, 99;
-    --primary: #1b3f63;
-    --secondary: #1b3f63de;
-    --tertiary: #ff0000;
-    --textColor: #181b1e;
-    --bordRad: 5px;
-    --customLight: #ecececcc;
-    --transition: 0.5s all ease-in-out;
 
-    --xsFontSize: 12px;
-    --smFontSize: 13px;
-    --mdFontSize: 15px;
-    --lgFontSize: 17px;
-    --xlFontSize: 19px;
-    --xxlFontSize: 21px;
-    font-size: 14px;
-	
-	
-	
-	 --navy-950: #0a192f;
+    --navy-950: #0a192f;
     --navy-900: #0f263d;
     --navy-850: #14324f;
     --navy-800: #1b3f63;

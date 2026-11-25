@@ -6,7 +6,7 @@
 @section('canonical', url()->current())
 
 @section('customCSS')
-<link rel="stylesheet" href="{{url('frontend/css/blogs.css')}}">
+<link rel="stylesheet" href="{{ versioned_asset('frontend/css/blogs.css') }}">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -51,7 +51,8 @@
 
                 <div class="row top-blog">
                     <img src="{{url('storage/' . $latestBlog->featured_image)}}"
-                        alt="blog" class="w-75 mx-auto">
+                        alt="{{ $latestBlog->title }}" class="w-75 mx-auto"
+                        width="1200" height="800" fetchpriority="high" decoding="async">
                 </div>
 <a href="{{ route('blogs.details', $latestBlog->slug) }}" style="text-decoration:none;">
                 <div class="row pt-5 top-blog-content mx-auto shadow-lg">
@@ -87,7 +88,8 @@
                         <div class="row shadow-lg">
                             <div class="col-md-4 ps-md-0">
                                 <img src="{{ url('storage/' . $blog->featured_image) }}" class="w-100 h-100"
-                                    alt="{{ $blog->title }}">
+                                    alt="{{ $blog->title }}" loading="lazy" decoding="async"
+                                    width="640" height="480">
                             </div>
                             <div class="col-md-8 d-flex justify-content-center flex-column">
                                 <p class="author ">Shakti Singh</p>
@@ -144,7 +146,8 @@
                     <a class="row my-4" href="{{ route('blogs.details', $blog->slug) }}">
                         <div class="col-5 mb-2">
                             <img src="{{ url('storage/' . $blog->featured_image) }}"
-                                alt="{{ $blog->title }}" class="w-100 object-fit-cover">
+                                alt="{{ $blog->title }}" class="w-100 object-fit-cover"
+                                loading="lazy" decoding="async" width="320" height="180">
                         </div>
                         <div class="col-7">
                             <p>{{ $blog->title }}.</p>

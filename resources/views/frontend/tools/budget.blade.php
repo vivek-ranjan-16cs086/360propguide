@@ -3,7 +3,7 @@
 @section('description',"Use our Home Budget Calculator to plan your property investment smartly. Estimate affordability, EMI, loan needs, and budget for homes across Delhi NCR.")
 @section('canonical', url()->current())
 @section('customCSS')
-<link rel="stylesheet" href="{{url('frontend/css/tools/budget.css')}}">
+<link rel="stylesheet" href="{{ versioned_asset('frontend/css/tools/budget.css') }}">
 @endsection
 
 @section('content')
@@ -140,7 +140,7 @@
 @endsection
 
 @section('customJS')
-<script src="{{ asset('frontend/libraries/chart.umd.min.js') }}"></script>
+<script src="{{ versioned_asset('frontend/libraries/chart.umd.min.js') }}"></script>
 <script>
   document.addEventListener('DOMContentLoaded', () => {
 

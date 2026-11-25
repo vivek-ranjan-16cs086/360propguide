@@ -1,9 +1,11 @@
 @extends('admin.app')
+@section('usesSelect2', 'true')
+@section('usesSummernote', 'true')
 
 @section('title', $title)
 
 @section('customCss')
-<link rel="stylesheet" href="{{url('assets/customs/css/career.css')}}">
+<link rel="stylesheet" href="{{ versioned_asset('assets/customs/css/career.css') }}">
 @endsection
 
 @section('content')
@@ -33,6 +35,20 @@
                                         type="text" placeholder="Enter Project Name"
                                         value="{{old('project_name') ? old('project_name') : @$projects->project_name}}"
                                         name="project_name" required>
+                                </div>
+                                <div class="col-sm-12 col-lg-6 mb-4">
+                                    <label for="slug">Project Slug</label>
+                                    <input
+                                        class="form-control input @error('slug') is-invalid @enderror"
+                                        type="text"
+                                        id="slug"
+                                        name="slug"
+                                        placeholder="Enter project slug"
+                                        value="{{ old('slug', $projects->slug) }}"
+                                    >
+                                    @error('slug')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
                                 </div>
                                 <div class="col-sm-12 col-lg-6 mb-4">
                                     <label for="title">Rera Number</label>
@@ -556,6 +572,12 @@
                                         type="text" placeholder="Enter Canonical Link"
                                         value="{{@old('seo_data[canonical_link]') ? @old('seo_data[canonical_link]') : @$projects->seo_data['canonical_link']}}"
                                         name="seo_data[canonical_link]">
+                                </div>
+                                <div class="col-12 mb-3">
+                                    <label for="schema_markup">Page Schema (JSON-LD)</label>
+                                    <textarea id="schema_markup" name="schema_markup" rows="10" class="form-control @error('schema_markup') is-invalid @enderror" placeholder='Paste valid JSON-LD'>{{ old('schema_markup', $projects->schema_markup) }}</textarea>
+                                    <small class="text-muted">Valid JSON-LD is output on this project page. Leave blank to use the default schema.</small>
+                                    @error('schema_markup')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
                                 <div class="col-12 mt-5">
                                     <h5>

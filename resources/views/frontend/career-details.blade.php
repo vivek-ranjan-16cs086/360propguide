@@ -1,7 +1,7 @@
 @extends('frontend.layouts.app')
 
 @section('customCSS')
-<link rel="stylesheet" href="{{asset('frontend/css/career-detail.css')}}">
+<link rel="stylesheet" href="{{ versioned_asset('frontend/css/career-detail.css') }}">
 @endSection
 @section('content')
 <!-- Carrer-listing section -->

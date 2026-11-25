@@ -473,16 +473,6 @@ class FrontendPageController extends Controller
 
 	public function showFilteredProjects(Request $request, $slug)
 	{
-		if (str_contains($slug, 'projects-in')) {
-			$newSlug = str_replace('projects-in', 'flats-in', $slug);
-			return redirect('/' . $newSlug, 301);
-		}
-
-		if (str_contains($slug, 'central-noida')) {
-			$newSlug = str_replace('central-noida', 'noida', $slug);
-			return redirect('/' . $newSlug, 301);
-		}
-
 		$url = $slug;
 
 		$link = CustomLink::where('slug', $url)->first();

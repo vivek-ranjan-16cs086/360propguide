@@ -24,6 +24,7 @@ use App\Http\Controllers\admin\LocationController;
 use App\Http\Controllers\admin\SettingsController;
 use App\Http\Controllers\admin\QueryController;
 use App\Http\Controllers\admin\CustomLinkController;
+use App\Http\Controllers\admin\RedirectController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\admin\PropertiesController;
 use App\Http\Controllers\NotificationController;
@@ -278,6 +279,16 @@ Route::prefix('7439')->middleware(['auth', 'admin:1', 'session.version', 'Preven
         Route::get('status/{id}', [CustomLinkController::class, 'toggleStatus'])->name('custom-links.status');
         Route::post('store', [CustomLinkController::class, 'store'])->name('custom-links.store');
         Route::post('update/{id}', [CustomLinkController::class, 'update'])->name('custom-links.update');
+    });
+
+    // URL redirects
+    Route::prefix('redirects')->group(function () {
+        Route::get('/', [RedirectController::class, 'index'])->name('redirects.index');
+        Route::get('add', [RedirectController::class, 'create'])->name('redirects.create');
+        Route::post('/', [RedirectController::class, 'store'])->name('redirects.store');
+        Route::get('{redirect}/edit', [RedirectController::class, 'edit'])->name('redirects.edit');
+        Route::put('{redirect}', [RedirectController::class, 'update'])->name('redirects.update');
+        Route::delete('{redirect}', [RedirectController::class, 'destroy'])->name('redirects.destroy');
     });
 });
 

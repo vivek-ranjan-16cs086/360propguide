@@ -1,9 +1,10 @@
 @extends('admin.app')
+@section('usesSummernote', 'true')
 
 @section('title', $title)
 
 @section('customCss')
-<link rel="stylesheet" href="{{url('assets/customs/css/career.css')}}">
+<link rel="stylesheet" href="{{ versioned_asset('assets/customs/css/career.css') }}">
 @endsection
 
 @section('content')
@@ -85,6 +86,12 @@
 
 
 
+								<div class="col-12 mb-3">
+									<label for="schema_markup">Page Schema (JSON-LD)</label>
+									<textarea id="schema_markup" name="schema_markup" rows="10" class="form-control @error('schema_markup') is-invalid @enderror" placeholder='Paste valid JSON-LD'>{{ old('schema_markup', $blog->schema_markup) }}</textarea>
+									<small class="text-muted">Valid JSON-LD is output on this blog page. Leave blank to use the default schema.</small>
+									@error('schema_markup')<div class="invalid-feedback">{{ $message }}</div>@enderror
+								</div>
                                 <div class="col-sm-12 col-lg-6 mt-3">
                                     <div class="form-group">
                                         <label for="description">Description:</label>

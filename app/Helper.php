@@ -38,6 +38,35 @@
         }
     }
 
+    if (!function_exists('versioned_asset')) {
+        function versioned_asset(string $path): string
+        {
+            $path = ltrim($path, '/');
+            $filePath = public_path($path);
+
+            if (!preg_match('/\.min\.(?:css|js)$/i', $path)
+                && preg_match('/\.(?:css|js)$/i', $path)) {
+                $minifiedPath = preg_replace('/\.(css|js)$/i', '.min.$1', $path);
+                $minifiedFilePath = public_path($minifiedPath);
+
+                if (is_file($minifiedFilePath)) {
+                    $path = $minifiedPath;
+                    $filePath = $minifiedFilePath;
+                }
+            }
+
+            $url = asset($path);
+
+            if (!is_file($filePath)) {
+                return $url;
+            }
+
+            $separator = str_contains($url, '?') ? '&' : '?';
+
+            return $url . $separator . 'v=' . filemtime($filePath);
+        }
+    }
+
     if (!function_exists('storageFileCandidates')) {
         function storageFileCandidates(string $path): array
         {

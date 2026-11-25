@@ -4,7 +4,8 @@
     <a href="{{ route('projects.details', $project) }}" style="text-decoration:none;">
         <div class="pb-4 customborder border">
             <div>
-                <img src="{{url( $project->logo_image)}}" class="w-100" alt="{{$project->project_name}} 360 PropGuide">
+                <img src="{{url( $project->logo_image)}}" class="w-100" alt="{{$project->project_name}} 360 PropGuide"
+                    loading="lazy" decoding="async" width="640" height="480">
             </div>
             <h3 class="ms-3 mt-3 h5">{{$project->project_name}}</h3>
             @php
