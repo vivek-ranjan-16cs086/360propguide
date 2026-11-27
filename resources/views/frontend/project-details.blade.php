@@ -1267,8 +1267,7 @@
                                     @endphp
                                     <div class="swiper-slide flex-column">
                                         <img class="floor-plan-image" alt="{{ $projects->project_name }}"
-                                            src="{{ $floorPlanImageUrl }}" loading="lazy" decoding="async"
-                                            width="1200" height="800" />
+                                            src="{{ $floorPlanImageUrl }}" loading="lazy" decoding="async" />
                                         <div class="row m-0 w-100 align-items-center">
                                             @if (@$floorPlan['super_area'] != 0)
                                             <div class="col-md-3 col-6">
