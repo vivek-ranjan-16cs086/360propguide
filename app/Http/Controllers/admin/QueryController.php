@@ -4,7 +4,10 @@ namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Database\Eloquent\Builder;
 use App\Models\Query;
+use App\Models\Location;
+use App\Models\Project;
 use Mail;
 use App\Mail\ReplyMail;
 use Illuminate\Support\Facades\Validator;
@@ -19,6 +22,10 @@ class QueryController extends Controller
     public function index()
     {
         $title = 'Query List';
+		$locations = Location::active()
+			->with('parent:id,city')
+			->orderBy('city')
+			->get(['id', 'city', 'parent_id']);
 		$breadcrumbs = [
 			'dashboard' => 'Dashboard',
 			'queries.index' => 'Queries',
@@ -27,12 +34,15 @@ class QueryController extends Controller
 
 		$breadcrumbHtml = view('admin.partials.breadcrumbs', compact('breadcrumbs','title'))->render();
 		
-        return view('admin.queries.list',compact('title','breadcrumbHtml'));
+        return view('admin.queries.list',compact('title','breadcrumbHtml','locations'));
     }
 
 	public function ajaxList(Request $request)
 	{
 		header('Content-Type: application/json; charset=utf-8');
+		$request->validate([
+			'location_id' => 'nullable|integer|exists:locations,id',
+		]);
 
 		$draw = $request->get('draw');
 		$start = $request->get("start");
@@ -51,7 +61,7 @@ class QueryController extends Controller
 
 		$totalRecords = Query::count();
 
-		$totalRecordswithFilter = Query::when(!empty($searchValue), function ($query) use ($searchValue) {
+		$filteredQueries = Query::when(!empty($searchValue), function ($query) use ($searchValue) {
 			$query->where(function ($q) use ($searchValue) {
 				$q->where('name', 'like', '%' . $searchValue . '%')
 				  ->orWhere('email', 'like', '%' . $searchValue . '%')
@@ -60,18 +70,14 @@ class QueryController extends Controller
 				  ->orWhere('created_at', 'like', '%' . $searchValue . '%')
 				  ->orWhere('submittedVia', 'like', '%' . $searchValue . '%'); 
 			});
-		})->count();
+		});
 
-		$records = Query::when(!empty($searchValue), function ($query) use ($searchValue) {
-			$query->where(function ($q) use ($searchValue) {
-				$q->where('name', 'like', '%' . $searchValue . '%')
-				  ->orWhere('email', 'like', '%' . $searchValue . '%')
-				  ->orWhere('mobile', 'like', '%' . $searchValue . '%')
-				  ->orWhere('message', 'like', '%' . $searchValue . '%')
-				  ->orWhere('created_at', 'like', '%' . $searchValue . '%')
-				  ->orWhere('submittedVia', 'like', '%' . $searchValue . '%'); 
-			});
-		})
+		if ($request->filled('location_id')) {
+			$this->applyLocationFilter($filteredQueries, (int) $request->input('location_id'));
+		}
+
+		$totalRecordswithFilter = (clone $filteredQueries)->count();
+		$records = $filteredQueries
 		->orderBy($columnName, $columnSortOrder)
 		->skip($start)
 		->take($rowperpage)
@@ -106,6 +112,43 @@ class QueryController extends Controller
 		];
 
 		return response()->json($response);
+	}
+
+	private function applyLocationFilter(Builder $queries, int $locationId): void
+	{
+		$location = Location::active()
+			->with('children:id,city,parent_id')
+			->findOrFail($locationId);
+		$locationIds = collect([$location->id])
+			->merge($location->children->pluck('id'))
+			->unique()
+			->values();
+		$locationNames = Location::active()
+			->whereIn('id', $locationIds)
+			->pluck('city');
+		$projectSlugs = Project::query()
+			->where(function ($projectQuery) use ($locationIds, $locationNames) {
+				$projectQuery->whereIn('location_id', $locationIds)
+					->orWhereIn('sublocation_id', $locationIds)
+					->orWhereIn('cities', $locationNames);
+			})
+			->whereNotNull('slug')
+			->pluck('slug')
+			->filter()
+			->unique();
+
+		if ($projectSlugs->isEmpty()) {
+			$queries->whereRaw('1 = 0');
+			return;
+		}
+
+		$queries->where(function ($query) use ($projectSlugs) {
+			foreach ($projectSlugs as $slug) {
+				$query->orWhere('submittedVia', 'like', '%/' . $slug)
+					->orWhere('submittedVia', 'like', '%/' . $slug . '/%')
+					->orWhere('submittedVia', 'like', '%/' . $slug . '?%');
+			}
+		});
 	}
 
 	public function ajaxList1(Request $request){

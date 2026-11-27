@@ -9,6 +9,17 @@
 		{!! $breadcrumbHtml !!} 
 		<div class="card contentCard">
 			<div class="card-body table-responsive">
+				<div class="form-group">
+					<label for="location_filter">Filter by location</label>
+					<select id="location_filter" class="form-control" style="max-width: 320px;">
+						<option value="">All locations</option>
+						@foreach($locations as $location)
+							<option value="{{ $location->id }}">
+								{{ $location->parent ? $location->parent->city . ' - ' : '' }}{{ $location->city }}
+							</option>
+						@endforeach
+					</select>
+				</div>
 				<!--begin: Datatable -->
 				<table class="table table-striped table-bordered table_data dataex-html5-export dataTable no-footer" id="table_data" role="grid" aria-describedby="table_data_info">
 					
@@ -98,7 +109,12 @@
                 },
                 'colvis'
             ],
-            ajax: "{{route('queries.ajax-list')}}",
+            ajax: {
+                url: "{{route('queries.ajax-list')}}",
+                data: function (data) {
+                    data.location_id = $('#location_filter').val();
+                }
+            },
             
             columns: [
                 { data: 'id' },
@@ -116,6 +132,10 @@
             }
         });
     }
+
+    $('#location_filter').on('change', function () {
+        $('#table_data').DataTable().ajax.reload();
+    });
 </script>
 
 @endsection
