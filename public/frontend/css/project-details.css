@@ -150,6 +150,20 @@
     border-bottom: none;
 }
 
+.floorPlans .floorSwiper,
+.floorPlans .floorSwiper .swiper-slide {
+    height: auto;
+}
+
+.floorPlans .floor-plan-image {
+    display: block;
+    width: auto;
+    max-width: 100%;
+    height: auto;
+    max-height: calc(100vh - 240px);
+    object-fit: contain;
+}
+
 .project-section .h4,
 .project-section h2.h4,
 .project-section h3.h4 {

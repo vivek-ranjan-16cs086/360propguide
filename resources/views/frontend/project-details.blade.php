@@ -1266,7 +1266,7 @@
                                         : storageUrl($floorPlanImage);
                                     @endphp
                                     <div class="swiper-slide flex-column">
-                                        <img class="col-12 col-md-10 mx-auto" alt="{{ $projects->project_name }}"
+                                        <img class="floor-plan-image" alt="{{ $projects->project_name }}"
                                             src="{{ $floorPlanImageUrl }}" loading="lazy" decoding="async"
                                             width="1200" height="800" />
                                         <div class="row m-0 w-100 align-items-center">
